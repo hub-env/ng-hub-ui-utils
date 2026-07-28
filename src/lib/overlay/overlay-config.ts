@@ -29,4 +29,9 @@ export interface OverlayConfig {
 	 * Custom CSS classes for the overlay container.
 	 */
 	panelClass?: string | string[];
+	/**
+	 * Explicit z-index for the overlay container. When omitted, the layer is
+	 * resolved through the `--hub-overlay-zindex` token (fallback `1000`).
+	 */
+	zIndex?: number | string;
 }

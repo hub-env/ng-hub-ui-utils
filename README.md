@@ -122,6 +122,12 @@ export class ExampleComponent {
 }
 ```
 
+**Stacking (z-index).** `OverlayRef` resolves its inline z-index through the design-system tokens — `var(--hub-overlay-zindex, 1000)` for the container and `var(--hub-overlay-backdrop-zindex, 999)` for the backdrop — so re-stacking an overlay (e.g. a dropdown above a modal) is a plain CSS override, no `!important` needed. For a single instance, pass an explicit layer instead:
+
+```typescript
+this.overlayService.create({ zIndex: 1100 }); // OverlayConfig.zIndex: number | string — takes precedence over the token
+```
+
 ### 🎯 Popup Service (Base Class)
 
 Base service for creating custom popup implementations.

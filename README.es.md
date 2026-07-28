@@ -121,6 +121,12 @@ export class ExampleComponent {
 }
 ```
 
+**Apilamiento (z-index).** `OverlayRef` resuelve su z-index inline a través de los tokens del design-system — `var(--hub-overlay-zindex, 1000)` para el contenedor y `var(--hub-overlay-backdrop-zindex, 999)` para el backdrop — así que reapilar un overlay (p. ej. un dropdown por encima de un modal) es un override CSS normal, sin `!important`. Para una instancia concreta, pasa una capa explícita:
+
+```typescript
+this.overlayService.create({ zIndex: 1100 }); // OverlayConfig.zIndex: number | string — tiene prioridad sobre el token
+```
+
 ### 🎯 Servicio Popup (Clase Base)
 
 Servicio base para crear implementaciones de popup personalizadas.

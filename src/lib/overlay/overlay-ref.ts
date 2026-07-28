@@ -213,7 +213,13 @@ export class OverlayRef {
 		}
 
 		this._containerElement.style.position = 'fixed';
-		this._containerElement.style.zIndex = '1000';
+		// Resolve the layer through the theme token so a consumer can re-stack the
+		// overlay (e.g. above a modal) without `!important`; the literal fallback
+		// keeps today's behavior when the overlay stylesheet is not imported.
+		this._containerElement.style.zIndex =
+			this._config.zIndex != null
+				? String(this._config.zIndex)
+				: 'var(--hub-overlay-zindex, 1000)';
 
 		document.body.appendChild(this._containerElement);
 	}
@@ -238,7 +244,7 @@ export class OverlayRef {
 		this._backdropElement.style.left = '0';
 		this._backdropElement.style.width = '100%';
 		this._backdropElement.style.height = '100%';
-		this._backdropElement.style.zIndex = '999';
+		this._backdropElement.style.zIndex = 'var(--hub-overlay-backdrop-zindex, 999)';
 
 		// Store reference to the handler for cleanup
 		this._backdropClickHandler = () => {
