@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.7.1] - 2026-07-27
+
+### Fixed
+
+- **`--hub-overlay-zindex` / `--hub-overlay-backdrop-zindex` actually work now.** `OverlayRef` wrote literal inline `z-index: 1000` / `999` on the container and backdrop — the very elements `styles/overlay.scss` themes through those tokens — so an inline declaration always beat the stylesheet and re-stacking the overlay (e.g. a dropdown above a modal) required `!important`. The inline styles now resolve the tokens themselves (`var(--hub-overlay-zindex, 1000)`), keeping the same defaults for apps that never import the overlay stylesheet.
+
+### Added
+
+- **`OverlayConfig.zIndex`** — optional explicit layer for a single overlay instance; when set it takes precedence over the token.
+
 ## [22.7.0] - 2026-07-07
 
 ### Added

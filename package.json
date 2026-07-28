@@ -1,6 +1,6 @@
 {
 	"name": "ng-hub-ui-utils",
-	"version": "22.7.0",
+	"version": "22.7.1",
 	"peerDependencies": {
 		"@angular/common": ">=18.0.0",
 		"@angular/core": ">=18.0.0"
