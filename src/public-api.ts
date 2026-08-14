@@ -6,6 +6,7 @@ export * from './lib/accent';
 export * from './lib/drag-drop';
 export * from './lib/focus-trap';
 export * from './lib/i18n/translation.provider';
+export * from './lib/i18n/translation-adapter';
 export * from './lib/i18n/translation.service';
 export * from './lib/i18n/translation.tokens';
 export * from './lib/overlay';

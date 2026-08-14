@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, OnDestroy, Pipe, PipeTransform, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { HubTranslationService } from '../i18n/translation.service';
+import { HUB_TRANSLATION_PREFIX } from '../i18n/translation.tokens';
 import { equals, interpolateString, isDefined } from '../util';
 
 @Pipe({
@@ -11,6 +12,7 @@ import { equals, interpolateString, isDefined } from '../util';
 export class TranslatePipe implements PipeTransform, OnDestroy {
 	private _ref = inject(ChangeDetectorRef);
 	private _translationSvc = inject(HubTranslationService);
+	private readonly prefix = inject(HUB_TRANSLATION_PREFIX, { optional: true });
 
 	value: string = '';
 	lastKey: string | null = null;
@@ -22,7 +24,9 @@ export class TranslatePipe implements PipeTransform, OnDestroy {
 	 * Updates the value of a key by interpolating the translation and marking for change detection.
 	 */
 	updateValue(key: string, interpolateParams?: Object): void {
-		const value = interpolateString(this._translationSvc.getTranslation(key), interpolateParams);
+		const scopedKey = this.prefix ? `${this.prefix}.${key}` : key;
+		const translated = this._translationSvc.getTranslation(scopedKey) ?? this._translationSvc.getTranslation(key);
+		const value = interpolateString(translated, interpolateParams);
 		this.value = value !== undefined ? value : key;
 		this.lastKey = key;
 		this._ref.markForCheck();

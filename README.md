@@ -482,6 +482,10 @@ The i18n system (available since `v1.2.0`) lets you register translation diction
 
 Environment provider helper that registers `HubTranslationService` and its configuration. Call it once in your application bootstrap providers.
 
+### `provideHubTranslationAdapter(factory)`
+
+Use this provider when the application owns translations through Transloco, ngx-translate or another reactive service. The factory runs once in Angular's injection context and returns an observable-like source of complete dictionaries. Every Hub UI library using `HubTranslationService` receives language changes without component-level subscriptions.
+
 ```typescript
 function provideHubTranslation(config?: HubTranslationConfig): EnvironmentProviders;
 ```
@@ -773,6 +777,15 @@ Recent highlights:
 
 - **1.2.1** — Renamed internal i18n files and refreshed `TranslatePipe`; added a test suite for `HubTranslationService`.
 - **1.2.0** — Added the i18n system (`HubTranslationService`, `provideHubTranslation`, `TranslatePipe`, translation tokens) plus the `equals`, `interpolateString` and `getValue` utilities.
+
+### External translation services
+
+`HubTranslationService` is intentionally framework-agnostic. Applications using Transloco or ngx-translate can extract a library namespace when the language changes and pass it to `setTranslations()`. Libraries such as Calendar, Stepper and Paginable consume that bridge; their README files document the namespace each expects.
+
+```typescript
+// Transloco: hubTranslation.setTranslations(transloco.translateObject('STEPPER'))
+// ngx-translate: hubTranslation.setTranslations(translate.instant('STEPPER'))
+```
 
 ## 🐛 Issues and Support
 

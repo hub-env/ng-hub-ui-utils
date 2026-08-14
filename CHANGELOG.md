@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.8.0] - 2026-08-14
+
+### Added
+
+- **`provideHubTranslationAdapter()`** — the application-wide reactive bridge from an external translation service (transloco, ngx-translate, i18next…) into `HubTranslationService`. Register it once at bootstrap and every `ng-hub-ui` library picks up the host application's dictionary, re-emitting on every language change. Supports optional namespacing and deliberate per-label reactive overrides.
+- **`HUB_TRANSLATION_PREFIX`** — injection token that lets a library scope its lookups to a collision-safe namespace (`HUBUI.<LIBRARY>.*`). `TranslatePipe` resolves the prefixed key first and falls back to the bare key, so existing flat dictionaries keep working untouched.
+
 ## [22.7.2] - 2026-08-08
 
 ### Fixed
