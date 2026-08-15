@@ -212,6 +212,15 @@ export class OverlayRef {
 					: this._config.height;
 		}
 
+		// A content-sized overlay must never clip: with no configured size the
+		// container computes to 0x0 whenever its content is absolutely positioned
+		// (connected-position dropdowns), and the stylesheet's `overflow: auto`
+		// would clip that content into invisibility. Explicitly sized overlays
+		// keep the scrollable box.
+		if (!this._config.width && !this._config.height) {
+			this._containerElement.style.overflow = 'visible';
+		}
+
 		this._containerElement.style.position = 'fixed';
 		// Resolve the layer through the theme token so a consumer can re-stack the
 		// overlay (e.g. above a modal) without `!important`; the literal fallback

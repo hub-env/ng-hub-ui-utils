@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.8.1] - 2026-08-15
+
+### Fixed
+
+- **A content-sized overlay no longer clips its own content into invisibility.** The
+  container is created with no intrinsic size, so whenever its content is absolutely
+  positioned — which is exactly what a connected-position dropdown is — it computed to
+  a 0×0 box, and the stylesheet's `overflow: auto` then clipped the content it existed
+  to display: painted at body level, visible to nobody, clickable by nobody. An overlay
+  created without an explicit `width`/`height` now opts out of clipping
+  (`overflow: visible` inline); an explicitly sized overlay keeps its scrollable box,
+  which is the only case where clipping ever made sense. Found by a Chrome audit of
+  `ng-hub-ui-nav`'s flyout mode, whose dropdowns were the invisible content.
+
 ## [22.8.0] - 2026-08-14
 
 ### Added
