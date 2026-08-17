@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.9.2] - 2026-08-17
+
+### Fixed
+
+- **The stylesheets are published at the path the documentation gives.** `@use 'ng-hub-ui-utils/styles/tooltip'` — the import `provideHubTableTooltip` tells you to add — did not resolve. The package copied `src/lib/styles` with the shorthand asset form, which preserves the source path, so the sheets landed at `ng-hub-ui-utils/src/lib/styles/tooltip.scss` and the only import that worked reached through the package's internal folder layout. Every other library in the family already redirected its assets to `styles/`; this one now does the same.
+
+    Worth stating because the workaround was invisible: importing through the internal path works until a patch release moves a folder, and that move would not be a declared break.
+
 ## [22.9.1] - 2026-08-17
 
 ### Fixed

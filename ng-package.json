@@ -5,5 +5,11 @@
     "entryFile": "src/public-api.ts",
     "styleIncludePaths": ["src/lib/styles"]
   },
-  "assets": ["src/lib/styles"]
+  "assets": [
+    {
+      "input": "src/lib/styles",
+      "glob": "**/*",
+      "output": "styles"
+    }
+  ]
 }
