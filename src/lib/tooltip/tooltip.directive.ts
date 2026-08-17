@@ -5,6 +5,13 @@ import { HubTooltipPlacement } from './tooltip.types';
 /**
  * Lightweight tooltip directive.
  *
+ * @deprecated Use {@link HubTooltipDirective} (`[hubTooltip]`) instead. The bare
+ * attribute and the bare input names `placement`, `delay` and `offset` are not this
+ * directive's to hold: Angular feeds one attribute to every directive on the element
+ * that declares an input of that name, so `[hubDropdown] placement` fails to compile
+ * beside a tooltip, and `[tooltip]` on a `<hub-badge>` — which owns an input of that
+ * name — renders two. Kept working, unchanged, until the next major.
+ *
  * Apply `[tooltip]` to any element to show a positioned label on hover/focus.
  * The tooltip element is appended to `<body>` so it is never clipped by an
  * overflow container, and every visual aspect is themeable through

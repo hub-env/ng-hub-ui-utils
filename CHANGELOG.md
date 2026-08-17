@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.9.0] - 2026-08-17
+
+### Added
+
+- **`[hubTooltip]`, a tooltip directive that can share an element.** The existing `[tooltip]` claims the bare attribute and the bare input names `placement`, `delay` and `offset`. Angular hands one attribute to _every_ directive on the element that declares an input of that name, so those bare names were never this directive's to hold, and two collisions followed from it:
+
+    - `[hubDropdown]` declares its own `placement`, typed over eight values where a tooltip understands four. A menu trigger that also wanted a tooltip did not merely misbehave, it failed to compile with `TS2322: Type '"bottom-end"' is not assignable to type 'HubTooltipPlacement'` — and no workaround existed, because one attribute cannot carry two placements.
+    - `<hub-badge>` declares a `tooltip` input of its own. Writing `[tooltip]` on one fed the component input _and_ matched the directive, so the badge drew two.
+
+    The new directive reads `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay` and `hubTooltipOffset`. An attribute named for its owner cannot be claimed by anyone else; `[hubOverflowTooltip]` next door was already named this way.
+
+    ```html
+    <button hubDropdown placement="bottom-end" [hubTooltip]="'ACTIONS.MORE' | transloco">…</button>
+    ```
+
+### Deprecated
+
+- **`TooltipDirective` / `[tooltip]`.** Kept working, unchanged, for every application already using it — both directives are thin shells over the same `HubTooltipController`, so nothing was rewritten and nothing behaves differently. Migration is attribute-for-attribute: `tooltip` → `hubTooltip`, `placement` → `hubTooltipPlacement`, `delay` → `hubTooltipDelay`, `offset` → `hubTooltipOffset`. Only the elements affected by a collision _need_ to move; the rest can move whenever convenient.
+
 ## [22.8.1] - 2026-08-15
 
 ### Fixed
