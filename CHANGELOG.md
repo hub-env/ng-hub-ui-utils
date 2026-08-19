@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.9.3] - 2026-08-19
+
+### Fixed
+
+- **A tooltip whose stylesheet was never imported no longer moves the page.** The controller appends its element to `<body>` and gives it page coordinates; a static element ignores those, so without `@use 'ng-hub-ui-utils/styles/tooltip'` the tooltip landed in normal flow at the end of the document, below the fold. The page then grew a scrollbar that appeared and vanished as the pointer crossed a label — measured in a real application at 24px of extra document height per hover, on exactly the items whose text was truncated and therefore had a tooltip at all.
+
+    The element now takes `position: absolute` inline at creation. That is the same value the stylesheet ships, so nothing changes for anyone who imports it. `absolute` rather than `fixed` on purpose: positioning is computed as `top + scrollY`, so the coordinates are the page's, and viewport positioning would misplace the tooltip by the scroll offset on any scrolled page.
+
+    Without the sheet the tooltip still looks bare, which is an honest failure and the consumer's to fix. It should not also move the layout underneath it.
+
 ## [22.9.2] - 2026-08-17
 
 ### Fixed

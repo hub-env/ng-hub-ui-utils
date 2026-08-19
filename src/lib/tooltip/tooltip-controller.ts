@@ -125,6 +125,21 @@ export class HubTooltipController {
 		const el = this.doc.createElement('span');
 		el.textContent = this.text;
 		el.classList.add('hub-tooltip', `hub-tooltip--${this.placement}`);
+
+		// Taken out of flow here rather than left to the stylesheet alone.
+		//
+		// The sheet ships `position: absolute` and this is the same value, so nothing changes
+		// for anyone who imports it. What it rescues is the app that forgot to: the element is
+		// appended to `<body>` and given page coordinates, and a static element ignores them —
+		// so it lands in normal flow at the end of the document, past the fold, and the page
+		// grows a scrollbar that appears and disappears as the pointer crosses a label. Seen in
+		// the wild: a nav whose truncated items each pushed the document 24px taller on hover.
+		//
+		// `absolute`, not `fixed`, because `position()` writes page coordinates (`top + scrollY`);
+		// viewport positioning would misplace the tooltip by the scroll offset on any scrolled
+		// page. Without the sheet the tooltip still looks bare — that is an honest failure. It
+		// should not also move the layout underneath it.
+		el.style.position = 'absolute';
 		el.style.transitionDuration = `${this.delay}ms`;
 		this.forwardThemeVars(el);
 		this.doc.body.appendChild(el);

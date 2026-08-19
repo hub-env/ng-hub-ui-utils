@@ -115,3 +115,45 @@ describe('HubTooltipDirective', () => {
 		expect(directive.offset()).toBe(4);
 	});
 });
+
+/**
+ * The failure that is invisible until someone forgets the stylesheet.
+ *
+ * `HubTooltipController` appends its element to `<body>` and gives it PAGE coordinates. A
+ * static element ignores those, so without `styles/tooltip` the tooltip lands in normal flow
+ * at the end of the document — below the fold — and the page grows a scrollbar that flickers
+ * in and out as the pointer crosses a truncated label. Measured in a real app: 24px of extra
+ * document height per hover.
+ *
+ * jsdom is the right bench for this precisely because it never loads the sheet: what it sees
+ * is exactly what an app that skipped the import sees.
+ */
+describe('HubTooltipController without its stylesheet', () => {
+	@Component({
+		standalone: true,
+		imports: [HubTooltipDirective],
+		template: `<button hubTooltip="Products and services" [hubTooltipDelay]="0">Products…</button>`
+	})
+	class BareHostComponent {}
+
+	afterEach(() => {
+		document.querySelectorAll('.hub-tooltip').forEach((el) => el.remove());
+	});
+
+	it('takes the tooltip out of flow itself, so a missing sheet cannot move the layout', () => {
+		const fixture = TestBed.configureTestingModule({ imports: [BareHostComponent] }).createComponent(BareHostComponent);
+		fixture.detectChanges();
+
+		const button = fixture.nativeElement.querySelector('button') as HTMLElement;
+		button.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+		fixture.detectChanges();
+
+		const tooltip = document.querySelector('.hub-tooltip') as HTMLElement | null;
+
+		expect(tooltip).toBeTruthy();
+		// `absolute`, not `fixed`: the controller writes `top + scrollY`, so the coordinates are
+		// the page's. Viewport positioning would misplace it by the scroll offset.
+		expect(tooltip!.style.position).toBe('absolute');
+		expect(getComputedStyle(tooltip!).position).not.toBe('static');
+	});
+});
