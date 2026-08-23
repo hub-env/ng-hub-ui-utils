@@ -157,3 +157,45 @@ describe('HubTooltipController without its stylesheet', () => {
 		expect(getComputedStyle(tooltip!).position).not.toBe('static');
 	});
 });
+
+/**
+ * The tooltip lives on `<body>`, outside every component's styles, so the only element a
+ * consumer can reach is the host — and the only way anything reaches the tooltip is this
+ * forwarding list. A token missing from it is a token that silently does nothing, which is
+ * why the list itself deserves a case rather than the values it copies.
+ */
+describe('HubTooltipController forwards its theme variables', () => {
+	@Component({
+		standalone: true,
+		imports: [HubTooltipDirective],
+		template: `
+			<button
+				hubTooltip="A sentence that would rather not be centred"
+				[hubTooltipDelay]="0"
+				style="--hub-tooltip-white-space: nowrap; --hub-tooltip-text-align: start"
+			>
+				Host
+			</button>
+		`
+	})
+	class ThemedHostComponent {}
+
+	afterEach(() => {
+		document.querySelectorAll('.hub-tooltip').forEach((el) => el.remove());
+	});
+
+	it('carries how the label breaks and sits from the host to the tooltip', () => {
+		const fixture = TestBed.configureTestingModule({ imports: [ThemedHostComponent] }).createComponent(ThemedHostComponent);
+		fixture.detectChanges();
+
+		(fixture.nativeElement.querySelector('button') as HTMLElement).dispatchEvent(
+			new MouseEvent('mouseenter', { bubbles: true })
+		);
+		fixture.detectChanges();
+
+		const tooltip = document.querySelector('.hub-tooltip') as HTMLElement;
+
+		expect(tooltip.style.getPropertyValue('--hub-tooltip-white-space')).toBe('nowrap');
+		expect(tooltip.style.getPropertyValue('--hub-tooltip-text-align')).toBe('start');
+	});
+});

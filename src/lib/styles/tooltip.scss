@@ -24,6 +24,8 @@
 	--hub-tooltip-font-weight: var(--hub-ref-font-weight-base, 400);
 	--hub-tooltip-line-height: var(--hub-ref-line-height-base, 1.5);
 	--hub-tooltip-max-width: 200px;
+	--hub-tooltip-white-space: normal;
+	--hub-tooltip-text-align: center;
 	--hub-tooltip-zindex: var(--hub-sys-zindex-tooltip, 1080);
 	--hub-tooltip-transition-duration: 0.15s;
 	--hub-tooltip-shadow: none;
@@ -39,9 +41,9 @@
 	font-size: var(--hub-tooltip-font-size);
 	font-weight: var(--hub-tooltip-font-weight);
 	line-height: var(--hub-tooltip-line-height);
-	text-align: center;
+	text-align: var(--hub-tooltip-text-align);
 	word-wrap: break-word;
-	white-space: normal;
+	white-space: var(--hub-tooltip-white-space);
 	color: var(--hub-tooltip-color);
 	background-color: var(--hub-tooltip-bg);
 	border-radius: var(--hub-tooltip-border-radius);

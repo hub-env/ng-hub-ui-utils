@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.10.0] - 2026-08-22
+
+### Added
+
+- **`--hub-tooltip-white-space` and `--hub-tooltip-text-align`**, so how a label breaks and sits can be asked for per tooltip. They were written into the stylesheet as `normal` and `center`, which is right for a short name and wrong for the tooltip that carries a sentence or two — a field's explanation rather than its label.
+
+    Both default to exactly what was hard-coded, so nothing moves for anyone who says nothing. What they buy is that the request can be made from the **host**, which is the only element a consumer can reach: the tooltip is appended to `<body>`, outside every component's styles, and the controller's forwarding list is the only thing that reaches it. Until now the only way to widen or left-align one tooltip was a global rule that changed every tooltip in the product.
+
+    Covered by a case that asserts the forwarding rather than the values — a token missing from that list is a token that silently does nothing, which is the failure worth pinning.
+
 ## [22.9.3] - 2026-08-19
 
 ### Fixed

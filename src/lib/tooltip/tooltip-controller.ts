@@ -22,7 +22,14 @@ const TOOLTIP_THEME_VARS = [
 	'--hub-tooltip-zindex',
 	'--hub-tooltip-transition-duration',
 	'--hub-tooltip-shadow',
-	'--hub-tooltip-font-family'
+	'--hub-tooltip-font-family',
+	// How the label breaks and sits. Forwarded like the rest so a tooltip that carries a
+	// sentence or two — a field's explanation rather than its name — can be asked for from
+	// the host, which is the only element a consumer can reach: the tooltip itself is on
+	// `<body>`, outside any component's styles. Without them the only way to widen one
+	// tooltip was a global rule that widened every tooltip in the product.
+	'--hub-tooltip-white-space',
+	'--hub-tooltip-text-align'
 ];
 
 /**
