@@ -1,4 +1,11 @@
-import { computeTargetIndex, containsNode, copyArrayItem, moveItemInArray, toAbsoluteIndex, transferArrayItem } from './array-utils';
+import {
+	computeTargetIndex,
+	containsNode,
+	copyArrayItem,
+	moveItemInArray,
+	toAbsoluteIndex,
+	transferArrayItem
+} from './array-utils';
 
 describe('drag-drop array-utils', () => {
 	describe('moveItemInArray', () => {

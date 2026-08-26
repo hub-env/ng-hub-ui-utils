@@ -1,10 +1,4 @@
-import {
-	ChangeDetectorRef,
-	inject,
-	OnDestroy,
-	Pipe,
-	PipeTransform
-} from '@angular/core';
+import { ChangeDetectorRef, inject, OnDestroy, Pipe, PipeTransform } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 
 /**

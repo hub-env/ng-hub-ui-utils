@@ -45,10 +45,7 @@ export class OverlayRef {
 	 * @returns The attached content element (first root node).
 	 * @throws When a {@link TemplateRef} is provided without a {@link ViewContainerRef}.
 	 */
-	attach(
-		content: TemplateRef<unknown> | Type<unknown>,
-		viewContainerRef?: ViewContainerRef
-	): HTMLElement {
+	attach(content: TemplateRef<unknown> | Type<unknown>, viewContainerRef?: ViewContainerRef): HTMLElement {
 		// If already attached, just update position and return existing element
 		if (this._isAttached && this._contentElement) {
 			if (this._config.positionStrategy) {
@@ -64,9 +61,7 @@ export class OverlayRef {
 
 		if (content instanceof TemplateRef) {
 			if (!viewContainerRef) {
-				throw new Error(
-					'ViewContainerRef is required when attaching a TemplateRef'
-				);
+				throw new Error('ViewContainerRef is required when attaching a TemplateRef');
 			}
 			// Only create and attach view if not already created
 			if (!this._viewRef) {
@@ -83,8 +78,7 @@ export class OverlayRef {
 				environmentInjector: this._appRef.injector
 			});
 			this._appRef.attachView(this._componentRef.hostView);
-			contentElement = (this._componentRef.hostView as EmbeddedViewRef<unknown>)
-				.rootNodes[0] as HTMLElement;
+			contentElement = (this._componentRef.hostView as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
 		}
 
 		this._contentElement = contentElement;
@@ -224,10 +218,7 @@ export class OverlayRef {
 		if (this._backdropElement) {
 			// Remove event listener before removing element from DOM
 			if (this._backdropClickHandler) {
-				this._backdropElement.removeEventListener(
-					'click',
-					this._backdropClickHandler
-				);
+				this._backdropElement.removeEventListener('click', this._backdropClickHandler);
 				this._backdropClickHandler = undefined;
 			}
 			this._backdropElement?.remove();
@@ -276,24 +267,18 @@ export class OverlayRef {
 		this._containerElement.classList.add('hub-overlay-container');
 
 		if (this._config.panelClass) {
-			const classes = Array.isArray(this._config.panelClass)
-				? this._config.panelClass
-				: [this._config.panelClass];
+			const classes = Array.isArray(this._config.panelClass) ? this._config.panelClass : [this._config.panelClass];
 			classes.forEach((cls) => this._containerElement!.classList.add(cls));
 		}
 
 		if (this._config.width) {
 			this._containerElement.style.width =
-				typeof this._config.width === 'number'
-					? `${this._config.width}px`
-					: this._config.width;
+				typeof this._config.width === 'number' ? `${this._config.width}px` : this._config.width;
 		}
 
 		if (this._config.height) {
 			this._containerElement.style.height =
-				typeof this._config.height === 'number'
-					? `${this._config.height}px`
-					: this._config.height;
+				typeof this._config.height === 'number' ? `${this._config.height}px` : this._config.height;
 		}
 
 		// A content-sized overlay must never clip: with no configured size the
@@ -310,9 +295,7 @@ export class OverlayRef {
 		// overlay (e.g. above a modal) without `!important`; the literal fallback
 		// keeps today's behavior when the overlay stylesheet is not imported.
 		this._containerElement.style.zIndex =
-			this._config.zIndex != null
-				? String(this._config.zIndex)
-				: 'var(--hub-overlay-zindex, 1000)';
+			this._config.zIndex != null ? String(this._config.zIndex) : 'var(--hub-overlay-zindex, 1000)';
 
 		document.body.appendChild(this._containerElement);
 	}

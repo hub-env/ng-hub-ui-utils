@@ -5,11 +5,9 @@ import { HUB_TRANSLATION_CONFIG, HubTranslationConfig } from './translation.toke
 
 @Injectable()
 export class HubTranslationService {
-	#config: HubTranslationConfig =
-		inject(HUB_TRANSLATION_CONFIG, { optional: true }) ?? {};
+	#config: HubTranslationConfig = inject(HUB_TRANSLATION_CONFIG, { optional: true }) ?? {};
 
-	defaultTranslations: Record<string, string | any> =
-		this.#config.dictionaries ?? {};
+	defaultTranslations: Record<string, string | any> = this.#config.dictionaries ?? {};
 
 	translations!: Record<string, string>;
 
@@ -24,10 +22,8 @@ export class HubTranslationService {
 	initialize() {
 		const language = this.#config.language ?? this.#config.fallbackLanguage ?? 'en';
 		const fallbackLanguage = this.#config.fallbackLanguage ?? 'en';
-		const fallbackTranslations =
-			this.defaultTranslations[fallbackLanguage] ?? {};
-		const selectedTranslations =
-			this.defaultTranslations[language] ?? fallbackTranslations;
+		const fallbackTranslations = this.defaultTranslations[fallbackLanguage] ?? {};
+		const selectedTranslations = this.defaultTranslations[language] ?? fallbackTranslations;
 
 		this.setTranslations(selectedTranslations);
 	}
@@ -44,8 +40,7 @@ export class HubTranslationService {
 	 */
 	setTranslations(translations: Record<string, string> | any = {}) {
 		const fallbackLanguage = this.#config.fallbackLanguage ?? 'en';
-		const fallbackTranslations =
-			this.defaultTranslations[fallbackLanguage] ?? {};
+		const fallbackTranslations = this.defaultTranslations[fallbackLanguage] ?? {};
 		const nextTranslations = translations ?? {};
 
 		this.translations = { ...fallbackTranslations, ...nextTranslations };

@@ -16,13 +16,9 @@ export const FOCUSABLE_ELEMENTS_SELECTOR = [
 /**
  * Returns first and last focusable elements inside of a given element based on specific CSS selector
  */
-export function getFocusableBoundaryElements(
-	element: HTMLElement
-): HTMLElement[] {
+export function getFocusableBoundaryElements(element: HTMLElement): HTMLElement[] {
 	const list: HTMLElement[] = Array.from(
-		element.querySelectorAll(
-			FOCUSABLE_ELEMENTS_SELECTOR
-		) as NodeListOf<HTMLElement>
+		element.querySelectorAll(FOCUSABLE_ELEMENTS_SELECTOR) as NodeListOf<HTMLElement>
 	).filter((el) => el.tabIndex !== -1);
 	return [list[0], list[list.length - 1]];
 }
@@ -39,18 +35,10 @@ export function getFocusableBoundaryElements(
  * @param refocusOnClick Put the focus back to the last focused element whenever a click occurs on element (default to
  * false)
  */
-export const hubFocusTrap = (
-	zone: NgZone,
-	element: HTMLElement,
-	stopFocusTrap$: Observable<any>,
-	refocusOnClick = false
-) => {
+export const hubFocusTrap = (zone: NgZone, element: HTMLElement, stopFocusTrap$: Observable<any>, refocusOnClick = false) => {
 	zone.runOutsideAngular(() => {
 		// last focused element
-		const lastFocusedElement$ = fromEvent<FocusEvent>(
-			element,
-			'focusin'
-		).pipe(
+		const lastFocusedElement$ = fromEvent<FocusEvent>(element, 'focusin').pipe(
 			takeUntil(stopFocusTrap$),
 			map((e) => e.target)
 		);
@@ -65,10 +53,7 @@ export const hubFocusTrap = (
 			.subscribe(([tabEvent, focusedElement]) => {
 				const [first, last] = getFocusableBoundaryElements(element);
 
-				if (
-					(focusedElement === first || focusedElement === element) &&
-					tabEvent.shiftKey
-				) {
+				if ((focusedElement === first || focusedElement === element) && tabEvent.shiftKey) {
 					last.focus();
 					tabEvent.preventDefault();
 				}

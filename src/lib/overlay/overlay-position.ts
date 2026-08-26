@@ -66,8 +66,7 @@ export class OverlayPosition {
 		// the origin rather than from the document, so a field inside an RTL island is positioned by
 		// the direction it is actually laid out in.
 		const isRtl =
-			this._direction === 'rtl' ||
-			(this._direction === null && getComputedStyle(originElement).direction === 'rtl');
+			this._direction === 'rtl' || (this._direction === null && getComputedStyle(originElement).direction === 'rtl');
 
 		// Try each position until we find one that fits in the viewport
 		for (const position of this._positions) {
@@ -180,10 +179,7 @@ export class OverlayPosition {
 	/**
 	 * Checks if the overlay fits within the viewport at the given coordinates.
 	 */
-	private _fitsInViewport(
-		coords: { x: number; y: number },
-		overlayElement: HTMLElement
-	): boolean {
+	private _fitsInViewport(coords: { x: number; y: number }, overlayElement: HTMLElement): boolean {
 		const overlayRect = overlayElement.getBoundingClientRect();
 		const viewportWidth = window.innerWidth;
 		const viewportHeight = window.innerHeight;
@@ -199,10 +195,7 @@ export class OverlayPosition {
 	/**
 	 * Applies the calculated position to the overlay element.
 	 */
-	private _applyPosition(
-		overlayElement: HTMLElement,
-		coords: { x: number; y: number }
-	): void {
+	private _applyPosition(overlayElement: HTMLElement, coords: { x: number; y: number }): void {
 		overlayElement.style.left = `${coords.x}px`;
 		overlayElement.style.top = `${coords.y}px`;
 	}

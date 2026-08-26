@@ -6,11 +6,7 @@ import { getTransitionDurationMs } from './util';
 
 const transitionTimerDelayMs = 5;
 
-export type TransitionStartFn<T = any> = (
-	element: HTMLElement,
-	animation: boolean,
-	context: T
-) => TransitionEndFn | void;
+export type TransitionStartFn<T = any> = (element: HTMLElement, animation: boolean, context: T) => TransitionEndFn | void;
 export type TransitionEndFn = () => void;
 
 export interface TransitionOptions<T> {
@@ -63,10 +59,7 @@ export const hubRunTransition = <T>(
 	// If animations are disabled, we have to emit a value and complete the observable
 	// In this case we have to call the end function, but can finish immediately by emitting a value,
 	// completing the observable and executing end functions synchronously.
-	if (
-		!options.animation ||
-		window.getComputedStyle(element).transitionProperty === 'none'
-	) {
+	if (!options.animation || window.getComputedStyle(element).transitionProperty === 'none') {
 		zone.run(() => endFn());
 		return of(undefined).pipe(runInZone(zone));
 	}
@@ -97,9 +90,7 @@ export const hubRunTransition = <T>(
 			takeUntil(stop$),
 			filter(({ target }) => target === element)
 		);
-		const timer$ = timer(
-			transitionDurationMs + transitionTimerDelayMs
-		).pipe(takeUntil(stop$));
+		const timer$ = timer(transitionDurationMs + transitionTimerDelayMs).pipe(takeUntil(stop$));
 
 		race(timer$, transitionEnd$, finishTransition$)
 			.pipe(takeUntil(stop$))

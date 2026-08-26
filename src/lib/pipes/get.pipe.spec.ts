@@ -9,15 +9,15 @@ import { GetPipe } from './get.pipe';
  */
 @Component({
 	template: `
-		<div id="simple-property">{{ testObject | get:'name' }}</div>
-		<div id="nested-property">{{ testObject | get:'details.age' }}</div>
-		<div id="deep-nested">{{ testObject | get:'details.address.city' }}</div>
-		<div id="array-property">{{ testObject | get:'hobbies.0' }}</div>
-		<div id="with-default">{{ testObject | get:'nonExistent':'Default Value' }}</div>
-		<div id="null-path">{{ testObject | get:nullPath }}</div>
-		<div id="undefined-path">{{ testObject | get:undefinedPath }}</div>
-		<div id="empty-string-path">{{ testObject | get:'' }}</div>
-		<div id="number-path">{{ testObject | get:numberPath }}</div>
+		<div id="simple-property">{{ testObject | get: 'name' }}</div>
+		<div id="nested-property">{{ testObject | get: 'details.age' }}</div>
+		<div id="deep-nested">{{ testObject | get: 'details.address.city' }}</div>
+		<div id="array-property">{{ testObject | get: 'hobbies.0' }}</div>
+		<div id="with-default">{{ testObject | get: 'nonExistent' : 'Default Value' }}</div>
+		<div id="null-path">{{ testObject | get: nullPath }}</div>
+		<div id="undefined-path">{{ testObject | get: undefinedPath }}</div>
+		<div id="empty-string-path">{{ testObject | get: '' }}</div>
+		<div id="number-path">{{ testObject | get: numberPath }}</div>
 	`,
 	standalone: true,
 	imports: [GetPipe]
@@ -268,7 +268,7 @@ describe('GetPipe', () => {
 					{ name: 'Jane', details: { age: 25 } }
 				]
 			};
-			
+
 			expect(pipe.transform(complexObject, 'users.0.name')).toBe('John');
 			expect(pipe.transform(complexObject, 'users.1.details.age')).toBe(25);
 			expect(pipe.transform(complexObject, 'users.2.name')).toBeNull();
@@ -279,7 +279,7 @@ describe('GetPipe', () => {
 				'123': { value: 'numeric key' },
 				'456': 'simple numeric'
 			};
-			
+
 			expect(pipe.transform(objWithNumericKeys, '123.value')).toBe('numeric key');
 			expect(pipe.transform(objWithNumericKeys, '456')).toBe('simple numeric');
 		});
@@ -287,9 +287,9 @@ describe('GetPipe', () => {
 		it('should handle objects with special characters in keys', () => {
 			const objWithSpecialKeys = {
 				'key-with-dash': 'dash value',
-				'key_with_underscore': 'underscore value'
+				key_with_underscore: 'underscore value'
 			};
-			
+
 			expect(pipe.transform(objWithSpecialKeys, 'key-with-dash')).toBe('dash value');
 			expect(pipe.transform(objWithSpecialKeys, 'key_with_underscore')).toBe('underscore value');
 		});
@@ -300,30 +300,30 @@ describe('GetPipe', () => {
 			// Create a deeply nested object
 			let largeObject: any = {};
 			let current = largeObject;
-			
+
 			for (let i = 0; i < 100; i++) {
 				current[`level${i}`] = {};
 				current = current[`level${i}`];
 			}
 			current.finalValue = 'deep value';
-			
+
 			const path = Array.from({ length: 100 }, (_, i) => `level${i}`).join('.') + '.finalValue';
-			
+
 			const startTime = performance.now();
 			const result = pipe.transform(largeObject, path);
 			const endTime = performance.now();
-			
+
 			expect(result).toBe('deep value');
 			expect(endTime - startTime).toBeLessThan(10); // Should be fast
 		});
 
 		it('should handle repeated calls efficiently', () => {
 			const startTime = performance.now();
-			
+
 			for (let i = 0; i < 1000; i++) {
 				pipe.transform(component.testObject, 'details.age');
 			}
-			
+
 			const endTime = performance.now();
 			expect(endTime - startTime).toBeLessThan(50); // Should complete quickly
 		});
@@ -397,7 +397,7 @@ describe('GetPipe', () => {
 					}
 				}
 			};
-			
+
 			expect(pipe.transform(apiResponse, 'data.user.id')).toBe(123);
 			expect(pipe.transform(apiResponse, 'data.user.profile.firstName')).toBe('John');
 			expect(pipe.transform(apiResponse, 'data.user.profile.preferences.theme')).toBe('dark');
@@ -421,7 +421,7 @@ describe('GetPipe', () => {
 				},
 				preferences: ['email', 'sms']
 			};
-			
+
 			expect(pipe.transform(formData, 'personal.name')).toBe('John Doe');
 			expect(pipe.transform(formData, 'address.country.code')).toBe('US');
 			expect(pipe.transform(formData, 'preferences.0')).toBe('email');

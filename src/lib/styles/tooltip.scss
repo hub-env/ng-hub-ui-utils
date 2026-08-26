@@ -29,7 +29,16 @@
 	--hub-tooltip-zindex: var(--hub-sys-zindex-tooltip, 1080);
 	--hub-tooltip-transition-duration: 0.15s;
 	--hub-tooltip-shadow: none;
-	--hub-tooltip-font-family: var(--hub-ref-font-family-base, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif);
+	--hub-tooltip-font-family: var(
+		--hub-ref-font-family-base,
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Roboto,
+		'Helvetica Neue',
+		Arial,
+		sans-serif
+	);
 
 	position: absolute;
 	z-index: var(--hub-tooltip-zindex);

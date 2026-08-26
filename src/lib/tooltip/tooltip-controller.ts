@@ -64,7 +64,10 @@ export class HubTooltipController {
 	 *                events trigger the tooltip.
 	 * @param options Initial placement, delay and offset.
 	 */
-	constructor(private readonly host: HTMLElement, options?: HubTooltipOptions) {
+	constructor(
+		private readonly host: HTMLElement,
+		options?: HubTooltipOptions
+	) {
 		this.doc = host.ownerDocument;
 		this.view = this.doc.defaultView as (Window & typeof globalThis) | null;
 		this.setOptions(options);

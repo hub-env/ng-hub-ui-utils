@@ -41,28 +41,20 @@ export class PopupService<T> {
 	): { windowRef: ComponentRef<T>; transition$: Observable<void> } {
 		if (!this._windowRef) {
 			this._contentRef = this._getContentRef(content, templateContext);
-			this._windowRef = this._viewContainerRef.createComponent(
-				this._componentType,
-				{
-					injector: this._injector,
-					projectableNodes: this._contentRef.nodes
-				}
-			);
+			this._windowRef = this._viewContainerRef.createComponent(this._componentType, {
+				injector: this._injector,
+				projectableNodes: this._contentRef.nodes
+			});
 		}
 
 		const { nativeElement } = this._windowRef.location;
 		const transition$ = this._ngZone.onStable.pipe(
 			take(1),
 			mergeMap(() =>
-				hubRunTransition(
-					this._ngZone,
-					nativeElement,
-					({ classList }) => classList.add('show'),
-					{
-						animation,
-						runningTransition: 'continue'
-					}
-				)
+				hubRunTransition(this._ngZone, nativeElement, ({ classList }) => classList.add('show'), {
+					animation,
+					runningTransition: 'continue'
+				})
 			)
 		);
 
@@ -89,10 +81,7 @@ export class PopupService<T> {
 		);
 	}
 
-	private _getContentRef(
-		content?: string | TemplateRef<any>,
-		templateContext?: any
-	): ContentRef {
+	private _getContentRef(content?: string | TemplateRef<any>, templateContext?: any): ContentRef {
 		if (!content) {
 			return new ContentRef([]);
 		} else if (content instanceof TemplateRef) {
@@ -100,9 +89,7 @@ export class PopupService<T> {
 			this._applicationRef.attachView(viewRef);
 			return new ContentRef([viewRef.rootNodes], viewRef);
 		} else {
-			return new ContentRef([
-				[this._document.createTextNode(`${content}`)]
-			]);
+			return new ContentRef([[this._document.createTextNode(`${content}`)]]);
 		}
 	}
 }

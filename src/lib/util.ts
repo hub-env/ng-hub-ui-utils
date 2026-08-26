@@ -30,11 +30,7 @@ export function isNumber(value: any): value is number {
 }
 
 export function isInteger(value: any): value is number {
-	return (
-		typeof value === 'number' &&
-		isFinite(value) &&
-		Math.floor(value) === value
-	);
+	return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
 }
 
 export function isDefined(value: any): boolean {
@@ -141,10 +137,7 @@ export function regExpEscape(text: string): string {
 	return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 }
 
-export function closest(
-	element: HTMLElement,
-	selector?: string
-): HTMLElement | null {
+export function closest(element: HTMLElement, selector?: string): HTMLElement | null {
 	if (!selector) {
 		return null;
 	}
@@ -201,11 +194,7 @@ export function removeAccents(str: string): string {
  * @param params an optional object that contains the values to be interpolated into the expr string.
  * @returns the interpolated string.
  */
-export function interpolateString(
-	expr: string = '',
-	params: any = {},
-	templateMatcher: RegExp = /{{\s?([^{}\s]*)\s?}}/g
-) {
+export function interpolateString(expr: string = '', params: any = {}, templateMatcher: RegExp = /{{\s?([^{}\s]*)\s?}}/g) {
 	if (!params) {
 		return expr;
 	}
@@ -228,11 +217,7 @@ export function getValue(target: any, key: string): any {
 	key = '';
 	do {
 		key += keys.shift();
-		if (
-			isDefined(target) &&
-			isDefined(target[key]) &&
-			(typeof target[key] === 'object' || !keys.length)
-		) {
+		if (isDefined(target) && isDefined(target[key]) && (typeof target[key] === 'object' || !keys.length)) {
 			target = target[key];
 			key = '';
 		} else if (!keys.length) {
@@ -329,16 +314,12 @@ export function debouncedSignal<T>(sourceSignal: Signal<T>, debounceDelay: numbe
  *
  * If the active element is inside a shadow root, it is searched recursively.
  */
-export function getActiveElement(
-	root: Document | ShadowRoot = document
-): Element | null {
+export function getActiveElement(root: Document | ShadowRoot = document): Element | null {
 	const activeEl = root?.activeElement;
 
 	if (!activeEl) {
 		return null;
 	}
 
-	return activeEl.shadowRoot
-		? getActiveElement(activeEl.shadowRoot)
-		: activeEl;
+	return activeEl.shadowRoot ? getActiveElement(activeEl.shadowRoot) : activeEl;
 }

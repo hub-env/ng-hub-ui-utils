@@ -32,9 +32,7 @@ export function createNativeDragImage(
 	}
 	const view = template.createEmbeddedView(context);
 	view.detectChanges();
-	const node = view.rootNodes.find((candidate: Node) => candidate.nodeType === Node.ELEMENT_NODE) as
-		| HTMLElement
-		| undefined;
+	const node = view.rootNodes.find((candidate: Node) => candidate.nodeType === Node.ELEMENT_NODE) as HTMLElement | undefined;
 	if (!node) {
 		view.destroy();
 		return null;

@@ -4,9 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 	name: 'isObject'
 })
 export class IsObjectPipe implements PipeTransform {
-
 	transform(value: any): boolean {
 		return typeof value === 'object';
 	}
-
 }

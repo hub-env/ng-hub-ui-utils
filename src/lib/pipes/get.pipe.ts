@@ -16,12 +16,6 @@ export class GetPipe implements PipeTransform {
 		}
 		return path
 			.split('.')
-			.reduce(
-				(a, c) =>
-					a && a[c] !== null && a[c] !== undefined
-						? a[c]
-						: defaultValue || null,
-				value
-			);
+			.reduce((a, c) => (a && a[c] !== null && a[c] !== undefined ? a[c] : defaultValue || null), value);
 	}
 }
