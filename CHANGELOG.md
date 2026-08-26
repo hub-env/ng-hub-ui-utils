@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.11.0] - 2026-08-26
+
+### Added
+
+- **The overlay follows its origin.** While attached it listens for `scroll` and `resize` and recomputes its position, coalesced into an animation frame so a burst of scroll events costs one reposition. Before this it computed coordinates once and never again: measured on the docs site, a panel opened and then scrolled sat **122px** from the field it belonged to.
+
+    The listener sits on `window` in the **capture** phase, and that is the whole point. A `scroll` event on an element does not bubble, so a listener on `document` — which is what Angular CDK's `ScrollDispatcher` uses — never hears an application that scrolls an inner container rather than the page. Measured against the CDK's own connected overlay in exactly that shape, its panel drifted too. Capture sees both.
+
+- **`start` and `end` are logical.** They resolved to `left` and `right` whatever the direction, so an overlay opened from a field inside an RTL container hung off the wrong edge. The direction is read from the **origin element**, so an RTL island inside an LTR page is positioned by the direction it is actually laid out in; `OverlayPosition.withDirection()` overrides it for the rare case where the overlay must follow a direction its origin does not have.
+
+- **`OverlayRef.onKeydown()`**, and with it a document-level dispatcher that tells the **topmost** open overlay. An overlay rarely holds focus — opened from a click, focus stays where it was — so a component listening on its own host never hears Escape, and the panel that took over the screen cannot be dismissed with the key everyone reaches for. Only the topmost overlay is told, so a dropdown opened inside a dialog takes Escape for itself and leaves the dialog open. The listener is registered with the first overlay and released with the last.
+
+- **`HUB_DROPDOWN_POSITIONS`**, the four-position fallback chain a dropdown wants — below the origin, flipping above when there is no room. Same order Angular Material's connected overlay defaults to, expressed logically so one list serves both directions instead of two that must be kept in step.
+
+### Fixed
+
+- **Tearing an overlay down twice no longer throws.** `dispose()` and `detach()` called `removeChild` on nodes that something else may already have removed — a test teardown, a router navigation — and a `DOMException` during cleanup took the whole destroy path with it. They use `remove()` now, which is a no-op on a detached node.
+
+- **The overlay README claimed repositioning it did not do.** Its CDK migration guide said "remove scroll strategies (automatic repositioning is built-in)" while no scroll listener existed anywhere in the module. The claim is true as of this release; it was not before.
+
 ## [22.10.0] - 2026-08-22
 
 ### Added

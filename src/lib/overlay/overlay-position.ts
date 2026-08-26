@@ -10,6 +10,22 @@ import type { VerticalConnectionPos } from './vertical-connection-pos';
 export class OverlayPosition {
 	private _origin: ElementRef | HTMLElement | null = null;
 	private _positions: ConnectionPosition[] = [];
+	private _direction: 'ltr' | 'rtl' | null = null;
+
+	/**
+	 * Forces the writing direction used to resolve `start` and `end`.
+	 *
+	 * Rarely needed: left unset, the direction is read from the origin element itself, which is
+	 * what a field inside an RTL container reports. Set it only when the overlay must follow a
+	 * direction its origin does not have.
+	 *
+	 * @param direction Writing direction, or `null` to go back to reading the origin's.
+	 * @returns This position instance for chaining.
+	 */
+	withDirection(direction: 'ltr' | 'rtl' | null): this {
+		this._direction = direction;
+		return this;
+	}
 
 	/**
 	 * Sets the origin element used to position the overlay.
@@ -46,10 +62,16 @@ export class OverlayPosition {
 
 		const originElement = this._origin instanceof ElementRef ? this._origin.nativeElement : this._origin;
 		const originRect = originElement.getBoundingClientRect();
+		// `start` and `end` are logical: under RTL they name the right and the left edge. Read from
+		// the origin rather than from the document, so a field inside an RTL island is positioned by
+		// the direction it is actually laid out in.
+		const isRtl =
+			this._direction === 'rtl' ||
+			(this._direction === null && getComputedStyle(originElement).direction === 'rtl');
 
 		// Try each position until we find one that fits in the viewport
 		for (const position of this._positions) {
-			const coords = this._calculatePosition(originRect, overlayElement, position);
+			const coords = this._calculatePosition(originRect, overlayElement, position, isRtl);
 
 			if (this._fitsInViewport(coords, overlayElement)) {
 				this._applyPosition(overlayElement, coords);
@@ -59,7 +81,7 @@ export class OverlayPosition {
 
 		// If no position fits perfectly, use the first one
 		if (this._positions.length > 0) {
-			const coords = this._calculatePosition(originRect, overlayElement, this._positions[0]);
+			const coords = this._calculatePosition(originRect, overlayElement, this._positions[0], isRtl);
 			this._applyPosition(overlayElement, coords);
 		}
 	}
@@ -72,15 +94,20 @@ export class OverlayPosition {
 	 * @param position Position configuration.
 	 * @returns Calculated x and y coordinates.
 	 */
-	private _calculatePosition(originRect: DOMRect, overlayElement: HTMLElement, position: ConnectionPosition): { x: number; y: number } {
+	private _calculatePosition(
+		originRect: DOMRect,
+		overlayElement: HTMLElement,
+		position: ConnectionPosition,
+		isRtl: boolean
+	): { x: number; y: number } {
 		const overlayRect = overlayElement.getBoundingClientRect();
 
 		// Calculate origin point
-		let x = this._getOriginX(originRect, position.originX);
+		let x = this._getOriginX(originRect, position.originX, isRtl);
 		let y = this._getOriginY(originRect, position.originY);
 
 		// Adjust for overlay alignment
-		x -= this._getOverlayX(overlayRect, position.overlayX);
+		x -= this._getOverlayX(overlayRect, position.overlayX, isRtl);
 		y -= this._getOverlayY(overlayRect, position.overlayY);
 
 		// Apply offsets
@@ -97,14 +124,14 @@ export class OverlayPosition {
 	/**
 	 * Gets the X coordinate for the origin point.
 	 */
-	private _getOriginX(rect: DOMRect, position: HorizontalConnectionPos): number {
+	private _getOriginX(rect: DOMRect, position: HorizontalConnectionPos, isRtl: boolean): number {
 		switch (position) {
 			case 'start':
-				return rect.left;
+				return isRtl ? rect.right : rect.left;
 			case 'center':
 				return rect.left + rect.width / 2;
 			case 'end':
-				return rect.right;
+				return isRtl ? rect.left : rect.right;
 		}
 	}
 
@@ -125,14 +152,14 @@ export class OverlayPosition {
 	/**
 	 * Gets the X offset for the overlay alignment.
 	 */
-	private _getOverlayX(rect: DOMRect, position: HorizontalConnectionPos): number {
+	private _getOverlayX(rect: DOMRect, position: HorizontalConnectionPos, isRtl: boolean): number {
 		switch (position) {
 			case 'start':
-				return 0;
+				return isRtl ? rect.width : 0;
 			case 'center':
 				return rect.width / 2;
 			case 'end':
-				return rect.width;
+				return isRtl ? 0 : rect.width;
 		}
 	}
 

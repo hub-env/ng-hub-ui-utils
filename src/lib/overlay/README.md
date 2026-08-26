@@ -264,9 +264,13 @@ Or manually add:
 ## Performance Considerations
 
 - The overlay system uses native DOM manipulation for optimal performance
-- Position calculations are cached and only recalculated when needed
 - Automatic cleanup prevents memory leaks
-- RequestAnimationFrame is used for position updates
+- While an overlay is attached, `scroll` and `resize` are listened to and the position recomputed,
+  coalesced into an animation frame so a burst of scroll events costs one reposition
+- The scroll listener is registered on `window` in the **capture** phase. A `scroll` event on an
+  element does not bubble, so a listener on `document` — which is what Angular CDK's
+  `ScrollDispatcher` uses — never hears an application that scrolls an inner container rather than
+  the page, and its panels drift away from their origin. Capture sees both.
 
 ## Migration from Angular CDK
 
@@ -276,7 +280,17 @@ If migrating from Angular CDK Overlay:
 2. Replace `ConnectedPosition` with `ConnectionPosition`
 3. Remove `TemplatePortal` usage - pass `TemplateRef` directly to `attach()`
 4. Replace `backdropClick()` observable with `onBackdropClick()` callback
-5. Remove scroll strategies (automatic repositioning is built-in)
+5. Remove scroll strategies — repositioning on scroll and resize is built in, and covers inner
+   scroll containers that the CDK's `document`-level listener misses
+6. `start` and `end` are logical: they resolve to the right and left edge under RTL. The direction
+   is read from the origin element, so an RTL island inside an LTR page positions correctly with no
+   configuration; `withDirection()` overrides it when the overlay must follow a direction its origin
+   does not have
+7. `overlayRef.keydownEvents()` becomes `overlayRef.onKeydown(cb)`. Like the CDK's, it is fed by a
+   document-level dispatcher and only the topmost open overlay is told — needed because an overlay
+   opened from a click does not hold focus, so nothing local ever hears Escape
+8. For a plain dropdown, `HUB_DROPDOWN_POSITIONS` is the same four-position fallback chain the CDK
+   defaults to, expressed logically so one list serves both directions
 
 ## License
 

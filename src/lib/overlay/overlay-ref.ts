@@ -8,6 +8,7 @@ import {
 	ViewContainerRef
 } from '@angular/core';
 import type { OverlayConfig } from './overlay-config';
+import { registerOverlayKeydown } from './overlay-keyboard-dispatcher';
 
 /**
  * Manages a single overlay instance created by {@link OverlayService}.
@@ -21,6 +22,10 @@ export class OverlayRef {
 	private _viewRef: EmbeddedViewRef<unknown> | null = null;
 	private _componentRef: ComponentRef<unknown> | null = null;
 	private _isAttached = false;
+	private _repositionHandler?: () => void;
+	private _repositionFrame = 0;
+	private _keydownCallback?: (event: KeyboardEvent) => void;
+	private _unregisterKeydown?: () => void;
 	private _backdropClickCallback?: () => void;
 	private _backdropClickHandler?: () => void;
 
@@ -94,7 +99,10 @@ export class OverlayRef {
 		// Apply position strategy
 		if (this._config.positionStrategy) {
 			this._config.positionStrategy.apply(this._containerElement!);
+			this._listenForReposition();
 		}
+
+		this._listenForKeys();
 
 		return contentElement;
 	}
@@ -107,11 +115,87 @@ export class OverlayRef {
 			return;
 		}
 
+		this._stopListeningForReposition();
+		this._unregisterKeydown?.();
+		this._unregisterKeydown = undefined;
+
 		if (this._contentElement && this._containerElement) {
-			this._containerElement.removeChild(this._contentElement);
+			this._contentElement?.remove();
 		}
 
 		this._isAttached = false;
+	}
+
+	/**
+	 * Registers a handler for keys pressed while this overlay is the topmost open one.
+	 *
+	 * Needed because an overlay rarely holds focus: opened from a click it leaves focus where it
+	 * was, so a component listening on its own host never hears Escape. Set it before `attach()`,
+	 * or right after — the listener is registered on attach and released on detach.
+	 *
+	 * @param callback Invoked with each keydown; decide there what to act on.
+	 */
+	onKeydown(callback: (event: KeyboardEvent) => void): void {
+		this._keydownCallback = callback;
+
+		if (this._isAttached && !this._unregisterKeydown) {
+			this._listenForKeys();
+		}
+	}
+
+	/** Puts this overlay on top of the keyboard stack for as long as it is attached. */
+	private _listenForKeys(): void {
+		if (!this._keydownCallback || this._unregisterKeydown) {
+			return;
+		}
+
+		const callback = this._keydownCallback;
+		this._unregisterKeydown = registerOverlayKeydown((event) => callback(event));
+	}
+
+	/**
+	 * Keeps the overlay glued to its origin while the page moves under it.
+	 *
+	 * Registered on `window` in the CAPTURE phase, which is the whole point: a `scroll` event on an
+	 * element does not bubble, so a listener on `document` never hears an application that scrolls
+	 * an inner container rather than the page. Capture sees both.
+	 *
+	 * Coalesced into an animation frame, because a scroll fires far more often than a paint.
+	 */
+	private _listenForReposition(): void {
+		if (this._repositionHandler || typeof window === 'undefined') {
+			return;
+		}
+
+		this._repositionHandler = () => {
+			if (this._repositionFrame) {
+				return;
+			}
+
+			this._repositionFrame = requestAnimationFrame(() => {
+				this._repositionFrame = 0;
+				this.updatePosition();
+			});
+		};
+
+		window.addEventListener('scroll', this._repositionHandler, { capture: true, passive: true });
+		window.addEventListener('resize', this._repositionHandler, { passive: true });
+	}
+
+	/** Removes the listeners registered by {@link _listenForReposition}. */
+	private _stopListeningForReposition(): void {
+		if (!this._repositionHandler || typeof window === 'undefined') {
+			return;
+		}
+
+		window.removeEventListener('scroll', this._repositionHandler, { capture: true });
+		window.removeEventListener('resize', this._repositionHandler);
+		this._repositionHandler = undefined;
+
+		if (this._repositionFrame) {
+			cancelAnimationFrame(this._repositionFrame);
+			this._repositionFrame = 0;
+		}
 	}
 
 	/**
@@ -133,7 +217,7 @@ export class OverlayRef {
 		}
 
 		if (this._containerElement) {
-			document.body.removeChild(this._containerElement);
+			this._containerElement?.remove();
 			this._containerElement = null;
 		}
 
@@ -146,7 +230,7 @@ export class OverlayRef {
 				);
 				this._backdropClickHandler = undefined;
 			}
-			document.body.removeChild(this._backdropElement);
+			this._backdropElement?.remove();
 			this._backdropElement = null;
 		}
 
