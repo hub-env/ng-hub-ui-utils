@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.11.1] - 2026-09-01
+
+### Changed
+
+- **The `homepage` in the manifest points at this library's own documentation page** rather than at
+  the site root. It is the link a registry shows beside the package and the one a reader clicks from
+  it, and landing on a front page they then have to search is a worse answer than landing on the
+  reference for the package they were already looking at. Metadata only — no code, no types, no
+  styles change, and nothing a consumer imports is affected.
+
 ## [22.11.0] - 2026-08-26
 
 ### Added
