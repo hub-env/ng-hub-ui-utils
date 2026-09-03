@@ -560,6 +560,30 @@ Estas funciones dan soporte al sistema de i18n y se exportan para uso directo:
 - `regExpEscape(text: string): string` - Escapa caracteres especiales para RegExp
 - `removeAccents(str: string): string` - Remueve acentos de texto
 
+### Funciones de color
+
+-   `parseColor(value): HubRgb | null` - Analiza hex (3/4/6/8), `rgb()`, `hsl()`, `oklch()`, `oklab()`, los 148 colores CSS con nombre y `transparent`, en sintaxis moderna y heredada. Sin DOM, así que funciona con SSR. Devuelve `null` — nunca lanza — ante lo que no puede resolver, incluidos `var()` y `currentColor`
+-   `toRgb(color): HubRgb | null` - Normaliza una cadena o un color ya analizado a canales
+-   `toHex(color): string | null` - Devuelve `#rrggbb`, o `#rrggbbaa` si es translúcido
+-   `isValidColor(value): boolean` - Indica si el analizador puede resolver la cadena
+-   `HUB_NAMED_COLORS: Readonly<Record<string, string>>` - Los 148 colores CSS con nombre
+
+### Funciones de contraste
+
+-   `relativeLuminance(color): number | null` - Luminancia relativa WCAG 2, de 0 a 1
+-   `contrastRatio(a, b): number | null` - Ratio de contraste WCAG 2, de 1 a 21
+-   `contrastAPCA(text, background): number | null` - Contraste APCA, sensible a la polaridad
+-   `compositeOver(foreground, background): HubColor` - Compone un color translúcido sobre uno opaco
+-   `readableOn(background, metric?): string` - Negro o blanco, el que mejor se lea. Por defecto `'lightness'`, la misma decisión que toma `--hub-sys-color-*-on` en CSS; también admite `'apca'` y `'wcag'`
+-   `HUB_INK_LIGHTNESS_THRESHOLD: number` - Luminosidad OKLCh a partir de la cual una superficie lleva tinta oscura
+
+### Funciones OKLCh
+
+-   `rgbToOklch(color): HubOklch` / `oklchToRgb(color): HubRgb` - Conversiones en el espacio en el que mezcla el sistema de diseño
+-   `maxSrgbChroma(l, h): number` - Croma máximo en gamut para un tono a una luminosidad dada. El gamut sRGB no es un cilindro — a L 0,578 el azul llega a 0,232 y el ámbar solo a 0,119 — así que una paleta no puede dar a todos los tonos el mismo croma absoluto
+-   `isInSrgbGamut(color): boolean` - Indica si el color sobrevive a la conversión a sRGB
+-   `clampToSrgbGamut(color): HubOklch` - Reduce el croma hasta que quepa, conservando luminosidad y tono
+
 ### Funciones de DOM
 - `closest(element: HTMLElement, selector?: string): HTMLElement | null` - Busca elemento padre por selector
 - `reflow(element: HTMLElement): DOMRect` - Fuerza reflow del navegador

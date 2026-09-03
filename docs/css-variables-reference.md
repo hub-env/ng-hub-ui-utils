@@ -37,8 +37,8 @@ is provided).
 
 | Variable | Default |
 | --- | --- |
-| `--hub-tooltip-bg` | `var(--hub-ref-color-black, #000)` |
-| `--hub-tooltip-color` | `var(--hub-ref-color-white, #fff)` |
+| `--hub-tooltip-bg` | `var(--hub-sys-color-ink, #212529)` |
+| `--hub-tooltip-color` | `var(--hub-sys-surface-page, #fff)` |
 | `--hub-tooltip-opacity` | `0.9` |
 | `--hub-tooltip-padding-x` | `var(--hub-ref-space-2, 0.5rem)` |
 | `--hub-tooltip-padding-y` | `var(--hub-ref-space-1, 0.25rem)` |

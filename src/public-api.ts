@@ -3,6 +3,7 @@
  */
 
 export * from './lib/accent';
+export * from './lib/color';
 export * from './lib/drag-drop';
 export * from './lib/focus-trap';
 export * from './lib/i18n/translation.provider';

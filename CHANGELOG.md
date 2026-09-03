@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.12.0] - 2026-09-03
+
+### Added
+
+- **Colour utilities**, exported from the package root. `parseColor()` resolves hex (3/4/6/8
+  digits), `rgb()`, `hsl()`, `oklch()`, `oklab()`, the 148 CSS named colours and `transparent`,
+  in both the modern (`rgb(255 0 0 / 50%)`) and legacy (`rgba(255, 0, 0, 0.5)`) syntaxes, plus the
+  four CSS angle units and the `none` keyword. It returns `null` rather than throwing on anything
+  it cannot resolve — `var()` and `currentColor` included, since neither has a value outside the
+  cascade. Alongside it: `toHex()`, `toRgb()` and `isValidColor()`.
+
+    No DOM is involved. The usual way to do this in a browser is to set the string on a detached
+  element and read `getComputedStyle` back, which forces layout and returns nothing on the server;
+  a table lookup and a regex work in both places.
+
+- **Contrast helpers** — `relativeLuminance()` and `contrastRatio()` (WCAG 2), `contrastAPCA()`
+  (APCA-1.0.98G, polarity-aware) and `compositeOver()` for blending translucent text over its
+  background before measuring.
+
+- **`readableOn()`** picks black or white for a given surface. It defaults to a threshold on OKLCh
+  perceptual lightness — `HUB_INK_LIGHTNESS_THRESHOLD`, exported so it stays in step — which is the
+  same decision `--hub-sys-color-*-on` computes in CSS. That default was measured, not assumed:
+  maximising the WCAG 2 ratio instead puts **black** text on this design system's own blue, green
+  and red accents, because that formula underweights blue at mid lightness. APCA agrees with the
+  lightness rule on all nine semantic roles; WCAG disagrees on three. Both alternatives remain
+  available through the `metric` argument.
+
+- **OKLCh conversions** — `rgbToOklch()` and `oklchToRgb()` (Ottosson's matrices), plus
+  `maxSrgbChroma()`, `isInSrgbGamut()` and `clampToSrgbGamut()`. The gamut helpers exist because
+  the sRGB gamut is not a cylinder: at lightness 0.578 blue reaches a chroma of 0.232 while amber
+  stops at 0.119, so a palette cannot give every hue the same absolute chroma. `clampToSrgbGamut()`
+  reduces chroma until the colour fits, preserving lightness and hue — unlike clipping the RGB
+  channels, which shifts both, and shifts them most on the saturated colours it is most often
+  reached for.
+
+### Fixed
+
+- **The tooltip inverts with the theme instead of always being black.** `--hub-tooltip-bg` was
+  pinned to `--hub-ref-color-black` and `--hub-tooltip-color` to white, so on the dark theme a
+  black bubble at 90% opacity sat on a `#121212` page and was all but invisible. They now read
+  `--hub-sys-color-ink` and `--hub-sys-surface-page`, which swap per theme: the bubble stays
+  dark on a light page and turns light on a dark one. The light theme renders identically to
+  before — `ink` is `#212529` there, which is what the black resolved to in practice.
+
+    Anything already overriding `--hub-tooltip-bg` or `--hub-tooltip-color` keeps winning; this
+  only changes the default.
+
 ## [22.11.1] - 2026-09-01
 
 ### Changed

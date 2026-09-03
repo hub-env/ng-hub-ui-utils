@@ -591,6 +591,30 @@ These functions back the i18n system and are exported for direct use:
 -   `reflow(element: HTMLElement): DOMRect` - Forces browser reflow
 -   `getActiveElement(root?: Document | ShadowRoot): Element | null` - Gets active element including Shadow DOM
 
+### Colour Functions
+
+-   `parseColor(value): HubRgb | null` - Parses hex (3/4/6/8), `rgb()`, `hsl()`, `oklch()`, `oklab()`, the 148 CSS named colours and `transparent`, in modern and legacy syntax. No DOM, so it runs under SSR. Returns `null` — never throws — for anything it cannot resolve, `var()` and `currentColor` included
+-   `toRgb(color): HubRgb | null` - Normalises a string or parsed colour to channels
+-   `toHex(color): string | null` - Renders as `#rrggbb`, or `#rrggbbaa` when translucent
+-   `isValidColor(value): boolean` - Whether the parser can resolve the string
+-   `HUB_NAMED_COLORS: Readonly<Record<string, string>>` - The 148 CSS named colours
+
+### Contrast Functions
+
+-   `relativeLuminance(color): number | null` - WCAG 2 relative luminance, 0 to 1
+-   `contrastRatio(a, b): number | null` - WCAG 2 contrast ratio, 1 to 21
+-   `contrastAPCA(text, background): number | null` - APCA lightness contrast, polarity-aware
+-   `compositeOver(foreground, background): HubColor` - Blends translucent over opaque
+-   `readableOn(background, metric?): string` - Black or white, whichever reads better. Defaults to `'lightness'`, the same decision `--hub-sys-color-*-on` makes in CSS; `'apca'` and `'wcag'` are also available
+-   `HUB_INK_LIGHTNESS_THRESHOLD: number` - The OKLCh lightness above which a surface takes dark ink
+
+### OKLCh Functions
+
+-   `rgbToOklch(color): HubOklch` / `oklchToRgb(color): HubRgb` - Conversions in the space the design system mixes in
+-   `maxSrgbChroma(l, h): number` - Highest in-gamut chroma for a hue at a lightness. The sRGB gamut is not a cylinder — at L 0.578 blue reaches 0.232 and amber only 0.119 — so a palette cannot give every hue the same absolute chroma
+-   `isInSrgbGamut(color): boolean` - Whether the colour survives the trip to sRGB
+-   `clampToSrgbGamut(color): HubOklch` - Reduces chroma until it fits, preserving lightness and hue
+
 ### Focus Functions
 
 -   `getFocusableBoundaryElements(element: HTMLElement): HTMLElement[]` - Gets first and last focusable elements

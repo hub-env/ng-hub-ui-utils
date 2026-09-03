@@ -97,5 +97,22 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 | | `getActiveElement()` | ❌ |
 | **RxJS Utilities** | `runInZone()` operator | ❌ |
 
+## Color
+
+| Category | Functionality | Example Covered |
+| :--- | :--- | :---: |
+| **Parsing** | `parseColor()` — hex 3/4/6/8, `rgb()`, `hsl()`, `oklch()`, `oklab()`, named, `transparent` | ✅ |
+| | `toHex()` | ✅ |
+| | `toRgb()` | ❌ |
+| | `isValidColor()` | ❌ |
+| | `HUB_NAMED_COLORS` (the 148 CSS named colours) | ❌ |
+| **Contrast** | `relativeLuminance()` (WCAG 2) | ❌ |
+| | `contrastRatio()` (WCAG 2) | ✅ |
+| | `contrastAPCA()` (APCA-1.0.98G) | ✅ |
+| | `compositeOver()` (blend translucent over background) | ❌ |
+| | `readableOn()`, `HUB_INK_LIGHTNESS_THRESHOLD` | ✅ |
+| **OKLCh** | `rgbToOklch()`, `oklchToRgb()` | ✅ |
+| | `maxSrgbChroma()`, `isInSrgbGamut()`, `clampToSrgbGamut()` | ✅ |
+
 ---
 *Note: ❌ indicates an example is not yet available. ✅ indicates an active interactive example.*

@@ -14,8 +14,11 @@
 
 .hub-tooltip {
 	/* Component tokens, each backed by a canonical token. */
-	--hub-tooltip-bg: var(--hub-ref-color-black, #000);
-	--hub-tooltip-color: var(--hub-ref-color-white, #fff);
+	/* Inverted against the page, not fixed to black: `ink` is dark on a light theme and
+	   light on a dark one, so the tooltip contrasts with whatever it floats over. A fixed
+	   black bubble at 90% opacity all but vanished on the dark theme's #121212. */
+	--hub-tooltip-bg: var(--hub-sys-color-ink, #212529);
+	--hub-tooltip-color: var(--hub-sys-surface-page, #fff);
 	--hub-tooltip-opacity: 0.9;
 	--hub-tooltip-padding-x: var(--hub-ref-space-2, 0.5rem);
 	--hub-tooltip-padding-y: var(--hub-ref-space-1, 0.25rem);
