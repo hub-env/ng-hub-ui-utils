@@ -33,6 +33,20 @@ const TOOLTIP_THEME_VARS = [
 ];
 
 /**
+ * Grace period, in milliseconds, between the pointer leaving the host and the label
+ * starting to fade.
+ *
+ * WCAG 1.4.13 asks hover-revealed content to stay put while the pointer travels onto it,
+ * and `offset` opens exactly the gap that trip has to cross. Without the grace period the
+ * bubble is already fading before the pointer can reach it, so a label longer than its box
+ * could be read only for as long as it takes to cross 8px.
+ */
+const HOVER_GRACE_MS = 100;
+
+/** Feeds the unique `id` each bubble needs so `aria-describedby` can point at it. */
+let nextTooltipId = 0;
+
+/**
  * Framework-agnostic tooltip engine.
  *
  * Binds hover/focus listeners to a host element and renders a body-portaled,
@@ -41,12 +55,17 @@ const TOOLTIP_THEME_VARS = [
  * (e.g. a badge overflow tooltip) that want the exact same visual contract
  * without re-implementing the DOM logic.
  *
+ * The bubble is a `role="tooltip"` element the host is `aria-describedby` while it is on
+ * screen, so the label exists for a screen reader and not only for a pointer, and it obeys
+ * WCAG 1.4.13: Escape dismisses it, and it survives the trip of the pointer onto it.
+ *
  * Styles ship in `styles/tooltip.scss`. Import once in your app:
  * `@use 'ng-hub-ui-utils/styles/tooltip';`.
  */
 export class HubTooltipController {
 	private tooltipEl: HTMLElement | null = null;
 	private hideTimeout: ReturnType<typeof setTimeout> | null = null;
+	private leaveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	private text = '';
 	private placement: HubTooltipPlacement = 'top';
@@ -56,8 +75,25 @@ export class HubTooltipController {
 	private readonly doc: Document;
 	private readonly view: (Window & typeof globalThis) | null;
 
+	/** Id of this controller's bubble, minted once so the host can be described by it. */
+	private readonly tooltipId = `hub-tooltip-${++nextTooltipId}`;
+
 	private readonly onShow = (): void => this.show();
 	private readonly onHide = (): void => this.hide();
+	private readonly onPointerLeave = (): void => this.scheduleHide();
+	private readonly onTooltipEnter = (): void => this.retain();
+
+	/**
+	 * Escape dismisses the label without moving the pointer or the focus, which is the
+	 * half of WCAG 1.4.13 a hover-only bubble cannot satisfy on its own. Listened for on
+	 * the document, and in the capture phase, so it still reaches us on a page whose own
+	 * handlers stop the event before it bubbles.
+	 */
+	private readonly onKeydown = (event: KeyboardEvent): void => {
+		if (event.key === 'Escape') {
+			this.hide();
+		}
+	};
 
 	/**
 	 * @param host    Element the tooltip is anchored to and whose pointer/focus
@@ -74,7 +110,7 @@ export class HubTooltipController {
 
 		this.host.addEventListener('mouseenter', this.onShow);
 		this.host.addEventListener('focus', this.onShow);
-		this.host.addEventListener('mouseleave', this.onHide);
+		this.host.addEventListener('mouseleave', this.onPointerLeave);
 		this.host.addEventListener('blur', this.onHide);
 		this.host.addEventListener('click', this.onHide);
 	}
@@ -119,7 +155,7 @@ export class HubTooltipController {
 	destroy(): void {
 		this.host.removeEventListener('mouseenter', this.onShow);
 		this.host.removeEventListener('focus', this.onShow);
-		this.host.removeEventListener('mouseleave', this.onHide);
+		this.host.removeEventListener('mouseleave', this.onPointerLeave);
 		this.host.removeEventListener('blur', this.onHide);
 		this.host.removeEventListener('click', this.onHide);
 		this.removeElement();
@@ -127,7 +163,13 @@ export class HubTooltipController {
 
 	/** Creates, positions and reveals the tooltip element. */
 	private show(): void {
-		if (this.tooltipEl || !this.text) {
+		if (!this.text) {
+			return;
+		}
+		// A bubble that is still fading out is brought back rather than left to expire:
+		// the pointer returning to the host is the user asking for the label again.
+		if (this.tooltipEl) {
+			this.retain();
 			return;
 		}
 		this.clearHideTimeout();
@@ -135,6 +177,9 @@ export class HubTooltipController {
 		const el = this.doc.createElement('span');
 		el.textContent = this.text;
 		el.classList.add('hub-tooltip', `hub-tooltip--${this.placement}`);
+		// The bubble is the host's description, and it has to be findable by id to say so.
+		el.id = this.tooltipId;
+		el.setAttribute('role', 'tooltip');
 
 		// Taken out of flow here rather than left to the stylesheet alone.
 		//
@@ -152,19 +197,50 @@ export class HubTooltipController {
 		el.style.position = 'absolute';
 		el.style.transitionDuration = `${this.delay}ms`;
 		this.forwardThemeVars(el);
+		el.addEventListener('mouseenter', this.onTooltipEnter);
+		el.addEventListener('mouseleave', this.onHide);
 		this.doc.body.appendChild(el);
 		this.tooltipEl = el;
+
+		this.describeHost();
+		this.doc.addEventListener('keydown', this.onKeydown, true);
 
 		this.position();
 		el.classList.add('hub-tooltip--show');
 	}
 
+	/**
+	 * Fades the tooltip out after the grace period, so the pointer can cross the gap the
+	 * offset opens between host and bubble without the label vanishing on the way.
+	 */
+	private scheduleHide(): void {
+		if (!this.tooltipEl) {
+			return;
+		}
+		this.clearLeaveTimeout();
+		this.leaveTimeout = setTimeout(() => this.hide(), HOVER_GRACE_MS);
+	}
+
+	/** Cancels a pending hide and brings a fading bubble back to full opacity. */
+	private retain(): void {
+		this.clearLeaveTimeout();
+		this.clearHideTimeout();
+		if (this.tooltipEl) {
+			this.tooltipEl.style.pointerEvents = '';
+			this.tooltipEl.classList.add('hub-tooltip--show');
+		}
+	}
+
 	/** Fades the tooltip out and removes it after the fade completes. */
 	private hide(): void {
+		this.clearLeaveTimeout();
 		if (!this.tooltipEl) {
 			return;
 		}
 		this.tooltipEl.classList.remove('hub-tooltip--show');
+		// Fading, so the pointer is not coming: stop the bubble from catching clicks meant
+		// for whatever it floats over while it is invisible but still in the document.
+		this.tooltipEl.style.pointerEvents = 'none';
 		this.clearHideTimeout();
 		this.hideTimeout = setTimeout(() => this.removeElement(), this.delay);
 	}
@@ -172,10 +248,43 @@ export class HubTooltipController {
 	/** Removes the tooltip element immediately. */
 	private removeElement(): void {
 		this.clearHideTimeout();
+		this.clearLeaveTimeout();
 		if (this.tooltipEl) {
+			this.doc.removeEventListener('keydown', this.onKeydown, true);
+			this.tooltipEl.removeEventListener('mouseenter', this.onTooltipEnter);
+			this.tooltipEl.removeEventListener('mouseleave', this.onHide);
+			this.undescribeHost();
 			this.tooltipEl.remove();
 			this.tooltipEl = null;
 		}
+	}
+
+	/**
+	 * Points the host at the live bubble so assistive technology reads the label as the
+	 * host's description. Any `aria-describedby` the consumer already wrote is kept: the
+	 * tooltip joins that list instead of replacing it, and leaves it as it found it.
+	 */
+	private describeHost(): void {
+		const tokens = this.describedBy();
+		if (!tokens.includes(this.tooltipId)) {
+			tokens.push(this.tooltipId);
+		}
+		this.host.setAttribute('aria-describedby', tokens.join(' '));
+	}
+
+	/** Removes this tooltip from the host's description, dropping an emptied attribute. */
+	private undescribeHost(): void {
+		const tokens = this.describedBy().filter((id) => id !== this.tooltipId);
+		if (tokens.length) {
+			this.host.setAttribute('aria-describedby', tokens.join(' '));
+		} else {
+			this.host.removeAttribute('aria-describedby');
+		}
+	}
+
+	/** Current `aria-describedby` of the host, as a token list. */
+	private describedBy(): string[] {
+		return (this.host.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean);
 	}
 
 	/**
@@ -199,6 +308,13 @@ export class HubTooltipController {
 		if (this.hideTimeout !== null) {
 			clearTimeout(this.hideTimeout);
 			this.hideTimeout = null;
+		}
+	}
+
+	private clearLeaveTimeout(): void {
+		if (this.leaveTimeout !== null) {
+			clearTimeout(this.leaveTimeout);
+			this.leaveTimeout = null;
 		}
 	}
 

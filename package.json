@@ -1,6 +1,6 @@
 {
 	"name": "ng-hub-ui-utils",
-	"version": "22.12.0",
+	"version": "22.12.1",
 	"license": "MIT",
 	"peerDependencies": {
 		"@angular/common": ">=18.0.0",
@@ -10,6 +10,12 @@
 		"tslib": "^2.3.0"
 	},
 	"sideEffects": false,
+	"exports": {
+		"./styles/tooltip": "./styles/tooltip.scss",
+		"./styles/tooltip.scss": "./styles/tooltip.scss",
+		"./styles/overlay": "./styles/overlay.scss",
+		"./styles/overlay.scss": "./styles/overlay.scss"
+	},
 	"homepage": "https://hubui.dev/en/utils/overview/",
 	"author": "Carlos Morcillo <carlos.morcillo@me.com> (https://www.carlosmorcillo.com)",
 	"repository": {

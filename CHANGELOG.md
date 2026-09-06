@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.12.1] - 2026-09-06
+
+### Changed
+
+- **`FUNCTIONALITIES.md` no longer sends the reader to the specs.** Fifteen rows were marked as having no example — the popup service, the transition helpers, `UnwrapAsyncPipe`, the DOM and RxJS helpers, and five of the colour functions — which left the unit tests as the only executable use of them. Each of those now has a demo on the documentation site, so the table reports coverage instead of a wishlist. No API changed.
+
+### Fixed
+
+- **The tooltip and overlay stylesheets resolve at the path the documentation gives.** The manifest declared no `exports`, so ng-packagr synthesised one for the published package — and a synthesised map lists `.` and `./package.json` and nothing else. A package that declares `exports` closes every subpath outside the map, so `@use 'ng-hub-ui-utils/styles/tooltip';` resolved to nothing even though the sheet shipped in `styles/`. The manifest now names both sheets, extensionless and with the `.scss` suffix, the way every sibling package in the family already does; ng-packagr merges those entries into the map it generates rather than replacing them.
+
+- **The tooltip is announced to assistive technology, and can be got rid of without a mouse.** The bubble was a bare `<span>`: no `id`, no `role`, and the host was never pointed at it, so the label existed only for someone holding a pointer. On an icon-only button — the case the tooltip is written for — a screen reader had nothing to read, and the only workaround was an `aria-label` repeating the same text. The bubble is now `role="tooltip"` with an id the host is `aria-describedby` while it is on screen, and the attribute is put back exactly as it was found, so a description a consumer wrote is neither replaced nor left behind.
+
+    The same change closes WCAG 1.4.13 for it. Escape dismisses the label without moving the pointer or the focus, and the label no longer evaporates the instant the pointer leaves the host: it waits out a short grace period and stays put once the pointer lands on it, which is the only way to read one longer than its box. `styles/tooltip.scss` therefore ships `pointer-events: auto` instead of `none` — a bubble the pointer cannot land on cannot be hoverable — and the controller disables them again the moment it starts fading, so an invisible bubble never catches a click meant for what is under it.
+
+    Reached through `HubTooltipController`, so it arrives at all four entry points at once: `[hubTooltip]`, the deprecated `[tooltip]`, `[hubOverflowTooltip]`, and `hubTooltipAdapter` — the one every sibling library resolves through its own tooltip token.
+
+- **The documentation names what the package exports, and only that.** Both READMEs, the
+  coverage table and the documentation page announced an API that was never written: services
+  called `HubOverlayService` and `HubPopupService` (they are `OverlayService` and
+  `PopupService<T>`), an `attach<T>(component)` on `OverlayRef` that returns a `ComponentRef`
+  (it takes a template or a component plus an optional `ViewContainerRef`, and returns the host
+  element), and a `PopupService` declared `abstract` when it is a concrete class taking the
+  component type in its constructor. A reader who typed any of those found out from the
+  compiler.
+
+- **The tooltip guidance teaches `[hubTooltip]` instead of the directive it replaced.** The
+  only tooltip section in either README taught `[tooltip]`, deprecated since 22.9.0 —
+  `HubTooltipDirective` appeared in neither file — so anyone following the README adopted the
+  API whose bare input names collide with `[hubDropdown]` and `<hub-badge>`. The deprecation
+  and the attribute-for-attribute migration are now written where the reader is, and the token
+  list is complete: `--hub-tooltip-white-space`, `--hub-tooltip-text-align`,
+  `--hub-tooltip-font-weight` and `--hub-tooltip-line-height` were forwarded by the controller
+  and documented nowhere.
+
+- **Fifteen exported names had no entry in either README.** `HubTooltipDirective`,
+  `[hubOverflowTooltip]`, `provideHubTooltip()`, `HUB_TOOLTIP_ADAPTER`, the whole drag-and-drop
+  module, `resolveHubAccent()`, `HUB_TRANSLATION_PREFIX`, `HUB_DROPDOWN_POSITIONS`,
+  `OverlayRef.onKeydown()` / `onBackdropClick()` / `hasAttached()`,
+  `OverlayPosition.withDirection()`, `mergeDeep()`, `generateUniqueId()` and
+  `debouncedSignal()` were reachable only by reading `public-api.ts`. The Spanish README was
+  further behind: it omitted the mandatory stylesheet import and the whole tooltip-adapter
+  section, and ordered its API sections differently from the English one.
+
+- **The coverage table stops claiming demos that do not exist.** Seven rows were marked ✅
+  without a single example importing them — `IsObservablePipe`, `isInteger()`, `isPromise()`,
+  `toInteger()` / `toString()`, `getValueInRange()` and `regExpEscape()` — and the table had no
+  row at all for the tooltip directives, the drag-and-drop module, `resolveHubAccent()`,
+  `HUB_TRANSLATION_PREFIX` or the object and signal helpers. A ❌ is information; a ✅ that is
+  not true is worse than no table.
+
+- **The documentation page stops advertising features this library has never had.** Five of
+  its seven overview highlights described formatting pipes, a `*hubLet` directive, a `hubClass`
+  helper, `@Debounce` / `@Throttle` decorators and a deep clone/merge/diff trio; of all of it
+  only `mergeDeep()` exists. They now point at the feature guides on the same page, so a
+  highlight cannot outlive the section it summarises. Its release list also skipped eight
+  releases in a row — 22.11.1 down to 22.8.1, the run that added `[hubTooltip]`,
+  `OverlayRef.onKeydown()`, `HUB_DROPDOWN_POSITIONS` and the two tooltip tokens — and is now
+  gapless.
+
 ## [22.12.0] - 2026-09-03
 
 ### Added
@@ -109,6 +168,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The stylesheets are published at the path the documentation gives.** `@use 'ng-hub-ui-utils/styles/tooltip'` — the import `provideHubTableTooltip` tells you to add — did not resolve. The package copied `src/lib/styles` with the shorthand asset form, which preserves the source path, so the sheets landed at `ng-hub-ui-utils/src/lib/styles/tooltip.scss` and the only import that worked reached through the package's internal folder layout. Every other library in the family already redirected its assets to `styles/`; this one now does the same.
 
     Worth stating because the workaround was invisible: importing through the internal path works until a patch release moves a folder, and that move would not be a declared break.
+
+    **Correction.** The move landed the sheets in `styles/`, but the package's `exports` map still hid them, so the documented import kept failing. See the `22.12.1` entry above.
 
 ## [22.9.1] - 2026-08-17
 

@@ -116,8 +116,8 @@ export class ExampleComponent {
         overlayY: 'top'
       }]);
 
-    // Attach component to overlay
-    const componentRef = overlayRef.attach(MyComponent);
+    // Render a component (or a TemplateRef) into the overlay; you get the host element back
+    const overlayElement = overlayRef.attach(MyComponent);
   }
 }
 ```
@@ -128,9 +128,11 @@ export class ExampleComponent {
 this.overlayService.create({ zIndex: 1100 }); // OverlayConfig.zIndex: number | string — takes precedence over the token
 ```
 
-### 🎯 Popup Service (Base Class)
+### 🎯 Popup Service
 
-Base service for creating custom popup implementations.
+`PopupService<T>` hosts a dynamically created popup component and runs its show/hide
+transition. It is a concrete class — subclass it when the popup needs its own API, as
+below, or provide it through a factory.
 
 ```typescript
 import { PopupService } from 'ng-hub-ui-utils';
@@ -356,16 +358,17 @@ import { GetPipe, UcfirstPipe } from 'ng-hub-ui-utils';
 
 ### 🏷️ Tooltip Directive
 
-Add a lightweight, themeable tooltip to any element with the `[tooltip]` directive.
-The tooltip is appended to `<body>` (never clipped) and shows on hover/focus.
+Add a lightweight, themeable tooltip to any element with the `HubTooltipDirective`
+(`[hubTooltip]`). The tooltip is appended to `<body>` (never clipped) and shows on
+hover/focus.
 
 ```typescript
-import { TooltipDirective } from 'ng-hub-ui-utils';
+import { HubTooltipDirective } from 'ng-hub-ui-utils';
 
 @Component({
 	standalone: true,
-	imports: [TooltipDirective],
-	template: `<button tooltip="Save changes" placement="top">Save</button>`
+	imports: [HubTooltipDirective],
+	template: `<button hubTooltip="Save changes" hubTooltipPlacement="top">Save</button>`
 })
 export class ExampleComponent {}
 ```
@@ -378,8 +381,24 @@ export class ExampleComponent {}
 > @use 'ng-hub-ui-utils/styles/tooltip';
 > ```
 
-Inputs: `tooltip` (text), `placement` (`top` | `bottom` | `left` | `right`, default `top`),
-`delay` (fade ms, default `150`), `offset` (px, default `8`).
+Inputs: `hubTooltip` (text), `hubTooltipPlacement` (`top` | `bottom` | `left` | `right`,
+default `top`), `hubTooltipDelay` (fade ms, default `150`), `hubTooltipOffset` (px, default `8`).
+
+> **`TooltipDirective` (`[tooltip]`) is deprecated since 22.9.0.** It still works,
+> unchanged — both directives are thin shells over the same `HubTooltipController` — but its
+> bare input names (`tooltip`, `placement`, `delay`, `offset`) belong to every directive on
+> the element that declares them, which is how it collided with `[hubDropdown]`'s own
+> `placement` and with the `tooltip` input of `<hub-badge>`. Migration is attribute for
+> attribute: `tooltip` → `hubTooltip`, `placement` → `hubTooltipPlacement`,
+> `delay` → `hubTooltipDelay`, `offset` → `hubTooltipOffset`.
+
+Show the label **only while the host is truncated** with `HubOverflowTooltipDirective`
+(`[hubOverflowTooltip]`), which tracks truncation live with a `ResizeObserver` and a
+`MutationObserver` and resolves its tooltip through `HUB_TOOLTIP_ADAPTER`:
+
+```html
+<span class="label" [hubOverflowTooltip]="item.label">{{ item.label }}</span>
+```
 
 Theme it from any scope with `--hub-tooltip-*` variables:
 
@@ -394,8 +413,14 @@ Theme it from any scope with `--hub-tooltip-*` variables:
 
 Available tokens: `--hub-tooltip-bg`, `--hub-tooltip-color`, `--hub-tooltip-opacity`,
 `--hub-tooltip-padding-x`, `--hub-tooltip-padding-y`, `--hub-tooltip-border-radius`,
-`--hub-tooltip-font-size`, `--hub-tooltip-max-width`, `--hub-tooltip-zindex`,
-`--hub-tooltip-transition-duration`, `--hub-tooltip-shadow`, `--hub-tooltip-font-family`.
+`--hub-tooltip-font-size`, `--hub-tooltip-font-weight`, `--hub-tooltip-line-height`,
+`--hub-tooltip-max-width`, `--hub-tooltip-zindex`, `--hub-tooltip-transition-duration`,
+`--hub-tooltip-shadow`, `--hub-tooltip-font-family`, `--hub-tooltip-white-space`,
+`--hub-tooltip-text-align`.
+
+The last two arrived in 22.10.0, for the tooltip that carries a sentence rather than a
+name: they are set on the **host**, which is the only element you can reach, because the
+bubble itself lives on `<body>`, outside every component's styles.
 
 #### Tooltip adapter for other libraries (`hubTooltipAdapter`)
 
@@ -414,10 +439,26 @@ providers: [
 ];
 ```
 
+Inside this package the same token works the other way round: `[hubOverflowTooltip]`
+resolves its tooltip through `HUB_TOOLTIP_ADAPTER`, which defaults to `hubTooltipAdapter`.
+Swap it app-wide, or for one subtree, with `provideHubTooltip()`:
+
+```ts
+import { provideHubTooltip, HubTooltipAdapter } from 'ng-hub-ui-utils';
+
+const myTooltip: HubTooltipAdapter = {
+	attach(host, text, options) {
+		/* … returns a HubTooltipHandle with update(text) and destroy() */
+	}
+};
+
+providers: [provideHubTooltip(myTooltip)];
+```
+
 Also available: the imperative `HubTooltipController` (engine) and the
-`HubTooltipAdapter` / `HubTooltipHandle` / `HubTooltipOptions` types. See the
-ecosystem-wide [Synergies & agnosticism](../../README.md#synergies--agnosticism)
-section.
+`HubTooltipAdapter` / `HubTooltipHandle` / `HubTooltipOptions` / `HubTooltipPlacement`
+types. See the ecosystem-wide
+[Synergies & agnosticism](../../README.md#synergies--agnosticism) section.
 
 ## 🚀 Installation
 
@@ -505,6 +546,20 @@ interface HubTranslationConfig {
 
 The configuration is also exposed through the `HUB_TRANSLATION_CONFIG` injection token for advanced scenarios.
 
+### `HUB_TRANSLATION_PREFIX`
+
+Injection token that scopes a library's lookups to a collision-safe `HUBUI.<LIBRARY>.*`
+namespace. `TranslatePipe` resolves the prefixed key first and falls back to the bare key,
+so a flat dictionary that predates the token keeps working untouched.
+
+```typescript
+providers: [{ provide: HUB_TRANSLATION_PREFIX, useValue: 'HUBUI.TABLE' }];
+```
+
+The adapter types are exported alongside it: `HubTranslationSource`,
+`HubTranslationOverrides`, `HubTranslationAdapterConfig`, `HubTranslationAdapterFactory`
+and the `HUB_TRANSLATION_SOURCE` token `provideHubTranslationAdapter()` registers.
+
 ### `HubTranslationService`
 
 Injectable service that holds the active translations and notifies subscribers when they change.
@@ -584,12 +639,29 @@ These functions back the i18n system and are exported for direct use:
 
 -   `regExpEscape(text: string): string` - Escapes special characters for RegExp
 -   `removeAccents(str: string): string` - Removes accents from text
+-   `interpolateString(expr?: string, params?: any, templateMatcher?: RegExp): string` - Replaces `{{ token }}` placeholders
+-   `generateUniqueId(length: number): string` - Random alphanumeric id, for a DOM node that needs one
+
+### Object Functions
+
+-   `equals(o1: any, o2: any): boolean` - Deep equality
+-   `getValue(target: any, key: string): any` - Reads a nested value by dot-notation key
+-   `isObject(item: any): boolean` - Whether the value is a non-array object
+-   `mergeDeep(target: any, source: any): any` - Recursive merge; the only deep object helper in the package
+
+### Signal Utilities
+
+-   `debouncedSignal<T>(source: Signal<T>, delay?: number | Signal<number>): Signal<T>` - Mirrors a signal, delaying each change; the delay can itself be a signal
 
 ### DOM Functions
 
 -   `closest(element: HTMLElement, selector?: string): HTMLElement | null` - Finds parent element by selector
 -   `reflow(element: HTMLElement): DOMRect` - Forces browser reflow
 -   `getActiveElement(root?: Document | ShadowRoot): Element | null` - Gets active element including Shadow DOM
+
+### Accent Resolution
+
+-   `resolveHubAccent(value: string | null | undefined): string | null` - The "any colour" accent resolver shared across the family: a bareword becomes `var(--hub-sys-color-<name>, <name>)`, a literal `#hex` / `rgb()` / `oklch()` / `var()` passes through unchanged, and an empty value yields `null`
 
 ### Colour Functions
 
@@ -620,6 +692,27 @@ These functions back the i18n system and are exported for direct use:
 -   `getFocusableBoundaryElements(element: HTMLElement): HTMLElement[]` - Gets first and last focusable elements
 -   `hubFocusTrap(zone, element, stopFocusTrap$, refocusOnClick?)` - Creates focus trap for modals/overlays
 -   `FOCUSABLE_ELEMENTS_SELECTOR: string` - CSS selector for focusable elements
+
+### Drag and Drop
+
+The engine-agnostic half of native HTML5 drag and drop, shared by the libraries that
+implement it. The UI primitives — handle, placeholder and preview directives — stay in each
+library, because their selectors and data models differ.
+
+-   `HubDragDropService` - Root-provided coordinator. A drag spans two component instances and the native `dataTransfer` payload is unreadable during `dragover`, so a shared service is the only reliable channel for what is being dragged and from where. Owners `register()` / `unregister()`; `begin()`, `setTarget()` and the readonly `active` / `target` / `isDragging` signals report the drag in progress. It coordinates state only — it never mutates your collections
+-   `moveItemInArray<T>(array, fromIndex, toIndex): void` / `transferArrayItem<T>(source, target, fromIndex, toIndex): void` / `copyArrayItem<T>(source, target, fromIndex, toIndex): void` - In-place array moves, mirroring the `@angular/cdk` helpers of the same names
+-   `clamp(value, max)`, `computeTargetIndex(...)`, `toAbsoluteIndex(...)`, `containsNode(...)` - Index arithmetic for sliced and nested lists
+-   `resolveDropPosition(...)` with `DropRect` and `DragAxis` - Where a pointer sits relative to an item: `'before'` or `'after'`, on a vertical, horizontal or grid axis
+-   `createNativeDragImage(...)` returning `DragImageResult` - Renders the drag preview the browser shows
+-   `createPointerDragSession(config: PointerDragSessionConfig): PointerDragSession` - Pointer Events fallback for touch, where native drag events are not delivered
+-   Types: `DropPosition`, `DragPointerMode`, `DragContainerRef<T>`, `ActiveDrag<T>`, `DragTarget<T>`, `DragRegistration`
+
+### Directives
+
+-   `HubTooltipDirective` (`[hubTooltip]`) - Tooltip on hover/focus. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
+-   `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip shown only while the host label is truncated. Inputs: `hubOverflowTooltip`, `placement`
+-   `TooltipDirective` (`[tooltip]`) - **Deprecated since 22.9.0**, kept working. Inputs: `tooltip`, `placement`, `delay`, `offset`
+-   `provideHubTooltip(adapter: HubTooltipAdapter)` and `HUB_TOOLTIP_ADAPTER` - Swap the implementation behind `[hubOverflowTooltip]`, app-wide or per subtree; defaults to `hubTooltipAdapter`
 
 ### Pipes
 
@@ -681,16 +774,35 @@ class OverlayService {
 }
 
 class OverlayRef {
-  attach<T>(component: ComponentType<T>): ComponentRef<T>;
+  // Renders a template or a component into the overlay and returns the host element,
+  // not a ComponentRef: the overlay owns the view it created and tears it down itself.
+  attach(content: TemplateRef<unknown> | Type<unknown>, viewContainerRef?: ViewContainerRef): HTMLElement;
   detach(): void;
   dispose(): void;
+  hasAttached(): boolean;
   updatePosition(): void;
+  onBackdropClick(callback: () => void): void;
+  // Only the topmost open overlay is told, so a dropdown inside a dialog takes Escape
+  // for itself and leaves the dialog open.
+  onKeydown(callback: (event: KeyboardEvent) => void): void;
 }
 
 class OverlayPosition {
-  flexibleConnectedTo(element: ElementRef | HTMLElement): this;
+  flexibleConnectedTo(origin: ElementRef | HTMLElement): this;
   withPositions(positions: ConnectionPosition[]): this;
+  // `start` / `end` are logical and read from the origin element; this overrides that.
+  withDirection(direction: 'ltr' | 'rtl' | null): this;
 }
+```
+
+`HUB_DROPDOWN_POSITIONS` is the ready-made fallback chain for a dropdown — below the
+origin, flipping above when there is no room — expressed logically so one list serves
+both text directions:
+
+```typescript
+import { HUB_DROPDOWN_POSITIONS } from 'ng-hub-ui-utils';
+
+overlayService.position().flexibleConnectedTo(origin).withPositions([...HUB_DROPDOWN_POSITIONS]);
 ```
 
 #### ScrollBar Service
@@ -702,14 +814,26 @@ class ScrollBar {
 }
 ```
 
-#### PopupService<T> (Base Class)
+#### PopupService&lt;T&gt;
+
+A concrete generic class, not an abstract one: it takes the popup component type in its
+constructor, and it reads its collaborators with `inject()`, so it has to be created inside
+an injection context — as an `@Injectable()` subclass, or from a factory provider.
 
 ```typescript
-abstract class PopupService<T> {
-  // Base system for creating dynamic popups
-  // Extend this class to create specific popup services
-  open(content?, templateContext?, animation?): { windowRef: ComponentRef<T>; transition$: Observable<void> };
-  close(animation?): Observable<void>;
+class PopupService<T> {
+  constructor(componentType: Type<T>);
+  open(
+    content?: string | TemplateRef<any>,
+    templateContext?: any,
+    animation?: boolean
+  ): { windowRef: ComponentRef<T>; transition$: Observable<void> };
+  close(animation?: boolean): Observable<void>;
+}
+
+// The nodes and view a popup projects, returned internally by the content resolver.
+class ContentRef {
+  constructor(nodes: Node[][], viewRef?: ViewRef, componentRef?: ComponentRef<any>);
 }
 ```
 
@@ -729,7 +853,7 @@ This library doesn't include visual components, but support utilities used by ot
 | Overlay Service | Flexible overlay positioning system | ng-hub-ui-modal, ng-hub-ui-portal      |
 | Focus Trap      | Focus management in modals/overlays | ng-hub-ui-modal, ng-hub-ui-portal      |
 | Scrollbar       | Scrollbar compensation              | ng-hub-ui-modal, ng-hub-ui-portal      |
-| Popup Service   | Base class for popup components     | ng-hub-ui-modal, ng-hub-ui-portal      |
+| Popup Service   | Host for dynamically created popups | ng-hub-ui-modal, ng-hub-ui-portal      |
 | Transitions     | Smooth animations                   | ng-hub-ui-accordion, ng-hub-ui-modal   |
 | Type Guards     | Type validation functions           | ng-hub-ui-stepper                      |
 | Pipes           | Template utilities                  | All Hub UI components                  |

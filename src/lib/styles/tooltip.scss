@@ -61,7 +61,11 @@
 	border-radius: var(--hub-tooltip-border-radius);
 	box-shadow: var(--hub-tooltip-shadow);
 	opacity: 0;
-	pointer-events: none;
+	/* Hoverable, as WCAG 1.4.13 asks: a label wider than its box has to be readable for
+	   longer than the trip across the 8px gap, and a bubble the pointer cannot land on
+	   disappears the moment the pointer tries. The controller keeps it alive while the
+	   pointer is on it. */
+	pointer-events: auto;
 	transition: opacity var(--hub-tooltip-transition-duration) ease-in-out;
 }
 

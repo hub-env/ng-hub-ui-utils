@@ -19,6 +19,9 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 | **Translation Service** | `HubTranslationService` | ✅ |
 | | `provideHubTranslation()` provider | ✅ |
 | | `HUB_TRANSLATION_CONFIG` injection token | ✅ |
+| **External services** | `provideHubTranslationAdapter()` provider | ✅ |
+| | `HUB_TRANSLATION_SOURCE` injection token | ❌ |
+| **Namespacing** | `HUB_TRANSLATION_PREFIX` injection token | ❌ |
 | **Pipes** | `TranslatePipe` | ✅ |
 
 ---
@@ -39,8 +42,43 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 
 | Category | Functionality | Example Covered |
 | :--- | :--- | :---: |
-| **Popup** | `HubPopupService` | ❌ |
-| | Programmatic popup creation | ❌ |
+| **Popup** | `PopupService<T>` | ✅ |
+| | Programmatic popup creation | ✅ |
+
+---
+
+## Tooltip
+
+| Category | Functionality | Example Covered |
+| :--- | :--- | :---: |
+| **Directives** | `HubTooltipDirective` (`[hubTooltip]`) | ✅ |
+| | `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) | ❌ |
+| | `TooltipDirective` (`[tooltip]`, deprecated since 22.9.0) | ❌ |
+| **Engine** | `HubTooltipController` | ❌ |
+| | `hubTooltipAdapter` | ❌ |
+| **Agnosticism** | `HUB_TOOLTIP_ADAPTER` token | ❌ |
+| | `provideHubTooltip()` provider | ❌ |
+
+---
+
+## Drag and Drop
+
+| Category | Functionality | Example Covered |
+| :--- | :--- | :---: |
+| **Coordination** | `HubDragDropService` | ❌ |
+| **Array helpers** | `moveItemInArray()`, `transferArrayItem()`, `copyArrayItem()` | ❌ |
+| | `clamp()`, `computeTargetIndex()`, `toAbsoluteIndex()`, `containsNode()` | ❌ |
+| **Geometry** | `resolveDropPosition()`, `DropRect`, `DragAxis` | ❌ |
+| **Preview** | `createNativeDragImage()` | ❌ |
+| **Touch fallback** | `createPointerDragSession()` | ❌ |
+
+---
+
+## Accent Resolution
+
+| Category | Functionality | Example Covered |
+| :--- | :--- | :---: |
+| **Accent** | `resolveHubAccent()` | ❌ |
 
 ---
 
@@ -58,9 +96,9 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 
 | Category | Functionality | Example Covered |
 | :--- | :--- | :---: |
-| **Animation** | `hubRunTransition()` function | ❌ |
-| | Transition utilities | ❌ |
-| | CSS transition helpers | ❌ |
+| **Animation** | `hubRunTransition()` function | ✅ |
+| | Transition utilities | ✅ |
+| | CSS transition helpers | ✅ |
 
 ---
 
@@ -70,10 +108,10 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 | :--- | :--- | :---: |
 | **Type Checking** | `IsStringPipe` | ✅ |
 | | `IsObjectPipe` | ✅ |
-| | `IsObservablePipe` | ✅ |
+| | `IsObservablePipe` | ❌ |
 | **Data Access** | `GetPipe` (dot notation access) | ✅ |
 | **Transformation** | `UcfirstPipe` (capitalize first letter) | ✅ |
-| **Async** | `UnwrapAsyncPipe` | ❌ |
+| **Async** | `UnwrapAsyncPipe` | ✅ |
 | **i18n** | `TranslatePipe` | ✅ |
 
 ---
@@ -82,20 +120,24 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 
 | Category | Functionality | Example Covered |
 | :--- | :--- | :---: |
-| **Type Guards** | `isString()`, `isNumber()`, `isInteger()` | ✅ |
-| | `isDefined()`, `isPromise()` | ✅ |
-| **Value Conversion** | `toInteger()`, `toString()` | ✅ |
-| | `getValueInRange()` | ✅ |
+| **Type Guards** | `isString()`, `isNumber()` | ✅ |
+| | `isDefined()` | ✅ |
+| | `isInteger()`, `isPromise()` | ❌ |
+| **Value Conversion** | `toInteger()`, `toString()` | ❌ |
+| | `getValueInRange()` | ❌ |
 | **String Utilities** | `padNumber()` | ✅ |
-| | `regExpEscape()` | ✅ |
+| | `regExpEscape()` | ❌ |
 | | `removeAccents()` | ✅ |
 | | `interpolateString()` | ✅ |
+| | `generateUniqueId()` | ❌ |
 | **Object Utilities** | `equals()` (deep equality) | ✅ |
 | | `getValue()` (dot notation access) | ✅ |
-| **DOM Utilities** | `closest()` | ❌ |
-| | `reflow()` (force browser reflow) | ❌ |
-| | `getActiveElement()` | ❌ |
-| **RxJS Utilities** | `runInZone()` operator | ❌ |
+| | `isObject()`, `mergeDeep()` (recursive merge) | ❌ |
+| **Signal Utilities** | `debouncedSignal()` | ❌ |
+| **DOM Utilities** | `closest()` | ✅ |
+| | `reflow()` (force browser reflow) | ✅ |
+| | `getActiveElement()` | ✅ |
+| **RxJS Utilities** | `runInZone()` operator | ✅ |
 
 ## Color
 
@@ -103,13 +145,13 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 | :--- | :--- | :---: |
 | **Parsing** | `parseColor()` — hex 3/4/6/8, `rgb()`, `hsl()`, `oklch()`, `oklab()`, named, `transparent` | ✅ |
 | | `toHex()` | ✅ |
-| | `toRgb()` | ❌ |
-| | `isValidColor()` | ❌ |
-| | `HUB_NAMED_COLORS` (the 148 CSS named colours) | ❌ |
-| **Contrast** | `relativeLuminance()` (WCAG 2) | ❌ |
+| | `toRgb()` | ✅ |
+| | `isValidColor()` | ✅ |
+| | `HUB_NAMED_COLORS` (the 148 CSS named colours) | ✅ |
+| **Contrast** | `relativeLuminance()` (WCAG 2) | ✅ |
 | | `contrastRatio()` (WCAG 2) | ✅ |
 | | `contrastAPCA()` (APCA-1.0.98G) | ✅ |
-| | `compositeOver()` (blend translucent over background) | ❌ |
+| | `compositeOver()` (blend translucent over background) | ✅ |
 | | `readableOn()`, `HUB_INK_LIGHTNESS_THRESHOLD` | ✅ |
 | **OKLCh** | `rgbToOklch()`, `oklchToRgb()` | ✅ |
 | | `maxSrgbChroma()`, `isInSrgbGamut()`, `clampToSrgbGamut()` | ✅ |
