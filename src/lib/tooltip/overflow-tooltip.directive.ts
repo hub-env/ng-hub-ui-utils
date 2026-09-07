@@ -16,12 +16,26 @@ import { HubTooltipHandle, HubTooltipPlacement } from './tooltip.types';
  * {@link HUB_TOOLTIP_ADAPTER} token, which defaults to the built-in hub-ui
  * tooltip. Swap it app-wide (or per subtree) with `provideHubTooltip(...)`.
  *
+ * The element that is MEASURED and the element that is HOVERED need not be the same. By
+ * default they are — the host does both — but a control whose text is clipped by a box
+ * inside it wants them apart: the hover area is the whole control, while the only box that
+ * can report truncation is the inner one. Point `hubOverflowTooltipMeasure` at that box and
+ * the tooltip covers the control while answering to the text.
+ *
  * Requires the tooltip styles once in your app:
  * `@use 'ng-hub-ui-utils/styles/tooltip';`.
  *
- * @example
+ * @example Host measures itself
  * ```html
  * <span class="label" [hubOverflowTooltip]="item.label">{{ item.label }}</span>
+ * ```
+ *
+ * @example Hover the whole chip, measure the title inside it
+ * ```html
+ * <div class="chip" [hubOverflowTooltip]="item.label" hubOverflowTooltipMeasure=".chip__title">
+ *   <span class="chip__icon"></span>
+ *   <span class="chip__title">{{ item.label }}</span>
+ * </div>
  * ```
  */
 @Directive({
@@ -33,6 +47,16 @@ export class HubOverflowTooltipDirective implements OnDestroy {
 
 	/** Placement of the tooltip relative to the host. */
 	readonly placement = input<HubTooltipPlacement>('top');
+
+	/**
+	 * CSS selector, resolved inside the host, naming the element whose truncation decides
+	 * whether the tooltip speaks. The tooltip still belongs to the host, so the hover area is
+	 * unchanged; only the measurement moves.
+	 *
+	 * Left unset — or pointing at nothing — the host measures itself, which is what this
+	 * directive has always done.
+	 */
+	readonly measureTarget = input<string | undefined>(undefined, { alias: 'hubOverflowTooltipMeasure' });
 
 	private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 	private readonly adapter = inject(HUB_TOOLTIP_ADAPTER);
@@ -46,6 +70,15 @@ export class HubOverflowTooltipDirective implements OnDestroy {
 
 	constructor() {
 		afterNextRender(() => this.init());
+
+		// A selector changed after the fact points at a different box, so the observers and
+		// the truncation state both have to be taken again.
+		effect(() => {
+			this.measureTarget();
+			if (this.ready()) {
+				this.observe();
+			}
+		});
 
 		effect(() => {
 			if (!this.ready() || !this.handle) {
@@ -65,25 +98,60 @@ export class HubOverflowTooltipDirective implements OnDestroy {
 	/** Wires the tooltip handle and the browser-only truncation observers. */
 	private init(): void {
 		const el = this.host.nativeElement;
-		// Attach with no text; the effect feeds the label only while truncated.
+		// The tooltip belongs to the HOST whatever is measured: it is the control the pointer
+		// is over, and the box that reports truncation may be a fraction of it.
 		this.handle = this.adapter.attach(el, '', { placement: this.placement() });
-		this.measure(el);
 
 		if (typeof ResizeObserver !== 'undefined') {
-			this.resizeObserver = new ResizeObserver(() => this.measure(el));
-			this.resizeObserver.observe(el);
+			// Re-resolving on every callback rather than closing over the element: content
+			// rendered after this point can bring the measured box with it.
+			this.resizeObserver = new ResizeObserver(() => this.measure());
 		}
 
 		if (typeof MutationObserver !== 'undefined') {
-			this.mutationObserver = new MutationObserver(() => this.measure(el));
+			// A mutation can replace the measured box, so the observers are re-pointed rather
+			// than merely re-read.
+			this.mutationObserver = new MutationObserver(() => this.observe());
 			this.mutationObserver.observe(el, { childList: true, characterData: true, subtree: true });
 		}
 
+		this.observe();
 		this.ready.set(true);
 	}
 
-	/** Updates the truncation state from the host's layout. */
-	private measure(el: HTMLElement): void {
+	/**
+	 * Points the resize observer at the boxes that can change the answer — the host, whose
+	 * width bounds everything, and the measured box when it is a different element — and
+	 * takes the measurement again.
+	 */
+	private observe(): void {
+		const host = this.host.nativeElement;
+		const target = this.resolveTarget();
+
+		if (this.resizeObserver) {
+			this.resizeObserver.disconnect();
+			this.resizeObserver.observe(host);
+			if (target !== host) {
+				this.resizeObserver.observe(target);
+			}
+		}
+
+		this.measure();
+	}
+
+	/**
+	 * The element whose overflow is the question. Falls back to the host, so a selector that
+	 * matches nothing behaves exactly as no selector at all rather than silently going quiet.
+	 */
+	private resolveTarget(): HTMLElement {
+		const host = this.host.nativeElement;
+		const selector = this.measureTarget();
+		return (selector ? host.querySelector<HTMLElement>(selector) : null) ?? host;
+	}
+
+	/** Updates the truncation state from the measured box's layout. */
+	private measure(): void {
+		const el = this.resolveTarget();
 		this.overflowing.set(el.scrollWidth > el.clientWidth + 1);
 	}
 }

@@ -54,6 +54,7 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 | :--- | :--- | :---: |
 | **Directives** | `HubTooltipDirective` (`[hubTooltip]`) | ✅ |
 | | `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) | ❌ |
+| | `hubOverflowTooltipMeasure` — hover the control, measure a box inside it | ❌ |
 | | `TooltipDirective` (`[tooltip]`, deprecated since 22.9.0) | ❌ |
 | **Engine** | `HubTooltipController` | ❌ |
 | | `hubTooltipAdapter` | ❌ |

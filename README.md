@@ -400,6 +400,22 @@ Show the label **only while the host is truncated** with `HubOverflowTooltipDire
 <span class="label" [hubOverflowTooltip]="item.label">{{ item.label }}</span>
 ```
 
+The element that is **hovered** and the element that is **measured** need not be the same.
+By default they are, but a control whose text is clipped by a box inside it wants them apart:
+the hover area is the whole control, while the only box that can report truncation is the
+inner one — a child that clips its own text never lets the overflow reach its parent, so
+measuring the parent reports none and the tooltip goes quiet. Point
+`hubOverflowTooltipMeasure` at the inner box with a CSS selector, resolved inside the host:
+
+```html
+<div class="chip" [hubOverflowTooltip]="item.label" hubOverflowTooltipMeasure=".chip__title">
+	<span class="chip__icon"></span>
+	<span class="chip__title">{{ item.label }}</span>
+</div>
+```
+
+Unset — or pointing at nothing — the host measures itself, exactly as before.
+
 Theme it from any scope with `--hub-tooltip-*` variables:
 
 ```css
@@ -710,7 +726,7 @@ library, because their selectors and data models differ.
 ### Directives
 
 -   `HubTooltipDirective` (`[hubTooltip]`) - Tooltip on hover/focus. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
--   `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip shown only while the host label is truncated. Inputs: `hubOverflowTooltip`, `placement`
+-   `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip shown only while the label is truncated. Inputs: `hubOverflowTooltip`, `placement`, `hubOverflowTooltipMeasure` (CSS selector, resolved inside the host, naming the box whose truncation decides it; defaults to the host)
 -   `TooltipDirective` (`[tooltip]`) - **Deprecated since 22.9.0**, kept working. Inputs: `tooltip`, `placement`, `delay`, `offset`
 -   `provideHubTooltip(adapter: HubTooltipAdapter)` and `HUB_TOOLTIP_ADAPTER` - Swap the implementation behind `[hubOverflowTooltip]`, app-wide or per subtree; defaults to `hubTooltipAdapter`
 

@@ -402,6 +402,23 @@ Muestra la etiqueta **solo mientras el host esté truncado** con `HubOverflowToo
 <span class="label" [hubOverflowTooltip]="item.label">{{ item.label }}</span>
 ```
 
+El elemento que se **señala con el ratón** y el que se **mide** no tienen por qué ser el mismo.
+Por defecto lo son, pero un control cuyo texto lo recorta una caja interior los quiere separados:
+la zona sensible es todo el control, mientras que la única caja capaz de declarar el
+desbordamiento es la de dentro —un hijo que recorta su propio texto nunca deja que el
+desbordamiento llegue al padre, así que medir el padre no detecta ninguno y el tooltip se
+retira solo—. Apunta `hubOverflowTooltipMeasure` a esa caja con un selector CSS, que se resuelve
+dentro del host:
+
+```html
+<div class="chip" [hubOverflowTooltip]="item.label" hubOverflowTooltipMeasure=".chip__title">
+	<span class="chip__icon"></span>
+	<span class="chip__title">{{ item.label }}</span>
+</div>
+```
+
+Sin valor —o apuntando a algo que no existe— el host se mide a sí mismo, igual que antes.
+
 Tematízalo desde cualquier ámbito con variables `--hub-tooltip-*`:
 
 ```css
@@ -712,7 +729,7 @@ quedan en cada biblioteca, porque sus selectores y modelos de datos difieren.
 ### Directivas
 
 - `HubTooltipDirective` (`[hubTooltip]`) - Tooltip al pasar el cursor o enfocar. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
-- `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip que solo aparece mientras la etiqueta del host está truncada. Inputs: `hubOverflowTooltip`, `placement`
+- `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip que solo aparece mientras la etiqueta está truncada. Inputs: `hubOverflowTooltip`, `placement`, `hubOverflowTooltipMeasure` (selector CSS, resuelto dentro del host, que nombra la caja cuyo recorte lo decide; por defecto, el propio host)
 - `TooltipDirective` (`[tooltip]`) - **Obsoleta desde 22.9.0**, sigue funcionando. Inputs: `tooltip`, `placement`, `delay`, `offset`
 - `provideHubTooltip(adapter: HubTooltipAdapter)` y `HUB_TOOLTIP_ADAPTER` - Cambian la implementación que hay detrás de `[hubOverflowTooltip]`, para toda la aplicación o para un subárbol; por defecto, `hubTooltipAdapter`
 

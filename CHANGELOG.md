@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`[hubOverflowTooltip]` can be told where to measure.** The element that is hovered and the element
+  whose text is cut are not always the same one, and until now the directive assumed they were: it
+  attached the tooltip to its host and measured that same host. That is right for a bare label and
+  wrong for any control whose text sits in a box inside it — a chip with an icon, a list row with a
+  trailing badge — because a child that clips its own text never lets the overflow reach its parent,
+  so the parent reports none and the tooltip retires itself. Put the directive on the control and
+  point `hubOverflowTooltipMeasure` at the inner box by CSS selector: the hover area stays the whole
+  control, the measurement moves to the only box that can answer. The selector is resolved inside the
+  host and re-resolved as the content changes, the resize observer watches the host and the measured
+  box alike, and anything unset — or a selector matching nothing — measures the host exactly as
+  before, so no existing usage changes.
+
 - `OverlayPosition.origin`, the element the strategy is connected to. It was already known to the
   strategy and to nobody else, and an overlay that has to keep up with its anchor needs to be able
   to ask which element that is.
