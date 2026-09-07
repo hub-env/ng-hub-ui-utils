@@ -130,6 +130,134 @@ describe('OverlayRef repositioning', () => {
 });
 
 /**
+ * Scroll and resize both describe the page moving under an origin that stays put. Neither of them
+ * happens when a sibling collapses above the trigger: the trigger slides upward inside a page
+ * nobody scrolled and no window resized, and the panel used to stay hanging where the trigger had
+ * been. A mixed nav sidebar shows it on every click — opening a flyout closes the accordion above
+ * it, and the panel is left orphaned halfway down the menu.
+ *
+ * The collapse is animated, so a single re-measure when the state changes is not enough either:
+ * the trigger slides for the length of the transition, and the panel has to be carried along for
+ * all of it.
+ */
+describe('OverlayRef following an origin that moves', () => {
+	let service: OverlayService;
+
+	beforeEach(() => {
+		service = TestBed.inject(OverlayService);
+	});
+
+	/** An origin whose box the test can move, since jsdom lays nothing out on its own. */
+	function makeOrigin() {
+		const origin = document.createElement('div');
+		document.body.appendChild(origin);
+		let top = 200;
+
+		origin.getBoundingClientRect = () =>
+			({
+				top,
+				left: 10,
+				width: 80,
+				height: 24,
+				right: 90,
+				bottom: top + 24,
+				x: 10,
+				y: top,
+				toJSON: () => ({})
+			}) as DOMRect;
+
+		return { origin, moveTo: (next: number) => void (top = next) };
+	}
+
+	function connectedStrategy(origin: HTMLElement) {
+		let applied = 0;
+
+		return {
+			strategy: { origin, apply: () => void applied++ } as unknown as OverlayPosition,
+			applied: () => applied
+		};
+	}
+
+	/** Lets a number of animation frames go by, which is the clock the follow runs on. */
+	async function frames(count: number): Promise<void> {
+		for (let index = 0; index < count; index++) {
+			await new Promise((resolve) => requestAnimationFrame(resolve));
+		}
+	}
+
+	it('re-applies the position when the origin moves, with nothing scrolled and nothing resized', async () => {
+		const { origin, moveTo } = makeOrigin();
+		const { strategy, applied } = connectedStrategy(origin);
+		const ref = service.create({ positionStrategy: strategy });
+		ref.attach(OverlayContentStub);
+		await frames(2);
+
+		const before = applied();
+		moveTo(40);
+		await frames(2);
+
+		expect(applied()).toBeGreaterThan(before);
+
+		ref.dispose();
+		origin.remove();
+	});
+
+	it('keeps following while the origin slides, not only where it ends up', async () => {
+		const { origin, moveTo } = makeOrigin();
+		const { strategy, applied } = connectedStrategy(origin);
+		const ref = service.create({ positionStrategy: strategy });
+		ref.attach(OverlayContentStub);
+		await frames(2);
+
+		const before = applied();
+		for (const top of [180, 160, 140, 120]) {
+			moveTo(top);
+			await frames(2);
+		}
+
+		// One reposition per step of the transition, not one for the whole of it.
+		expect(applied() - before).toBeGreaterThanOrEqual(4);
+
+		ref.dispose();
+		origin.remove();
+	});
+
+	it('costs nothing while the origin sits still', async () => {
+		const { origin } = makeOrigin();
+		const { strategy, applied } = connectedStrategy(origin);
+		const ref = service.create({ positionStrategy: strategy });
+		ref.attach(OverlayContentStub);
+		await frames(2);
+
+		const before = applied();
+		await frames(5);
+
+		expect(applied()).toBe(before);
+
+		ref.dispose();
+		origin.remove();
+	});
+
+	it('stops following once detached', async () => {
+		const { origin, moveTo } = makeOrigin();
+		const { strategy, applied } = connectedStrategy(origin);
+		const ref = service.create({ positionStrategy: strategy });
+		ref.attach(OverlayContentStub);
+		await frames(2);
+		ref.detach();
+
+		const after = applied();
+		moveTo(40);
+		await frames(3);
+
+		expect(applied()).toBe(after);
+
+		ref.dispose();
+		origin.remove();
+	});
+});
+
+/**
  * An overlay rarely holds focus: opened from a click, focus stays where it was — over a datepicker
  * the active element is the body. A component listening on its own host therefore never hears
  * Escape, and the panel that swallowed the reader's attention cannot be dismissed with the key

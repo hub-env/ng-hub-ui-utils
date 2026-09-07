@@ -39,6 +39,22 @@ export class OverlayPosition {
 	}
 
 	/**
+	 * The element this overlay is anchored to, resolved to a plain node.
+	 *
+	 * Exposed because the strategy is the only place that knows what the panel is connected to,
+	 * and the overlay has to watch that element to keep up with it when it moves.
+	 *
+	 * @returns The origin element, or `null` while none has been set.
+	 */
+	get origin(): HTMLElement | null {
+		if (!this._origin) {
+			return null;
+		}
+
+		return this._origin instanceof ElementRef ? this._origin.nativeElement : this._origin;
+	}
+
+	/**
 	 * Sets the preferred positions for the overlay.
 	 * The order of the array determines the fallback priority.
 	 *

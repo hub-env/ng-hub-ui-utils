@@ -788,6 +788,8 @@ class OverlayRef {
 }
 
 class OverlayPosition {
+  // The element the panel is anchored to. The overlay watches it and follows it when it moves.
+  readonly origin: HTMLElement | null;
   flexibleConnectedTo(origin: ElementRef | HTMLElement): this;
   withPositions(positions: ConnectionPosition[]): this;
   // `start` / `end` are logical and read from the origin element; this overrides that.

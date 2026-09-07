@@ -34,6 +34,7 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 | | `OverlayRef` management | ✅ |
 | **Positioning** | `ConnectionPosition` types | ✅ |
 | | Horizontal/Vertical connection positions | ✅ |
+| | Origin following (scroll, resize and layout moves) | ❌ |
 | **Configuration** | `OverlayConfig` interface | ✅ |
 
 ---

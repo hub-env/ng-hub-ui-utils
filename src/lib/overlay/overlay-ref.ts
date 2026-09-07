@@ -3,6 +3,7 @@ import {
 	ComponentRef,
 	createComponent,
 	EmbeddedViewRef,
+	NgZone,
 	TemplateRef,
 	Type,
 	ViewContainerRef
@@ -24,6 +25,8 @@ export class OverlayRef {
 	private _isAttached = false;
 	private _repositionHandler?: () => void;
 	private _repositionFrame = 0;
+	private _originFrame = 0;
+	private _originBox: { top: number; left: number; width: number; height: number } | null = null;
 	private _keydownCallback?: (event: KeyboardEvent) => void;
 	private _unregisterKeydown?: () => void;
 	private _backdropClickCallback?: () => void;
@@ -174,9 +177,99 @@ export class OverlayRef {
 
 		window.addEventListener('scroll', this._repositionHandler, { capture: true, passive: true });
 		window.addEventListener('resize', this._repositionHandler, { passive: true });
+
+		this._followOrigin();
 	}
 
-	/** Removes the listeners registered by {@link _listenForReposition}. */
+	/**
+	 * Follows the origin while it moves for a reason no event announces.
+	 *
+	 * Scroll and resize both describe the page moving under an origin that stays put. Neither says
+	 * anything about the origin itself moving inside a page nobody scrolled — a sibling collapsing
+	 * above it, an image landing, an accordion animating shut — and the panel is then left hanging
+	 * where its trigger used to be. Since that collapse is animated, one re-measure when it starts
+	 * would only move the panel to a place the trigger is still on its way out of: the trigger has
+	 * to be followed for as long as it slides.
+	 *
+	 * The origin's box is read every frame, but the position is re-applied only when it actually
+	 * changed, so an overlay whose trigger sits still never touches the DOM. Scheduled outside
+	 * Angular's zone, or a zone-based application would run change detection on every frame an
+	 * overlay is open.
+	 */
+	private _followOrigin(): void {
+		if (!this._config.positionStrategy || typeof requestAnimationFrame !== 'function') {
+			return;
+		}
+
+		this._originBox = this._measureOrigin();
+
+		const track = () => {
+			if (!this._isAttached) {
+				this._originFrame = 0;
+				return;
+			}
+
+			this._originFrame = requestAnimationFrame(track);
+
+			// Read again rather than captured once: a consumer is free to re-anchor a live overlay,
+			// and the panel has to end up following whatever it is connected to now.
+			const box = this._measureOrigin();
+			const previous = this._originBox;
+
+			if (!box) {
+				return;
+			}
+
+			if (
+				previous &&
+				previous.top === box.top &&
+				previous.left === box.left &&
+				previous.width === box.width &&
+				previous.height === box.height
+			) {
+				return;
+			}
+
+			this._originBox = box;
+			this.updatePosition();
+		};
+
+		const start = () => {
+			this._originFrame = requestAnimationFrame(track);
+		};
+
+		// Resolved through the injector rather than taken in the constructor, so the shape of a
+		// class consumers can instantiate does not change for a private scheduling detail.
+		const zone = this._appRef.injector.get(NgZone, null);
+
+		if (zone) {
+			zone.runOutsideAngular(start);
+			return;
+		}
+
+		start();
+	}
+
+	/**
+	 * Reads the origin's box, reduced to the four numbers a move can change.
+	 *
+	 * @returns The box, or `null` when there is no origin or it has left the document — an element
+	 * out of the document reports zeros for everything, and following that would fling the panel
+	 * into the corner rather than leave it where it was.
+	 */
+	private _measureOrigin(): { top: number; left: number; width: number; height: number } | null {
+		const origin = this._config.positionStrategy?.origin;
+
+		if (!origin || !origin.isConnected) {
+			return null;
+		}
+
+		const rect = origin.getBoundingClientRect();
+
+		return { top: rect.top, left: rect.left, width: rect.width, height: rect.height };
+	}
+
+	/** Releases everything {@link _listenForReposition} started, the origin follow included. */
 	private _stopListeningForReposition(): void {
 		if (!this._repositionHandler || typeof window === 'undefined') {
 			return;
@@ -190,6 +283,13 @@ export class OverlayRef {
 			cancelAnimationFrame(this._repositionFrame);
 			this._repositionFrame = 0;
 		}
+
+		if (this._originFrame) {
+			cancelAnimationFrame(this._originFrame);
+			this._originFrame = 0;
+		}
+
+		this._originBox = null;
 	}
 
 	/**

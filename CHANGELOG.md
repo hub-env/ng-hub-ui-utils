@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.13.0] - 2026-09-07
+
+### Added
+
+- `OverlayPosition.origin`, the element the strategy is connected to. It was already known to the
+  strategy and to nobody else, and an overlay that has to keep up with its anchor needs to be able
+  to ask which element that is.
+
+### Fixed
+
+- **A floating panel stayed behind the moment its trigger moved.** The overlay recomputed its
+  position on scroll and on resize, and both of those describe the page moving under an origin that
+  stays put. Nothing covered the opposite — the origin moving inside a page nobody scrolled and no
+  window resized: a section collapsing above it, an image landing late, a sidebar accordion
+  animating shut. The panel then hung at the height the trigger used to have, cut loose from the
+  thing it belongs to. Every connected overlay in the family opens through this service, so all of
+  them had it: `[hubDropdown]`, the datepicker, the paginable dropdown and the nav's flyouts.
+
+    The origin is now watched for as long as the panel is open, and the panel is re-placed whenever
+  its box actually changes — every frame of an animated collapse, not once at the start of one,
+  which would only move the panel to a place the trigger is still on its way out of. The box is
+  read per frame and nothing is written unless it moved, so an overlay whose trigger sits still
+  never touches the DOM; the loop is scheduled outside Angular's zone, or a zone-based application
+  would run change detection on every frame a menu is open, and it is released with the panel.
+
 ## [22.12.1] - 2026-09-06
 
 ### Changed
