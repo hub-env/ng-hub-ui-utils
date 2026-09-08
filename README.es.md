@@ -386,13 +386,14 @@ Inputs: `hubTooltip` (texto), `hubTooltipPlacement` (`top` | `bottom` | `left` |
 por defecto `top`), `hubTooltipDelay` (ms de fundido, por defecto `150`), `hubTooltipOffset`
 (px, por defecto `8`).
 
-> **`TooltipDirective` (`[tooltip]`) está obsoleta desde 22.9.0.** Sigue funcionando igual
-> —ambas directivas son envoltorios finos sobre el mismo `HubTooltipController`—, pero sus
-> nombres de input sin prefijo (`tooltip`, `placement`, `delay`, `offset`) pertenecen a
-> cualquier directiva del elemento que los declare, que es como chocaba con el `placement`
+> **`TooltipDirective` (`[tooltip]`) se eliminó en 22.14.0**, tras quedar obsoleta en 22.9.0.
+> Sus nombres de input sin prefijo (`tooltip`, `placement`, `delay`, `offset`) pertenecían a
+> cualquier directiva del elemento que los declarara, que es como chocaba con el `placement`
 > propio de `[hubDropdown]` y con el input `tooltip` de `<hub-badge>`. La migración es
 > atributo por atributo: `tooltip` → `hubTooltip`, `placement` → `hubTooltipPlacement`,
-> `delay` → `hubTooltipDelay`, `offset` → `hubTooltipOffset`.
+> `delay` → `hubTooltipDelay`, `offset` → `hubTooltipOffset`. Una plantilla que siga
+> escribiendo `tooltip="…"` compila igual y no muestra nada, así que revisa el marcado además
+> de los imports.
 
 Muestra la etiqueta **solo mientras el host esté truncado** con `HubOverflowTooltipDirective`
 (`[hubOverflowTooltip]`), que sigue el truncamiento en vivo con un `ResizeObserver` y un
@@ -730,7 +731,6 @@ quedan en cada biblioteca, porque sus selectores y modelos de datos difieren.
 
 - `HubTooltipDirective` (`[hubTooltip]`) - Tooltip al pasar el cursor o enfocar. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
 - `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip que solo aparece mientras la etiqueta está truncada. Inputs: `hubOverflowTooltip`, `placement`, `hubOverflowTooltipMeasure` (selector CSS, resuelto dentro del host, que nombra la caja cuyo recorte lo decide; por defecto, el propio host)
-- `TooltipDirective` (`[tooltip]`) - **Obsoleta desde 22.9.0**, sigue funcionando. Inputs: `tooltip`, `placement`, `delay`, `offset`
 - `provideHubTooltip(adapter: HubTooltipAdapter)` y `HUB_TOOLTIP_ADAPTER` - Cambian la implementación que hay detrás de `[hubOverflowTooltip]`, para toda la aplicación o para un subárbol; por defecto, `hubTooltipAdapter`
 
 ### Pipes

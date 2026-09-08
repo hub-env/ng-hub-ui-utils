@@ -2,7 +2,6 @@ import { Component, Directive, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { HubTooltipDirective } from './hub-tooltip.directive';
-import { TooltipDirective } from './tooltip.directive';
 
 /**
  * Stand-in for `[hubDropdown]`, which lives in `ng-hub-ui-buttons` and cannot be
@@ -42,7 +41,7 @@ class StubBadgeComponent {
 
 @Component({
 	standalone: true,
-	imports: [StubBadgeComponent, HubTooltipDirective, TooltipDirective],
+	imports: [StubBadgeComponent, HubTooltipDirective],
 	template: `<stub-badge tooltip="from the input" />`
 })
 class BadgeHostComponent {}

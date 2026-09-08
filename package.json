@@ -1,6 +1,6 @@
 {
 	"name": "ng-hub-ui-utils",
-	"version": "22.13.0",
+	"version": "22.14.0",
 	"license": "MIT",
 	"peerDependencies": {
 		"@angular/common": ">=18.0.0",

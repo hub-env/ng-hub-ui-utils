@@ -25,7 +25,6 @@ export * from './lib/tooltip/tooltip-controller';
 export * from './lib/tooltip/tooltip-adapter';
 export * from './lib/tooltip/tooltip.token';
 export * from './lib/tooltip/tooltip.provider';
-export * from './lib/tooltip/tooltip.directive';
 export * from './lib/tooltip/hub-tooltip.directive';
 export * from './lib/tooltip/overflow-tooltip.directive';
 export * from './lib/transitions';

@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 import { HubTooltipDirective } from './hub-tooltip.directive';
 import { HubOverflowTooltipDirective } from './overflow-tooltip.directive';
 import { hubTooltipAdapter } from './tooltip-adapter';
-import { TooltipDirective } from './tooltip.directive';
 
 /** Lets a test wait for the controller's own timers without faking the clock. */
 const tick = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
@@ -131,28 +130,6 @@ describe('Tooltip accessibility', () => {
 			unhover(button);
 			await tick(200);
 			expect(button.getAttribute('aria-describedby')).toBe('own-hint');
-		});
-	});
-
-	describe('[tooltip] (deprecated)', () => {
-		it('describes its host too, so the old attribute is not a worse tooltip', () => {
-			@Component({
-				standalone: true,
-				imports: [TooltipDirective],
-				template: `<button tooltip="Delete invoice" [delay]="0">✕</button>`
-			})
-			class LegacyHostComponent {}
-
-			const fixture = TestBed.configureTestingModule({ imports: [LegacyHostComponent] }).createComponent(
-				LegacyHostComponent
-			);
-			fixture.detectChanges();
-			const button = fixture.nativeElement.querySelector('button') as HTMLElement;
-
-			hover(button);
-
-			expect(bubble()!.getAttribute('role')).toBe('tooltip');
-			expect(button.getAttribute('aria-describedby')).toBe(bubble()!.id);
 		});
 	});
 

@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.14.0] - 2026-09-07
+
+### Removed
+
+- **`TooltipDirective` and its bare `[tooltip]` attribute.** Deprecated in 22.9.0, and gone now.
+  An unprefixed selector is a name in the application's namespace rather than the library's:
+  Angular hands one attribute to every directive on the element that declares an input of that
+  name, so nobody else could own a `tooltip` — not a consumer writing their own, not
+  `<hub-badge>`, which declares a `tooltip` input and ended up drawing two, and not
+  `[hubDropdown]`, whose own `placement` is typed over eight values where a tooltip understands
+  four and which therefore failed to compile beside one.
+
+  `[hubTooltip]` has shipped beside it since 22.9.0 and is the replacement, attribute for
+  attribute: `tooltip` → `hubTooltip`, `placement` → `hubTooltipPlacement`, `delay` →
+  `hubTooltipDelay`, `offset` → `hubTooltipOffset`. Both were thin shells over the same
+  `HubTooltipController`, so nothing about the tooltip itself changes.
+
+  **Breaking** — see [`BREAKING_CHANGES.md`](./BREAKING_CHANGES.md), and note that a template
+  still writing `tooltip="…"` keeps compiling and silently shows nothing.
+
+### Added
+
+- **A guard over the whole entry point: no directive of this package may claim a bare
+  attribute.** It reads Angular's own compiled definitions rather than a hand-kept list, so the
+  rule covers the directive somebody adds next and not only the one just removed.
+
 ## [22.13.0] - 2026-09-07
 
 ### Added

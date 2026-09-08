@@ -384,13 +384,14 @@ export class ExampleComponent {}
 Inputs: `hubTooltip` (text), `hubTooltipPlacement` (`top` | `bottom` | `left` | `right`,
 default `top`), `hubTooltipDelay` (fade ms, default `150`), `hubTooltipOffset` (px, default `8`).
 
-> **`TooltipDirective` (`[tooltip]`) is deprecated since 22.9.0.** It still works,
-> unchanged — both directives are thin shells over the same `HubTooltipController` — but its
-> bare input names (`tooltip`, `placement`, `delay`, `offset`) belong to every directive on
-> the element that declares them, which is how it collided with `[hubDropdown]`'s own
-> `placement` and with the `tooltip` input of `<hub-badge>`. Migration is attribute for
+> **`TooltipDirective` (`[tooltip]`) was removed in 22.14.0**, having been deprecated since
+> 22.9.0. Its bare input names (`tooltip`, `placement`, `delay`, `offset`) belonged to every
+> directive on the element that declared them, which is how it collided with `[hubDropdown]`'s
+> own `placement` and with the `tooltip` input of `<hub-badge>`. Migration is attribute for
 > attribute: `tooltip` → `hubTooltip`, `placement` → `hubTooltipPlacement`,
-> `delay` → `hubTooltipDelay`, `offset` → `hubTooltipOffset`.
+> `delay` → `hubTooltipDelay`, `offset` → `hubTooltipOffset`. A template left writing
+> `tooltip="…"` still compiles and shows nothing at all, so check the markup as well as the
+> imports.
 
 Show the label **only while the host is truncated** with `HubOverflowTooltipDirective`
 (`[hubOverflowTooltip]`), which tracks truncation live with a `ResizeObserver` and a
@@ -727,7 +728,6 @@ library, because their selectors and data models differ.
 
 -   `HubTooltipDirective` (`[hubTooltip]`) - Tooltip on hover/focus. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
 -   `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip shown only while the label is truncated. Inputs: `hubOverflowTooltip`, `placement`, `hubOverflowTooltipMeasure` (CSS selector, resolved inside the host, naming the box whose truncation decides it; defaults to the host)
--   `TooltipDirective` (`[tooltip]`) - **Deprecated since 22.9.0**, kept working. Inputs: `tooltip`, `placement`, `delay`, `offset`
 -   `provideHubTooltip(adapter: HubTooltipAdapter)` and `HUB_TOOLTIP_ADAPTER` - Swap the implementation behind `[hubOverflowTooltip]`, app-wide or per subtree; defaults to `hubTooltipAdapter`
 
 ### Pipes

@@ -51,7 +51,7 @@ let nextTooltipId = 0;
  *
  * Binds hover/focus listeners to a host element and renders a body-portaled,
  * `--hub-tooltip-*`-themeable label on demand. It owns no Angular dependency, so
- * it can be reused both by the `[tooltip]` directive and by other primitives
+ * it can be reused both by the `[hubTooltip]` directive and by other primitives
  * (e.g. a badge overflow tooltip) that want the exact same visual contract
  * without re-implementing the DOM logic.
  *

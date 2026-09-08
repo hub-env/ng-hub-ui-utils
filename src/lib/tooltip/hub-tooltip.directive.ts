@@ -10,12 +10,12 @@ import { HubTooltipPlacement } from './tooltip.types';
  * container, and every visual aspect is themeable through `--hub-tooltip-*` CSS
  * variables.
  *
- * ## Why this exists beside {@link TooltipDirective}
+ * ## Why every attribute here carries the prefix
  *
- * The older directive claims the bare attribute `[tooltip]` and the bare input names
- * `placement`, `delay` and `offset`. Angular feeds one attribute to **every** directive
- * on the element that declares an input of that name, so those bare names are not this
- * directive's to hold:
+ * This replaced an earlier directive that claimed the bare attribute `[tooltip]` and the
+ * bare input names `placement`, `delay` and `offset`. Angular feeds one attribute to
+ * **every** directive on the element that declares an input of that name, so those bare
+ * names were never a library's to hold:
  *
  * - `[hubDropdown]` declares its own `placement`, typed over eight values where a
  *   tooltip understands four. A menu trigger that also wanted a tooltip did not merely

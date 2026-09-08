@@ -6,7 +6,7 @@ import { HubTooltipHandle, HubTooltipPlacement } from './tooltip.types';
  * Shows a tooltip with the given text **only while the host element is truncated**
  * (its content is wider than its box).
  *
- * Unlike `[tooltip]`, which always shows on hover, this directive is meant for
+ * Unlike `[hubTooltip]`, which always shows on hover, this directive is meant for
  * ellipsised labels: the tooltip appears solely when the text doesn't fit, so it
  * never duplicates already-visible content. Truncation is tracked live with a
  * `ResizeObserver` (host/container resizes) and a `MutationObserver` (text
