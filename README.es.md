@@ -708,6 +708,30 @@ Estas funciones dan soporte al sistema de i18n y se exportan para uso directo:
 -   `isInSrgbGamut(color): boolean` - Indica si el color sobrevive a la conversión a sRGB
 -   `clampToSrgbGamut(color): HubOklch` - Reduce el croma hasta que quepa, conservando luminosidad y tono
 
+### Derivación de paleta
+
+Un color de marca, toda la paleta — y los dos números que la mantienen honesta.
+
+-   `harmoniseSemantics(primary, options?): HubSemanticPalette | null` - Gira `success`, `warning`, `danger` e `info` hacia el tono de la marca y los devuelve en hexadecimal. La luminosidad se deja exactamente donde la tenía el ancla, porque es la que sostiene el contraste por el que se eligió cada rol; el croma solo se reduce cuando el tono nuevo no puede sostenerlo dentro de sRGB
+-   `tintNeutrals(primary, options?): HubNeutralRamp | null` - Inclina la escala de grises (`100` … `900`) en la misma dirección, conservando la luminosidad de cada paso
+-   `HUB_MAX_HUE_SHIFT: number` (15) - Cuánto puede girar un rol, en grados. No es cuestión de gusto: `success` y `danger` están a 135,8° en OKLCh, y quien tiene deuteranopia los distingue solo por el tono. Un tono de marca entre ambos tira de los dos hacia dentro, así que la separación se cierra hasta el doble del tope; a 22,9° llegaría al suelo de 90°. Con 15° el peor caso queda en 105,8°
+-   `HUB_MAX_NEUTRAL_CHROMA: number` (0,015) - El croma máximo de un neutro teñido. Anclado en la escala que ya trae el sistema de diseño — `gray-600` mide 0,0165 y `gray-500`, 0,0145 — así que una escala teñida nunca resulta más colorida que el gris que ya se acepta como gris
+-   `HUB_SEMANTIC_ANCHORS` / `HUB_NEUTRAL_ANCHORS` - Los puntos de partida sin teñir, para que un producto que no armoniza nada siga obteniendo la paleta que envía la hoja de estilos
+-   Tipos: `HubSemanticRole`, `HubSemanticPalette`, `HubNeutralStep`, `HubNeutralRamp`, `HubHarmoniseOptions`, `HubTintNeutralsOptions`
+
+```typescript
+import { harmoniseSemantics, tintNeutrals } from 'ng-hub-ui-utils';
+
+harmoniseSemantics('#6f42c1');
+// { success: '#00866b', warning: '#ffbd6e', danger: '#d8336b', info: '#44c4ff' }
+
+tintNeutrals('#6f42c1'); // grises escorados al violeta, con el croma nunca por encima de 0,015
+```
+
+Una marca sin tono propio —un gris puro— deja ambos conjuntos intactos: el tono OKLCh de un gris
+es ruido de redondeo, y armonizar hacia él giraría todos los roles en una dirección que no ha
+elegido nadie.
+
 ### Funciones de Focus
 - `getFocusableBoundaryElements(element: HTMLElement): HTMLElement[]` - Obtiene primer y último elemento focusable
 - `hubFocusTrap(zone, element, stopFocusTrap$, refocusOnClick?)` - Crea trampa de foco para modales/overlays

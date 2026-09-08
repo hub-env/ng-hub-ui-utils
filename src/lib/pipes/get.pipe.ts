@@ -1,10 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-	name: 'get',
+	name: 'hubGet',
 	standalone: true
 })
-export class GetPipe implements PipeTransform {
+export class HubGetPipe implements PipeTransform {
 	/**
 	 * @param value The object to retrieve the property from.
 	 * @param path The dot-separated path string to the property.
@@ -19,3 +19,13 @@ export class GetPipe implements PipeTransform {
 			.reduce((a, c) => (a && a[c] !== null && a[c] !== undefined ? a[c] : defaultValue || null), value);
 	}
 }
+
+/**
+ * @deprecated The template name `get` is a name in the consumer's namespace, not this
+ * library's. Use `hubGet` (`HubGetPipe`) instead. Removed in **23.0.0**.
+ */
+@Pipe({
+	name: 'get',
+	standalone: true
+})
+export class GetPipe extends HubGetPipe {}

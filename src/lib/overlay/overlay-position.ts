@@ -81,8 +81,12 @@ export class OverlayPosition {
 		// `start` and `end` are logical: under RTL they name the right and the left edge. Read from
 		// the origin rather than from the document, so a field inside an RTL island is positioned by
 		// the direction it is actually laid out in.
+		// The computed style is read through the origin's own view, not the global one: on a server
+		// render there is no `window`, and inside an iframe the global would be the wrong document.
+		const originView = originElement.ownerDocument?.defaultView ?? null;
 		const isRtl =
-			this._direction === 'rtl' || (this._direction === null && getComputedStyle(originElement).direction === 'rtl');
+			this._direction === 'rtl' ||
+			(this._direction === null && originView?.getComputedStyle(originElement).direction === 'rtl');
 
 		// Try each position until we find one that fits in the viewport
 		for (const position of this._positions) {
@@ -196,9 +200,17 @@ export class OverlayPosition {
 	 * Checks if the overlay fits within the viewport at the given coordinates.
 	 */
 	private _fitsInViewport(coords: { x: number; y: number }, overlayElement: HTMLElement): boolean {
+		const view = overlayElement.ownerDocument?.defaultView;
+
+		// With no view there is no viewport to fit into, so no candidate position can be proven to
+		// fit and the caller falls back to the first one — which is what a server render should emit.
+		if (!view) {
+			return false;
+		}
+
 		const overlayRect = overlayElement.getBoundingClientRect();
-		const viewportWidth = window.innerWidth;
-		const viewportHeight = window.innerHeight;
+		const viewportWidth = view.innerWidth;
+		const viewportHeight = view.innerHeight;
 
 		return (
 			coords.x >= 0 &&

@@ -156,6 +156,10 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 | | `readableOn()`, `HUB_INK_LIGHTNESS_THRESHOLD` | ✅ |
 | **OKLCh** | `rgbToOklch()`, `oklchToRgb()` | ✅ |
 | | `maxSrgbChroma()`, `isInSrgbGamut()`, `clampToSrgbGamut()` | ✅ |
+| **Palette derivation** | `harmoniseSemantics()` — semantic roles rotated towards a brand hue | ✅ |
+| | `tintNeutrals()` — grey ramp leaned towards a brand hue | ✅ |
+| | `HUB_MAX_HUE_SHIFT` (15°), `HUB_MAX_NEUTRAL_CHROMA` (0.015) | ✅ |
+| | `HUB_SEMANTIC_ANCHORS`, `HUB_NEUTRAL_ANCHORS` (the untinted starting points) | ✅ |
 
 ---
 *Note: ❌ indicates an example is not yet available. ✅ indicates an active interactive example.*

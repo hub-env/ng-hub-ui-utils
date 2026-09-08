@@ -5,22 +5,22 @@ import { Observable, Subscription } from 'rxjs';
  * A standalone pipe that unwraps the value of an observable or returns the value directly if it's not an observable.
  *
  * @description
- * The `UnwrapAsyncPipe` is used to unwrap the value emitted by an observable or return the value directly if it's not an observable.
+ * The `HubUnwrapAsyncPipe` is used to unwrap the value emitted by an observable or return the value directly if it's not an observable.
  * It subscribes to the observable and returns the emitted value. If the input is not an observable, it simply returns the value.
  *
  * @usageNotes
  * ```html
- * <div>{{ observableOrValue | unwrapAsync }}</div>
+ * <div>{{ observableOrValue | hubUnwrapAsync }}</div>
  * ```
  *
  * @publicApi
  */
 @Pipe({
-	name: 'unwrapAsync',
+	name: 'hubUnwrapAsync',
 	standalone: true,
 	pure: false
 })
-export class UnwrapAsyncPipe<T = any> implements PipeTransform, OnDestroy {
+export class HubUnwrapAsyncPipe<T = any> implements PipeTransform, OnDestroy {
 	#cdr = inject(ChangeDetectorRef);
 
 	/**
@@ -71,3 +71,14 @@ export class UnwrapAsyncPipe<T = any> implements PipeTransform, OnDestroy {
 		}
 	}
 }
+
+/**
+ * @deprecated The template name `unwrapAsync` is a name in the consumer's namespace, not this
+ * library's. Use `hubUnwrapAsync` (`HubUnwrapAsyncPipe`) instead. Removed in **23.0.0**.
+ */
+@Pipe({
+	name: 'unwrapAsync',
+	standalone: true,
+	pure: false
+})
+export class UnwrapAsyncPipe<T = any> extends HubUnwrapAsyncPipe<T> {}

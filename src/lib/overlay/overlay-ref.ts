@@ -8,6 +8,7 @@ import {
 	Type,
 	ViewContainerRef
 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import type { OverlayConfig } from './overlay-config';
 import { registerOverlayKeydown } from './overlay-keyboard-dispatcher';
 
@@ -36,6 +37,22 @@ export class OverlayRef {
 		private _config: OverlayConfig,
 		private _appRef: ApplicationRef
 	) {}
+
+	/**
+	 * The document the overlay builds into.
+	 *
+	 * Taken from the application's own injector rather than from the global `document`, which does
+	 * not exist on a server render: an application that opens an overlay while prerendering used to
+	 * die with a `ReferenceError` instead of rendering the panel into the document Angular hands it.
+	 */
+	private get _document(): Document {
+		return this._appRef.injector.get(DOCUMENT);
+	}
+
+	/** The view the overlay measures against, or `null` on a server render, where there is none. */
+	private get _view(): (Window & typeof globalThis) | null {
+		return this._document.defaultView as (Window & typeof globalThis) | null;
+	}
 
 	/**
 	 * Attaches content to the overlay.
@@ -160,7 +177,9 @@ export class OverlayRef {
 	 * Coalesced into an animation frame, because a scroll fires far more often than a paint.
 	 */
 	private _listenForReposition(): void {
-		if (this._repositionHandler || typeof window === 'undefined') {
+		const view = this._view;
+
+		if (this._repositionHandler || !view) {
 			return;
 		}
 
@@ -169,14 +188,14 @@ export class OverlayRef {
 				return;
 			}
 
-			this._repositionFrame = requestAnimationFrame(() => {
+			this._repositionFrame = view.requestAnimationFrame(() => {
 				this._repositionFrame = 0;
 				this.updatePosition();
 			});
 		};
 
-		window.addEventListener('scroll', this._repositionHandler, { capture: true, passive: true });
-		window.addEventListener('resize', this._repositionHandler, { passive: true });
+		view.addEventListener('scroll', this._repositionHandler, { capture: true, passive: true });
+		view.addEventListener('resize', this._repositionHandler, { passive: true });
 
 		this._followOrigin();
 	}
@@ -197,7 +216,9 @@ export class OverlayRef {
 	 * overlay is open.
 	 */
 	private _followOrigin(): void {
-		if (!this._config.positionStrategy || typeof requestAnimationFrame !== 'function') {
+		const view = this._view;
+
+		if (!this._config.positionStrategy || typeof view?.requestAnimationFrame !== 'function') {
 			return;
 		}
 
@@ -209,7 +230,7 @@ export class OverlayRef {
 				return;
 			}
 
-			this._originFrame = requestAnimationFrame(track);
+			this._originFrame = view.requestAnimationFrame(track);
 
 			// Read again rather than captured once: a consumer is free to re-anchor a live overlay,
 			// and the panel has to end up following whatever it is connected to now.
@@ -235,7 +256,7 @@ export class OverlayRef {
 		};
 
 		const start = () => {
-			this._originFrame = requestAnimationFrame(track);
+			this._originFrame = view.requestAnimationFrame(track);
 		};
 
 		// Resolved through the injector rather than taken in the constructor, so the shape of a
@@ -271,21 +292,23 @@ export class OverlayRef {
 
 	/** Releases everything {@link _listenForReposition} started, the origin follow included. */
 	private _stopListeningForReposition(): void {
-		if (!this._repositionHandler || typeof window === 'undefined') {
+		const view = this._view;
+
+		if (!this._repositionHandler || !view) {
 			return;
 		}
 
-		window.removeEventListener('scroll', this._repositionHandler, { capture: true });
-		window.removeEventListener('resize', this._repositionHandler);
+		view.removeEventListener('scroll', this._repositionHandler, { capture: true });
+		view.removeEventListener('resize', this._repositionHandler);
 		this._repositionHandler = undefined;
 
 		if (this._repositionFrame) {
-			cancelAnimationFrame(this._repositionFrame);
+			view.cancelAnimationFrame(this._repositionFrame);
 			this._repositionFrame = 0;
 		}
 
 		if (this._originFrame) {
-			cancelAnimationFrame(this._originFrame);
+			view.cancelAnimationFrame(this._originFrame);
 			this._originFrame = 0;
 		}
 
@@ -363,7 +386,7 @@ export class OverlayRef {
 			return;
 		}
 
-		this._containerElement = document.createElement('div');
+		this._containerElement = this._document.createElement('div');
 		this._containerElement.classList.add('hub-overlay-container');
 
 		if (this._config.panelClass) {
@@ -397,7 +420,7 @@ export class OverlayRef {
 		this._containerElement.style.zIndex =
 			this._config.zIndex != null ? String(this._config.zIndex) : 'var(--hub-overlay-zindex, 1000)';
 
-		document.body.appendChild(this._containerElement);
+		this._document.body.appendChild(this._containerElement);
 	}
 
 	/**
@@ -408,7 +431,7 @@ export class OverlayRef {
 			return;
 		}
 
-		this._backdropElement = document.createElement('div');
+		this._backdropElement = this._document.createElement('div');
 		this._backdropElement.classList.add('hub-overlay-backdrop');
 
 		if (this._config.backdropClass) {
@@ -431,6 +454,6 @@ export class OverlayRef {
 
 		this._backdropElement.addEventListener('click', this._backdropClickHandler);
 
-		document.body.appendChild(this._backdropElement);
+		this._document.body.appendChild(this._backdropElement);
 	}
 }

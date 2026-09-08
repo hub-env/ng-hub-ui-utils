@@ -161,10 +161,15 @@ export function closest(element: HTMLElement, selector?: string): HTMLElement | 
 /**
  * Force a browser reflow
  *
+ * Reads the box off the element itself instead of falling back to the global `document.body`:
+ * every caller passes an element and none reads the result, so the fallback only ever served to
+ * throw a `ReferenceError` on a server render, where there is no `document` in scope.
+ *
  * @param element element where to apply the reflow
+ * @returns The element's box, or `null` when there is no element to reflow.
  */
-export function reflow(element: HTMLElement) {
-	return (element || document.body).getBoundingClientRect();
+export function reflow(element: HTMLElement): DOMRect | null {
+	return element?.getBoundingClientRect() ?? null;
 }
 
 /**
@@ -313,8 +318,13 @@ export function debouncedSignal<T>(sourceSignal: Signal<T>, debounceDelay: numbe
  * Returns the active element in the given root.
  *
  * If the active element is inside a shadow root, it is searched recursively.
+ *
+ * The default root is the global document *when there is one*. Reading it unconditionally made
+ * the call throw on a server render, where nothing has focus anyway — so with no document the
+ * honest answer is `null`, not a crash. Pass the injected `DOCUMENT` to make the dependency
+ * explicit in code that runs on both sides.
  */
-export function getActiveElement(root: Document | ShadowRoot = document): Element | null {
+export function getActiveElement(root: Document | ShadowRoot | null = globalThis.document ?? null): Element | null {
 	const activeEl = root?.activeElement;
 
 	if (!activeEl) {

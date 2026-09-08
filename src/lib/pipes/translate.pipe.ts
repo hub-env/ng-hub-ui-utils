@@ -5,11 +5,11 @@ import { HUB_TRANSLATION_PREFIX } from '../i18n/translation.tokens';
 import { equals, interpolateString, isDefined } from '../util';
 
 @Pipe({
-	name: 'translate',
+	name: 'hubTranslate',
 	standalone: true,
 	pure: false
 })
-export class TranslatePipe implements PipeTransform, OnDestroy {
+export class HubTranslatePipe implements PipeTransform, OnDestroy {
 	private _ref = inject(ChangeDetectorRef);
 	private _translationSvc = inject(HubTranslationService);
 	private readonly prefix = inject(HUB_TRANSLATION_PREFIX, { optional: true });
@@ -56,7 +56,7 @@ export class TranslatePipe implements PipeTransform, OnDestroy {
 				try {
 					interpolateParams = JSON.parse(validArgs);
 				} catch (e) {
-					throw new SyntaxError(`Wrong parameter in TranslatePipe. Expected a valid Object, received: ${args[0]}`);
+					throw new SyntaxError(`Wrong parameter in HubTranslatePipe. Expected a valid Object, received: ${args[0]}`);
 				}
 			} else if (typeof args[0] === 'object' && !Array.isArray(args[0])) {
 				interpolateParams = args[0];
@@ -100,3 +100,16 @@ export class TranslatePipe implements PipeTransform, OnDestroy {
 		this._dispose();
 	}
 }
+
+/**
+ * @deprecated The template name `translate` is a name in the consumer's namespace, not this
+ * library's — it is also the name transloco and ngx-translate give their own pipe, so a host
+ * application that imports both cannot tell them apart. Use `hubTranslate`
+ * (`HubTranslatePipe`) instead. Removed in **23.0.0**.
+ */
+@Pipe({
+	name: 'translate',
+	standalone: true,
+	pure: false
+})
+export class TranslatePipe extends HubTranslatePipe {}

@@ -704,6 +704,29 @@ These functions back the i18n system and are exported for direct use:
 -   `isInSrgbGamut(color): boolean` - Whether the colour survives the trip to sRGB
 -   `clampToSrgbGamut(color): HubOklch` - Reduces chroma until it fits, preserving lightness and hue
 
+### Palette Derivation
+
+One brand colour, the whole palette — and the two numbers that keep it honest.
+
+-   `harmoniseSemantics(primary, options?): HubSemanticPalette | null` - Rotates `success`, `warning`, `danger` and `info` towards the brand's hue and returns them as hex. Lightness is left exactly where the anchor had it, because it is what carries the contrast each role was chosen for; chroma is reduced only when the new hue cannot hold it inside sRGB
+-   `tintNeutrals(primary, options?): HubNeutralRamp | null` - Leans the grey ramp (`100` … `900`) the same way, keeping each step's lightness
+-   `HUB_MAX_HUE_SHIFT: number` (15) - How far a role may rotate, in degrees. Not taste: success and danger sit 135.8° apart in OKLCh, and a viewer with deuteranopia separates them by hue alone. A brand hue between the two pulls both inwards, so the gap closes by up to twice the cap; at 22.9° it would reach the 90° floor. 15° leaves the worst case at 105.8°
+-   `HUB_MAX_NEUTRAL_CHROMA: number` (0.015) - The most chroma a tinted neutral may carry. Anchored on the ramp the design system already ships — `gray-600` measures 0.0165 and `gray-500` 0.0145 — so a tinted ramp is never more colourful than the grey people already accept as grey
+-   `HUB_SEMANTIC_ANCHORS` / `HUB_NEUTRAL_ANCHORS` - The untinted starting points, so a product that harmonises nothing still gets the palette the stylesheet ships
+-   Types: `HubSemanticRole`, `HubSemanticPalette`, `HubNeutralStep`, `HubNeutralRamp`, `HubHarmoniseOptions`, `HubTintNeutralsOptions`
+
+```typescript
+import { harmoniseSemantics, tintNeutrals } from 'ng-hub-ui-utils';
+
+harmoniseSemantics('#6f42c1');
+// { success: '#00866b', warning: '#ffbd6e', danger: '#d8336b', info: '#44c4ff' }
+
+tintNeutrals('#6f42c1'); // greys leaning violet, chroma never above 0.015
+```
+
+A brand with no hue of its own — a pure grey — leaves both sets untouched: OKLCh's hue on a grey
+is rounding noise, and harmonising towards it would rotate every role in a direction nobody chose.
+
 ### Focus Functions
 
 -   `getFocusableBoundaryElements(element: HTMLElement): HTMLElement[]` - Gets first and last focusable elements

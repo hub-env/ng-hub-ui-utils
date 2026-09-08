@@ -6,6 +6,45 @@ The major version tracks the Angular major this library targets, so it cannot al
 break: a breaking change ships in a **minor** release and is announced here. This file — not the
 version number — is the warning.
 
+## [22.15.0] - 2026-09-08
+
+### `reflow()` returns `DOMRect | null`, and stops reflowing the body when handed nothing
+
+- **What changes**: `reflow(element)` reads the box off the element it was given. It used to fall
+  back to `document.body` when the argument was falsy, and now returns `null` instead. The return
+  type narrows from `any` to `DOMRect | null`.
+
+- **Why**: the fallback reached for a global `document`, which does not exist during a server
+  render, so a helper whose only job is to force a layout pass took the whole prerender down with
+  a `ReferenceError`. Nothing in the family reads the value back and nothing calls it without an
+  element, so the fallback was paying a real cost for a case that never happens.
+
+- **What happens if you do nothing**: nothing at runtime, unless you call `reflow()` with no
+  element and rely on the body being measured. A `const box = reflow(el)` that then reads
+  `box.width` stops compiling under `strictNullChecks`, which is the compiler pointing at a case
+  that was always possible.
+
+- **Migration**: guard the result, or pass the element you meant.
+
+  ```ts
+  const box = reflow(element);
+  if (box) {
+  	// …
+  }
+  ```
+
+### `getActiveElement()` accepts `null` as its root
+
+- **What changes**: the parameter widens from `Document | ShadowRoot` to
+  `Document | ShadowRoot | null`, and its default is the global document only when there is one.
+
+- **Why**: on a server render there is no `document` to default to. A caller that resolved
+  `DOCUMENT` optionally now hands over what it got, `null` included, and gets `null` back —
+  nothing has focus on a server anyway.
+
+- **What happens if you do nothing**: nothing. The widening is source-compatible in both
+  directions; no existing call changes behaviour.
+
 ## [22.14.0] - 2026-09-07
 
 ### `TooltipDirective` and its bare `[tooltip]` attribute are removed

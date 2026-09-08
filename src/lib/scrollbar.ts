@@ -23,12 +23,20 @@ export class ScrollBar {
 	 * @return a callback used to revert the change
 	 */
 	hide(): ScrollbarReverter {
-		const scrollbarWidth = Math.abs(window.innerWidth - this._document.documentElement.clientWidth);
+		// Resolved from the injected document rather than from the global: on the server there is
+		// no `window` at all, and the document Angular hands over has no view either, so the whole
+		// measurement is meaningless there and the caller gets a no-op undo instead of a crash.
+		const view = this._document.defaultView;
+		if (!view) {
+			return () => undefined;
+		}
+
+		const scrollbarWidth = Math.abs(view.innerWidth - this._document.documentElement.clientWidth);
 		const body = this._document.body;
 		const bodyStyle = body.style;
 		const { overflow, paddingRight } = bodyStyle;
 		if (scrollbarWidth > 0) {
-			const actualPadding = parseFloat(window.getComputedStyle(body).paddingRight);
+			const actualPadding = parseFloat(view.getComputedStyle(body).paddingRight);
 			bodyStyle.paddingRight = `${actualPadding + scrollbarWidth}px`;
 		}
 		bodyStyle.overflow = 'hidden';

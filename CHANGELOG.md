@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.15.0] - 2026-09-08
+
+### Added
+
+- **`harmoniseSemantics()` and `tintNeutrals()`, so a brand colour derives the whole palette in
+  one place.** The package already shipped the raw material — `rgbToOklch`, `oklchToRgb`,
+  `maxSrgbChroma`, `clampToSrgbGamut`, `contrastRatio`, `contrastAPCA`, `readableOn` — and no
+  function that turns a primary into the roles a product actually paints with, so every product
+  that needed one wrote it, and wrote it differently. Two products of the same brand disagreeing
+  on how close the green sits to the blue is not a bug anyone can adjudicate afterwards; it is
+  two answers with nothing to compare them to.
+
+  `harmoniseSemantics(primary)` rotates `success`, `warning`, `danger` and `info` towards the
+  brand's hue and returns them as hex. `tintNeutrals(primary)` leans the grey ramp
+  (`gray-100` … `gray-900`) the same way. Both leave lightness exactly where the anchor had it,
+  because lightness is what carries the contrast each role was chosen for, and both reduce chroma
+  only when the new hue cannot hold it inside sRGB.
+
+  Two numbers decide what the result looks like, and both are exported so a product can read them
+  rather than guess:
+
+  - **`HUB_MAX_HUE_SHIFT`, 15°.** The ceiling is not taste. Success and danger sit 135.8° apart in
+    OKLCh (157.0° and 21.2°), and a viewer with deuteranopia tells them apart by hue alone. A brand
+    hue between the two pulls both inwards, so the gap closes by up to twice the cap; at 22.9° it
+    would reach 90°, the floor below which the pair stops being reliably distinguishable. 15°
+    leaves the worst case at 105.8° while still shifting a green far enough to read as this
+    product's green rather than as teal.
+  - **`HUB_MAX_NEUTRAL_CHROMA`, 0.015.** Anchored on the ramp the design system already ships: its
+    most chromatic step, `gray-600`, measures 0.0165 and `gray-500` measures 0.0145, so the cap
+    sits between the two and a tinted ramp is never more colourful than the grey people already
+    accept as grey. The tint changes which way the grey leans, not how grey it is.
+
+  `HUB_SEMANTIC_ANCHORS` and `HUB_NEUTRAL_ANCHORS` expose the untinted starting points, so a
+  product that harmonises nothing still gets exactly the palette the stylesheet ships. A brand with
+  no hue of its own — a pure grey — leaves both sets untouched rather than snapping every role to
+  an angle that is only rounding noise.
+
+### Fixed
+
+- **The DOM helpers no longer reach for globals that do not exist on a server.** `ScrollBar.hide()`
+  read `window.innerWidth` and `window.getComputedStyle` while holding an injected `DOCUMENT`;
+  `hubRunTransition()` and `getTransitionDurationMs()` read `window.getComputedStyle`; `reflow()`
+  fell back to `document.body`; `getActiveElement()` defaulted its root to `document`; and
+  `OverlayRef` built its container and backdrop with `document.createElement` and appended them to
+  the global `document.body`. Each of those is a `ReferenceError` on the way to a prerendered page.
+
+  They now resolve the document and the view they need from what they already hold — the injected
+  `DOCUMENT` for `ScrollBar`, the application's injector for `OverlayRef`, and the element's own
+  `ownerDocument.defaultView` for the transition helpers and the overlay's positioning. That also
+  fixes the same helpers inside an iframe, where the global was the wrong document all along.
+  With no view, each does the thing that is true rather than the thing that throws: a transition
+  duration of 0, a scrollbar `hide()` that changes nothing and hands back a no-op undo, and an
+  overlay that builds into the document Angular gave it.
+
+### Changed
+
+- **`reflow()` returns `DOMRect | null` and no longer falls back to `document.body`.** Every caller
+  in the family passes an element and none reads the value back, so the fallback existed only to
+  crash on the server. `getActiveElement()` accepts `null` as its root for the same reason — a
+  caller that resolved `DOCUMENT` optionally can now hand over what it got. See
+  [`BREAKING_CHANGES.md`](./BREAKING_CHANGES.md).
+
 ## [22.14.0] - 2026-09-07
 
 ### Removed

@@ -59,7 +59,12 @@ export const hubRunTransition = <T>(
 	// If animations are disabled, we have to emit a value and complete the observable
 	// In this case we have to call the end function, but can finish immediately by emitting a value,
 	// completing the observable and executing end functions synchronously.
-	if (!options.animation || window.getComputedStyle(element).transitionProperty === 'none') {
+	// The view is read off the element, not off the global `window`: on a server render there is
+	// none, and a transition that cannot be measured is a transition that does not run — which is
+	// the same branch a consumer who disabled animations takes.
+	const view = element.ownerDocument?.defaultView;
+
+	if (!options.animation || !view || view.getComputedStyle(element).transitionProperty === 'none') {
 		zone.run(() => endFn());
 		return of(undefined).pipe(runInZone(zone));
 	}
