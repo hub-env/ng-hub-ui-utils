@@ -2,7 +2,7 @@
 
 [![NPM Version](https://img.shields.io/npm/v/ng-hub-ui-utils.svg)](https://www.npmjs.com/package/ng-hub-ui-utils)
 [![License](https://img.shields.io/npm/l/ng-hub-ui-utils.svg)](LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/carlos-morcillo/ng-hub-ui/ci.yml)](https://github.com/carlos-morcillo/ng-hub-ui/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/hub-env/hub-ui/ci.yml)](https://github.com/hub-env/hub-ui/actions)
 
 > Common utilities library for Angular, fundamental support for the Hub UI ecosystem.
 
@@ -909,7 +909,7 @@ This library doesn't include visual components, but support utilities used by ot
 ## 🛠️ Development
 
 ```bash
-git clone https://github.com/carlos-morcillo/ng-hub-ui-utils
+git clone https://github.com/hub-env/ng-hub-ui-utils
 cd ng-hub-ui-utils
 npm install
 npm run build
@@ -978,9 +978,9 @@ Recent highlights:
 
 ## 🐛 Issues and Support
 
--   [Report a bug](https://github.com/carlos-morcillo/ng-hub-ui-utils/issues)
--   [Request a feature](https://github.com/carlos-morcillo/ng-hub-ui-utils/issues/new?template=feature_request.md)
--   [Repository](https://github.com/carlos-morcillo/ng-hub-ui-utils)
+-   [Report a bug](https://github.com/hub-env/hub-ui/issues)
+-   [Request a feature](https://github.com/hub-env/hub-ui/issues/new?template=feature_request.yml)
+-   [Repository](https://github.com/hub-env/ng-hub-ui-utils)
 -   **Author**: [Carlos Morcillo](https://www.carlosmorcillo.com)
 
 ## ☕ Support the Project
@@ -1041,4 +1041,4 @@ SOFTWARE.
 
 ⭐ **If you like this project, don't forget to give it a star on GitHub!**
 
-[![GitHub stars](https://img.shields.io/github/stars/carlos-morcillo/ng-hub-ui.svg?style=social&label=Star)](https://github.com/carlos-morcillo/ng-hub-ui)
+[![GitHub stars](https://img.shields.io/github/stars/hub-env/hub-ui.svg?style=social&label=Star)](https://github.com/hub-env/hub-ui)

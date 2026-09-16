@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The repository moved to the `hub-env` organization. Issues for every Hub UI package are now
+  gathered in [hub-env/hub-ui](https://github.com/hub-env/hub-ui/issues), and the `repository`, `bugs`
+  and README links point at the new addresses. GitHub redirects the old ones.
+
 ## [22.15.0] - 2026-09-08
 
 ### Added
