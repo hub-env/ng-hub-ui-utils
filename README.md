@@ -2,7 +2,6 @@
 
 [![NPM Version](https://img.shields.io/npm/v/ng-hub-ui-utils.svg)](https://www.npmjs.com/package/ng-hub-ui-utils)
 [![License](https://img.shields.io/npm/l/ng-hub-ui-utils.svg)](LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/hub-env/hub-ui/ci.yml)](https://github.com/hub-env/hub-ui/actions)
 
 > Common utilities library for Angular, fundamental support for the Hub UI ecosystem.
 
