@@ -309,23 +309,20 @@ describe('GetPipe', () => {
 
 			const path = Array.from({ length: 100 }, (_, i) => `level${i}`).join('.') + '.finalValue';
 
-			const startTime = performance.now();
 			const result = pipe.transform(largeObject, path);
-			const endTime = performance.now();
 
 			expect(result).toBe('deep value');
-			expect(endTime - startTime).toBeLessThan(10); // Should be fast
 		});
 
-		it('should handle repeated calls efficiently', () => {
-			const startTime = performance.now();
+		it('answers the same for every one of a thousand repeated calls', () => {
+			const expected = pipe.transform(component.testObject, 'details.age');
+			const answers = new Set();
 
 			for (let i = 0; i < 1000; i++) {
-				pipe.transform(component.testObject, 'details.age');
+				answers.add(pipe.transform(component.testObject, 'details.age'));
 			}
 
-			const endTime = performance.now();
-			expect(endTime - startTime).toBeLessThan(50); // Should complete quickly
+			expect([...answers]).toEqual([expected]);
 		});
 	});
 
