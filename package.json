@@ -1,6 +1,7 @@
 {
 	"name": "ng-hub-ui-utils",
 	"version": "22.15.1",
+	"description": "Shared utilities for the ng-hub-ui family: standalone pipes, an overlay and popup system, tooltip controller, focus trap, scrollbar compensation, transitions, drag-and-drop helpers, colour utilities and a lightweight i18n layer. Ships no visual components.",
 	"license": "MIT",
 	"peerDependencies": {
 		"@angular/common": ">=18.0.0",
@@ -23,6 +24,33 @@
 		"./styles/overlay.scss": "./styles/overlay.scss"
 	},
 	"homepage": "https://hubui.dev/en/utils/overview/",
+	"keywords": [
+		"angular",
+		"ng-hub-ui",
+		"hub-ui",
+		"utils",
+		"utilities",
+		"helpers",
+		"typescript",
+		"standalone",
+		"signals",
+		"pipes",
+		"overlay",
+		"popup",
+		"tooltip",
+		"focus-trap",
+		"accessibility",
+		"a11y",
+		"i18n",
+		"internationalization",
+		"translation",
+		"drag-and-drop",
+		"scrollbar",
+		"transitions",
+		"color",
+		"type-guards",
+		"angular-library"
+	],
 	"author": "Carlos Morcillo <carlos.morcillo@me.com> (https://www.carlosmorcillo.com)",
 	"repository": {
 		"type": "git",
