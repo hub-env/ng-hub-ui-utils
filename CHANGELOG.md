@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.15.3] - 2026-09-23
+
+### Changed
+
+- **The Angular peer range now says what the code needs, not a number somebody picked.** It asked
+  for `>=18.0.0`, which nothing in this package justified. The newest Angular API the source uses is
+  input(), which shipped in 17.1, and the partial-Ivy output the Angular linker checks carries no
+  marker above it. The range is `>=17.1.0`, so applications on those versions can install this
+  library instead of being turned away by a range that was never measured.
+- **The floor is derived and checked from now on.** `npm run peers:floors` works it out from three
+  things that can be verified — the Angular APIs the source calls, the `minVersion` markers in the
+  compiled output, and the Angular types that reach the published `.d.ts` — and CI fails when a
+  declaration drifts away from it again.
+
 ## [22.15.2] - 2026-09-20
 
 ### Changed

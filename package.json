@@ -1,11 +1,11 @@
 {
 	"name": "ng-hub-ui-utils",
-	"version": "22.15.2",
+	"version": "22.15.3",
 	"description": "Shared utilities for the ng-hub-ui family: standalone pipes, an overlay and popup system, tooltip controller, focus trap, scrollbar compensation, transitions, drag-and-drop helpers, colour utilities and a lightweight i18n layer. Ships no visual components.",
 	"license": "MIT",
 	"peerDependencies": {
-		"@angular/common": ">=18.0.0",
-		"@angular/core": ">=18.0.0",
+		"@angular/common": ">=17.1.0",
+		"@angular/core": ">=17.1.0",
 		"ng-hub-ui-ds": ">=22.0.0"
 	},
 	"peerDependenciesMeta": {
@@ -51,7 +51,7 @@
 		"type-guards",
 		"angular-library"
 	],
-	"author": "Carlos Morcillo Fernández <carlos.morcillo@me.com> (https://www.carlosmorcillo.com)",
+	"author": "Carlos Morcillo Fern\u00e1ndez <carlos.morcillo@me.com> (https://www.carlosmorcillo.com)",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/hub-env/ng-hub-ui-utils.git"
