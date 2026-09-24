@@ -1,6 +1,6 @@
 {
 	"name": "ng-hub-ui-utils",
-	"version": "22.15.3",
+	"version": "22.17.0",
 	"description": "Shared utilities for the ng-hub-ui family: standalone pipes, an overlay and popup system, tooltip controller, focus trap, scrollbar compensation, transitions, drag-and-drop helpers, colour utilities and a lightweight i18n layer. Ships no visual components.",
 	"license": "MIT",
 	"peerDependencies": {

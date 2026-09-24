@@ -72,6 +72,7 @@ Esta biblioteca de utilidades surge de la necesidad de proporcionar funciones de
 ## ✨ Características
 
 ### 🔧 Gestión de Focus y Accesibilidad
+
 Utilidades para manejo avanzado del foco, trap de foco y navegación por teclado.
 
 ```typescript
@@ -92,31 +93,34 @@ Sistema avanzado para crear overlays y componentes flotantes con posicionamiento
 import { OverlayService, OverlayConfig } from 'ng-hub-ui-utils';
 
 @Component({
-  selector: 'app-example'
+	selector: 'app-example'
 })
 export class ExampleComponent {
-  constructor(private overlayService: OverlayService) {}
+	constructor(private overlayService: OverlayService) {}
 
-  openOverlay(elementRef: ElementRef) {
-    // Crear overlay con configuración
-    const overlayRef = this.overlayService.create({
-      hasBackdrop: true,
-      backdropClass: 'custom-backdrop'
-    });
+	openOverlay(elementRef: ElementRef) {
+		// Crear overlay con configuración
+		const overlayRef = this.overlayService.create({
+			hasBackdrop: true,
+			backdropClass: 'custom-backdrop'
+		});
 
-    // Configurar estrategia de posición
-    const positionStrategy = this.overlayService.position()
-      .flexibleConnectedTo(elementRef)
-      .withPositions([{
-        originX: 'start',
-        originY: 'bottom',
-        overlayX: 'start',
-        overlayY: 'top'
-      }]);
+		// Configurar estrategia de posición
+		const positionStrategy = this.overlayService
+			.position()
+			.flexibleConnectedTo(elementRef)
+			.withPositions([
+				{
+					originX: 'start',
+					originY: 'bottom',
+					overlayX: 'start',
+					overlayY: 'top'
+				}
+			]);
 
-    // Renderiza un componente (o un TemplateRef) dentro del overlay; devuelve el elemento host
-    const overlayElement = overlayRef.attach(MyComponent);
-  }
+		// Renderiza un componente (o un TemplateRef) dentro del overlay; devuelve el elemento host
+		const overlayElement = overlayRef.attach(MyComponent);
+	}
 }
 ```
 
@@ -137,18 +141,19 @@ import { PopupService } from 'ng-hub-ui-utils';
 
 @Injectable()
 export class MyPopupService extends PopupService<MyPopupComponent> {
-  constructor() {
-    super(MyPopupComponent);
-  }
+	constructor() {
+		super(MyPopupComponent);
+	}
 
-  openPopup(content?: string | TemplateRef<any>) {
-    const { windowRef, transition$ } = super.open(content, {}, true);
-    return { windowRef, transition$ };
-  }
+	openPopup(content?: string | TemplateRef<any>) {
+		const { windowRef, transition$ } = super.open(content, {}, true);
+		return { windowRef, transition$ };
+	}
 }
 ```
 
 ### 📜 Gestión de Scrollbar
+
 Control inteligente de scrollbars con compensación de layout.
 
 ```typescript
@@ -159,13 +164,14 @@ constructor(private scrollBar: ScrollBar) {}
 openModal() {
   // Oculta scrollbar y compensa el espacio
   const reverter = this.scrollBar.hide();
-  
+
   // Al cerrar el modal, restaura el scrollbar
   modalClose.subscribe(() => reverter());
 }
 ```
 
 ### ⚡ Sistema de Transiciones
+
 Utilidades para animaciones y transiciones fluidas con detección automática.
 
 ```typescript
@@ -173,24 +179,24 @@ import { hubRunTransition } from 'ng-hub-ui-utils';
 
 // Ejecutar transición con callback
 hubRunTransition(
-  this.ngZone,
-  element,
-  (element, animation, context) => {
-    // Lógica de inicio de transición
-    element.classList.add('transitioning');
-    
-    return () => {
-      // Cleanup al final de la transición
-      element.classList.remove('transitioning');
-    };
-  },
-  {
-    animation: true,
-    runningTransition: 'continue',
-    context: { customData: 'value' }
-  }
+	this.ngZone,
+	element,
+	(element, animation, context) => {
+		// Lógica de inicio de transición
+		element.classList.add('transitioning');
+
+		return () => {
+			// Cleanup al final de la transición
+			element.classList.remove('transitioning');
+		};
+	},
+	{
+		animation: true,
+		runningTransition: 'continue',
+		context: { customData: 'value' }
+	}
 ).subscribe(() => {
-  console.log('Transición completada');
+	console.log('Transición completada');
 });
 ```
 
@@ -238,43 +244,37 @@ Consulta [Internacionalización (i18n)](#-internacionalización-i18n) para la AP
 Conjunto completo de pipes de utilidad para validación, transformación y manipulación de datos.
 
 ```typescript
-import {
-  GetPipe,
-  IsStringPipe,
-  IsObjectPipe,
-  IsObservablePipe,
-  UcfirstPipe,
-  UnwrapAsyncPipe
-} from 'ng-hub-ui-utils';
+import { GetPipe, IsStringPipe, IsObjectPipe, IsObservablePipe, UcfirstPipe, UnwrapAsyncPipe } from 'ng-hub-ui-utils';
 
 @Component({
-  standalone: true,
-  imports: [GetPipe, IsStringPipe, UcfirstPipe, UnwrapAsyncPipe],
-  template: `
-    <!-- Acceso seguro a propiedades anidadas -->
-    <p>{{ user | get:'address.city':'Desconocido' }}</p>
+	standalone: true,
+	imports: [GetPipe, IsStringPipe, UcfirstPipe, UnwrapAsyncPipe],
+	template: `
+		<!-- Acceso seguro a propiedades anidadas -->
+		<p>{{ user | get: 'address.city' : 'Desconocido' }}</p>
 
-    <!-- Capitalizar primera letra -->
-    <h1>{{ title | ucfirst }}</h1>
+		<!-- Capitalizar primera letra -->
+		<h1>{{ title | ucfirst }}</h1>
 
-    <!-- Verificación de tipos en templates -->
-    @if (value | isString) {
-      <span>Es un string: {{ value }}</span>
-    }
+		<!-- Verificación de tipos en templates -->
+		@if (value | isString) {
+			<span>Es un string: {{ value }}</span>
+		}
 
-    <!-- Desempaquetar Observable o valor directo -->
-    <div>{{ observableOrValue | unwrapAsync }}</div>
-  `
+		<!-- Desempaquetar Observable o valor directo -->
+		<div>{{ observableOrValue | unwrapAsync }}</div>
+	`
 })
 export class ExampleComponent {
-  user = { address: { city: 'Madrid' } };
-  title = 'hola mundo';
-  value: any = 'prueba';
-  observableOrValue = of('Valor Observable');
+	user = { address: { city: 'Madrid' } };
+	title = 'hola mundo';
+	value: any = 'prueba';
+	observableOrValue = of('Valor Observable');
 }
 ```
 
 **Pipes Disponibles:**
+
 - **GetPipe** (`get`): Acceso seguro a propiedades anidadas con valores por defecto
 - **IsStringPipe** (`isString`): Verifica si el valor es un string
 - **IsObjectPipe** (`isObject`): Verifica si el valor es un objeto
@@ -288,29 +288,33 @@ Conjunto completo de helpers para validación, transformación y manipulación d
 
 ```typescript
 import {
-  toInteger,
-  toString,
-  getValueInRange,
-  isString,
-  isNumber,
-  isInteger,
-  isDefined,
-  isPromise,
-  padNumber,
-  regExpEscape,
-  closest,
-  reflow,
-  removeAccents,
-  getActiveElement
+	toInteger,
+	toString,
+	getValueInRange,
+	isString,
+	isNumber,
+	isInteger,
+	isDefined,
+	isPromise,
+	padNumber,
+	regExpEscape,
+	closest,
+	reflow,
+	removeAccents,
+	getActiveElement
 } from 'ng-hub-ui-utils';
 
 // Conversiones seguras
-const numValue = toInteger('42');        // 42
-const strValue = toString(null);         // ''
+const numValue = toInteger('42'); // 42
+const strValue = toString(null); // ''
 
 // Validaciones de tipo
-if (isString(value)) { /* ... */ }
-if (isPromise(result)) { /* ... */ }
+if (isString(value)) {
+	/* ... */
+}
+if (isPromise(result)) {
+	/* ... */
+}
 
 // Manipulación de DOM
 const parent = closest(element, '.container');
@@ -325,20 +329,17 @@ const activeEl = getActiveElement(); // Incluye shadow DOM
 ```
 
 ### 🎯 TypeScript completo
+
 Tipado estricto en toda la biblioteca con interfaces y tipos bien definidos.
 
 ```typescript
 // Tipos de transición
-type TransitionStartFn<T> = (
-  element: HTMLElement,
-  animation: boolean,
-  context: T
-) => TransitionEndFn | void;
+type TransitionStartFn<T> = (element: HTMLElement, animation: boolean, context: T) => TransitionEndFn | void;
 
 interface TransitionOptions<T> {
-  animation: boolean;
-  runningTransition: 'continue' | 'stop';
-  context?: T;
+	animation: boolean;
+	runningTransition: 'continue' | 'stop';
+	context?: T;
 }
 
 // Tipo para el reversor de scrollbar
@@ -346,6 +347,7 @@ type ScrollbarReverter = () => void;
 ```
 
 ### ⚡ Tree-shaking optimizado
+
 Importa solo las utilidades que necesitas para optimizar el bundle.
 
 ```typescript
@@ -384,6 +386,21 @@ export class ExampleComponent {}
 Inputs: `hubTooltip` (texto), `hubTooltipPlacement` (`top` | `bottom` | `left` | `right`,
 por defecto `top`), `hubTooltipDelay` (ms de fundido, por defecto `150`), `hubTooltipOffset`
 (px, por defecto `8`).
+
+**La posición es una preferencia, no una orden (desde 22.16.0).** Un tooltip que se abriría fuera
+del borde de la ventana se abre por el lado contrario, en los cuatro bordes, y uno centrado sobre
+un host pegado al borde en línea se desliza hacia dentro en lugar de voltear: voltear no arregla un
+desbordamiento en el eje transversal. Solo cede cuando de verdad no cabe, así que un tooltip que no
+necesitaba moverse no se mueve, y el encaje se recalcula mientras la etiqueta está abierta, al
+redimensionar la ventana y al hacer scroll en cualquier contenedor por encima de ella. En RTL el
+borde en línea es el otro y el volteo lo sigue, mientras que `hubTooltipPlacement="left"` sigue
+significando el borde izquierdo del host.
+
+Si venías escribiendo `hubTooltipPlacement="bottom"` a mano en cada pista de una cabecera, puedes
+dejar de hacerlo: el atributo se sigue respetando allí donde cabe, pero ya no es lo que mantiene la
+etiqueta en pantalla. La clase de la burbuja (`hub-tooltip--top`, `--bottom`, `--left`, `--right`)
+nombra el lado en el que ha acabado, así que una flecha dibujada a partir de ella acompaña al
+volteo.
 
 > **`TooltipDirective` (`[tooltip]`) se eliminó en 22.14.0**, tras quedar obsoleta en 22.9.0.
 > Sus nombres de input sin prefijo (`tooltip`, `placement`, `delay`, `offset`) pertenecían a
@@ -452,10 +469,7 @@ import { hubTooltipAdapter } from 'ng-hub-ui-utils';
 import { provideHubBadgeTooltip } from 'ng-hub-ui-badges';
 import { provideHubBreadcrumbTooltip } from 'ng-hub-ui-breadcrumbs';
 
-providers: [
-  provideHubBadgeTooltip(hubTooltipAdapter),
-  provideHubBreadcrumbTooltip(hubTooltipAdapter)
-];
+providers: [provideHubBadgeTooltip(hubTooltipAdapter), provideHubBreadcrumbTooltip(hubTooltipAdapter)];
 ```
 
 Dentro de este paquete el mismo token funciona al revés: `[hubOverflowTooltip]` resuelve su
@@ -491,53 +505,46 @@ yarn add ng-hub-ui-utils
 
 ```typescript
 // Importar utilidades específicas
-import {
-  toInteger,
-  isString,
-  ScrollBar,
-  getFocusableBoundaryElements,
-  GetPipe,
-  UcfirstPipe
-} from 'ng-hub-ui-utils';
+import { toInteger, isString, ScrollBar, getFocusableBoundaryElements, GetPipe, UcfirstPipe } from 'ng-hub-ui-utils';
 
 @Component({
-  selector: 'app-example',
-  standalone: true,
-  imports: [GetPipe, UcfirstPipe],
-  template: `
-    <div #container>
-      <h1>{{ title | ucfirst }}</h1>
-      <p>{{ user | get:'name':'Anónimo' }}</p>
-    </div>
-  `
+	selector: 'app-example',
+	standalone: true,
+	imports: [GetPipe, UcfirstPipe],
+	template: `
+		<div #container>
+			<h1>{{ title | ucfirst }}</h1>
+			<p>{{ user | get: 'name' : 'Anónimo' }}</p>
+		</div>
+	`
 })
 export class ExampleComponent {
-  constructor(private scrollBar: ScrollBar) {}
+	constructor(private scrollBar: ScrollBar) {}
 
-  @ViewChild('container') containerElement!: ElementRef<HTMLElement>;
+	@ViewChild('container') containerElement!: ElementRef<HTMLElement>;
 
-  title = 'bienvenido';
-  user = { name: 'Juan Pérez' };
+	title = 'bienvenido';
+	user = { name: 'Juan Pérez' };
 
-  ngAfterViewInit() {
-    // Obtener elementos focusables
-    const [first, last] = getFocusableBoundaryElements(this.containerElement.nativeElement);
+	ngAfterViewInit() {
+		// Obtener elementos focusables
+		const [first, last] = getFocusableBoundaryElements(this.containerElement.nativeElement);
 
-    // Conversión segura
-    const value = toInteger('42');
+		// Conversión segura
+		const value = toInteger('42');
 
-    if (isString(this.title)) {
-      console.log('Es un string');
-    }
-  }
+		if (isString(this.title)) {
+			console.log('Es un string');
+		}
+	}
 
-  openOverlay() {
-    // Ocultar scrollbar durante overlay
-    const reverter = this.scrollBar.hide();
+	openOverlay() {
+		// Ocultar scrollbar durante overlay
+		const reverter = this.scrollBar.hide();
 
-    // Restaurar al cerrar
-    this.overlayRef.onClose(() => reverter());
-  }
+		// Restaurar al cerrar
+		this.overlayRef.onClose(() => reverter());
+	}
 }
 ```
 
@@ -609,7 +616,7 @@ class HubTranslationService {
 ```typescript
 import { HubTranslationService } from 'ng-hub-ui-utils';
 
-@Component({ /* ... */ })
+@Component({/* ... */})
 export class LanguageSwitcherComponent {
 	private translationSvc = inject(HubTranslationService);
 
@@ -648,12 +655,14 @@ Estas funciones dan soporte al sistema de i18n y se exportan para uso directo:
 ## 📊 API de Utilidades
 
 ### Funciones de Conversión
+
 - `toInteger(value: any): number` - Convierte a entero de forma segura
 - `toString(value: any): string` - Convierte a string manejando null/undefined
 - `getValueInRange(value: number, max: number, min?: number): number` - Limita valor a rango
 - `padNumber(value: number): string` - Añade cero inicial a números
 
 ### Funciones de Validación
+
 - `isString(value: any): value is string` - Verifica si es string
 - `isNumber(value: any): value is number` - Verifica si es número válido
 - `isInteger(value: any): value is number` - Verifica si es entero
@@ -661,62 +670,67 @@ Estas funciones dan soporte al sistema de i18n y se exportan para uso directo:
 - `isPromise<T>(v: any): v is Promise<T>` - Verifica si es Promise
 
 ### Funciones de String
+
 - `regExpEscape(text: string): string` - Escapa caracteres especiales para RegExp
 - `removeAccents(str: string): string` - Remueve acentos de texto
 - `interpolateString(expr?: string, params?: any, templateMatcher?: RegExp): string` - Sustituye los marcadores `{{ token }}`
 - `generateUniqueId(length: number): string` - Id alfanumérico aleatorio, para el nodo del DOM que necesita uno
 
 ### Funciones de Objeto
+
 - `equals(o1: any, o2: any): boolean` - Igualdad profunda
 - `getValue(target: any, key: string): any` - Lee un valor anidado con clave en notación con puntos
 - `isObject(item: any): boolean` - Indica si el valor es un objeto que no es un array
 - `mergeDeep(target: any, source: any): any` - Mezcla recursiva; es el único helper de objetos profundo del paquete
 
 ### Utilidades de Signals
+
 - `debouncedSignal<T>(source: Signal<T>, delay?: number | Signal<number>): Signal<T>` - Refleja una señal retrasando cada cambio; el retardo puede ser a su vez una señal
 
 ### Funciones de DOM
+
 - `closest(element: HTMLElement, selector?: string): HTMLElement | null` - Busca elemento padre por selector
 - `reflow(element: HTMLElement): DOMRect` - Fuerza reflow del navegador
 - `getActiveElement(root?: Document | ShadowRoot): Element | null` - Obtiene elemento activo incluyendo Shadow DOM
 
 ### Resolución de acento
+
 - `resolveHubAccent(value: string | null | undefined): string | null` - El resolutor de acento «cualquier color» compartido por la familia: una palabra suelta se convierte en `var(--hub-sys-color-<nombre>, <nombre>)`, un literal `#hex` / `rgb()` / `oklch()` / `var()` se devuelve tal cual, y un valor vacío devuelve `null`
 
 ### Funciones de color
 
--   `parseColor(value): HubRgb | null` - Analiza hex (3/4/6/8), `rgb()`, `hsl()`, `oklch()`, `oklab()`, los 148 colores CSS con nombre y `transparent`, en sintaxis moderna y heredada. Sin DOM, así que funciona con SSR. Devuelve `null` — nunca lanza — ante lo que no puede resolver, incluidos `var()` y `currentColor`
--   `toRgb(color): HubRgb | null` - Normaliza una cadena o un color ya analizado a canales
--   `toHex(color): string | null` - Devuelve `#rrggbb`, o `#rrggbbaa` si es translúcido
--   `isValidColor(value): boolean` - Indica si el analizador puede resolver la cadena
--   `HUB_NAMED_COLORS: Readonly<Record<string, string>>` - Los 148 colores CSS con nombre
+- `parseColor(value): HubRgb | null` - Analiza hex (3/4/6/8), `rgb()`, `hsl()`, `oklch()`, `oklab()`, los 148 colores CSS con nombre y `transparent`, en sintaxis moderna y heredada. Sin DOM, así que funciona con SSR. Devuelve `null` — nunca lanza — ante lo que no puede resolver, incluidos `var()` y `currentColor`
+- `toRgb(color): HubRgb | null` - Normaliza una cadena o un color ya analizado a canales
+- `toHex(color): string | null` - Devuelve `#rrggbb`, o `#rrggbbaa` si es translúcido
+- `isValidColor(value): boolean` - Indica si el analizador puede resolver la cadena
+- `HUB_NAMED_COLORS: Readonly<Record<string, string>>` - Los 148 colores CSS con nombre
 
 ### Funciones de contraste
 
--   `relativeLuminance(color): number | null` - Luminancia relativa WCAG 2, de 0 a 1
--   `contrastRatio(a, b): number | null` - Ratio de contraste WCAG 2, de 1 a 21
--   `contrastAPCA(text, background): number | null` - Contraste APCA, sensible a la polaridad
--   `compositeOver(foreground, background): HubColor` - Compone un color translúcido sobre uno opaco
--   `readableOn(background, metric?): string` - Negro o blanco, el que mejor se lea. Por defecto `'lightness'`, la misma decisión que toma `--hub-sys-color-*-on` en CSS; también admite `'apca'` y `'wcag'`
--   `HUB_INK_LIGHTNESS_THRESHOLD: number` - Luminosidad OKLCh a partir de la cual una superficie lleva tinta oscura
+- `relativeLuminance(color): number | null` - Luminancia relativa WCAG 2, de 0 a 1
+- `contrastRatio(a, b): number | null` - Ratio de contraste WCAG 2, de 1 a 21
+- `contrastAPCA(text, background): number | null` - Contraste APCA, sensible a la polaridad
+- `compositeOver(foreground, background): HubColor` - Compone un color translúcido sobre uno opaco
+- `readableOn(background, metric?): string` - Negro o blanco, el que mejor se lea. Por defecto `'lightness'`, la misma decisión que toma `--hub-sys-color-*-on` en CSS; también admite `'apca'` y `'wcag'`
+- `HUB_INK_LIGHTNESS_THRESHOLD: number` - Luminosidad OKLCh a partir de la cual una superficie lleva tinta oscura
 
 ### Funciones OKLCh
 
--   `rgbToOklch(color): HubOklch` / `oklchToRgb(color): HubRgb` - Conversiones en el espacio en el que mezcla el sistema de diseño
--   `maxSrgbChroma(l, h): number` - Croma máximo en gamut para un tono a una luminosidad dada. El gamut sRGB no es un cilindro — a L 0,578 el azul llega a 0,232 y el ámbar solo a 0,119 — así que una paleta no puede dar a todos los tonos el mismo croma absoluto
--   `isInSrgbGamut(color): boolean` - Indica si el color sobrevive a la conversión a sRGB
--   `clampToSrgbGamut(color): HubOklch` - Reduce el croma hasta que quepa, conservando luminosidad y tono
+- `rgbToOklch(color): HubOklch` / `oklchToRgb(color): HubRgb` - Conversiones en el espacio en el que mezcla el sistema de diseño
+- `maxSrgbChroma(l, h): number` - Croma máximo en gamut para un tono a una luminosidad dada. El gamut sRGB no es un cilindro — a L 0,578 el azul llega a 0,232 y el ámbar solo a 0,119 — así que una paleta no puede dar a todos los tonos el mismo croma absoluto
+- `isInSrgbGamut(color): boolean` - Indica si el color sobrevive a la conversión a sRGB
+- `clampToSrgbGamut(color): HubOklch` - Reduce el croma hasta que quepa, conservando luminosidad y tono
 
 ### Derivación de paleta
 
 Un color de marca, toda la paleta — y los dos números que la mantienen honesta.
 
--   `harmoniseSemantics(primary, options?): HubSemanticPalette | null` - Gira `success`, `warning`, `danger` e `info` hacia el tono de la marca y los devuelve en hexadecimal. La luminosidad se deja exactamente donde la tenía el ancla, porque es la que sostiene el contraste por el que se eligió cada rol; el croma solo se reduce cuando el tono nuevo no puede sostenerlo dentro de sRGB
--   `tintNeutrals(primary, options?): HubNeutralRamp | null` - Inclina la escala de grises (`100` … `900`) en la misma dirección, conservando la luminosidad de cada paso
--   `HUB_MAX_HUE_SHIFT: number` (15) - Cuánto puede girar un rol, en grados. No es cuestión de gusto: `success` y `danger` están a 135,8° en OKLCh, y quien tiene deuteranopia los distingue solo por el tono. Un tono de marca entre ambos tira de los dos hacia dentro, así que la separación se cierra hasta el doble del tope; a 22,9° llegaría al suelo de 90°. Con 15° el peor caso queda en 105,8°
--   `HUB_MAX_NEUTRAL_CHROMA: number` (0,015) - El croma máximo de un neutro teñido. Anclado en la escala que ya trae el sistema de diseño — `gray-600` mide 0,0165 y `gray-500`, 0,0145 — así que una escala teñida nunca resulta más colorida que el gris que ya se acepta como gris
--   `HUB_SEMANTIC_ANCHORS` / `HUB_NEUTRAL_ANCHORS` - Los puntos de partida sin teñir, para que un producto que no armoniza nada siga obteniendo la paleta que envía la hoja de estilos
--   Tipos: `HubSemanticRole`, `HubSemanticPalette`, `HubNeutralStep`, `HubNeutralRamp`, `HubHarmoniseOptions`, `HubTintNeutralsOptions`
+- `harmoniseSemantics(primary, options?): HubSemanticPalette | null` - Gira `success`, `warning`, `danger` e `info` hacia el tono de la marca y los devuelve en hexadecimal. La luminosidad se deja exactamente donde la tenía el ancla, porque es la que sostiene el contraste por el que se eligió cada rol; el croma solo se reduce cuando el tono nuevo no puede sostenerlo dentro de sRGB
+- `tintNeutrals(primary, options?): HubNeutralRamp | null` - Inclina la escala de grises (`100` … `900`) en la misma dirección, conservando la luminosidad de cada paso
+- `HUB_MAX_HUE_SHIFT: number` (15) - Cuánto puede girar un rol, en grados. No es cuestión de gusto: `success` y `danger` están a 135,8° en OKLCh, y quien tiene deuteranopia los distingue solo por el tono. Un tono de marca entre ambos tira de los dos hacia dentro, así que la separación se cierra hasta el doble del tope; a 22,9° llegaría al suelo de 90°. Con 15° el peor caso queda en 105,8°
+- `HUB_MAX_NEUTRAL_CHROMA: number` (0,015) - El croma máximo de un neutro teñido. Anclado en la escala que ya trae el sistema de diseño — `gray-600` mide 0,0165 y `gray-500`, 0,0145 — así que una escala teñida nunca resulta más colorida que el gris que ya se acepta como gris
+- `HUB_SEMANTIC_ANCHORS` / `HUB_NEUTRAL_ANCHORS` - Los puntos de partida sin teñir, para que un producto que no armoniza nada siga obteniendo la paleta que envía la hoja de estilos
+- Tipos: `HubSemanticRole`, `HubSemanticPalette`, `HubNeutralStep`, `HubNeutralRamp`, `HubHarmoniseOptions`, `HubTintNeutralsOptions`
 
 ```typescript
 import { harmoniseSemantics, tintNeutrals } from 'ng-hub-ui-utils';
@@ -732,6 +746,7 @@ es ruido de redondeo, y armonizar hacia él giraría todos los roles en una dire
 elegido nadie.
 
 ### Funciones de Focus
+
 - `getFocusableBoundaryElements(element: HTMLElement): HTMLElement[]` - Obtiene primer y último elemento focusable
 - `hubFocusTrap(zone, element, stopFocusTrap$, refocusOnClick?)` - Crea trampa de foco para modales/overlays
 - `FOCUSABLE_ELEMENTS_SELECTOR: string` - Selector CSS para elementos focusables
@@ -752,79 +767,90 @@ quedan en cada biblioteca, porque sus selectores y modelos de datos difieren.
 
 ### Directivas
 
-- `HubTooltipDirective` (`[hubTooltip]`) - Tooltip al pasar el cursor o enfocar. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
+- `HubTooltipDirective` (`[hubTooltip]`) - Tooltip al pasar el cursor o enfocar, volteado lejos de los bordes de la ventana. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
 - `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip que solo aparece mientras la etiqueta está truncada. Inputs: `hubOverflowTooltip`, `placement`, `hubOverflowTooltipMeasure` (selector CSS, resuelto dentro del host, que nombra la caja cuyo recorte lo decide; por defecto, el propio host)
 - `provideHubTooltip(adapter: HubTooltipAdapter)` y `HUB_TOOLTIP_ADAPTER` - Cambian la implementación que hay detrás de `[hubOverflowTooltip]`, para toda la aplicación o para un subárbol; por defecto, `hubTooltipAdapter`
 
 ### Pipes
 
 #### GetPipe
+
 ```typescript
 // Acceso seguro a propiedades anidadas
 {{ object | get:'path.to.property':'valorPorDefecto' }}
 ```
 
 #### IsStringPipe
+
 ```typescript
 // Verificación de tipos
 @if (value | isString) { <span>Valor string</span> }
 ```
 
 #### IsObjectPipe
+
 ```typescript
 // Verificación de objetos
 @if (value | isObject) { <span>Valor objeto</span> }
 ```
 
 #### IsObservablePipe
+
 ```typescript
 // Verificación de Observables
 @if (stream | isObservable) { <span>Stream Observable</span> }
 ```
 
 #### UcfirstPipe
+
 ```typescript
 // Capitalizar primera letra
 {{ 'hola mundo' | ucfirst }}  <!-- Hola mundo -->
 ```
 
 #### UnwrapAsyncPipe
+
 ```typescript
 // Desempaquetar Observable o retornar valor directo
-{{ observableOrValue | unwrapAsync }}
+{
+	{
+		observableOrValue | unwrapAsync;
+	}
+}
 ```
 
 ### Servicios
 
 #### OverlayService
+
 ```typescript
 @Injectable({ providedIn: 'root' })
 class OverlayService {
-  create(config?: OverlayConfig): OverlayRef;
-  position(): OverlayPosition;
+	create(config?: OverlayConfig): OverlayRef;
+	position(): OverlayPosition;
 }
 
 class OverlayRef {
-  // Renderiza una plantilla o un componente en el overlay y devuelve el elemento host, no un
-  // ComponentRef: el overlay es dueño de la vista que ha creado y la destruye él mismo.
-  attach(content: TemplateRef<unknown> | Type<unknown>, viewContainerRef?: ViewContainerRef): HTMLElement;
-  detach(): void;
-  dispose(): void;
-  hasAttached(): boolean;
-  updatePosition(): void;
-  onBackdropClick(callback: () => void): void;
-  // Solo se avisa al overlay superior, así que un dropdown dentro de un diálogo se queda con
-  // Escape y deja el diálogo abierto.
-  onKeydown(callback: (event: KeyboardEvent) => void): void;
+	// Renderiza una plantilla o un componente en el overlay y devuelve el elemento host, no un
+	// ComponentRef: el overlay es dueño de la vista que ha creado y la destruye él mismo.
+	attach(content: TemplateRef<unknown> | Type<unknown>, viewContainerRef?: ViewContainerRef): HTMLElement;
+	detach(): void;
+	dispose(): void;
+	hasAttached(): boolean;
+	updatePosition(): void;
+	onBackdropClick(callback: () => void): void;
+	// Solo se avisa al overlay superior, así que un dropdown dentro de un diálogo se queda con
+	// Escape y deja el diálogo abierto.
+	onKeydown(callback: (event: KeyboardEvent) => void): void;
 }
 
 class OverlayPosition {
-  // El elemento al que está anclado el panel. El overlay lo vigila y lo sigue cuando se mueve.
-  readonly origin: HTMLElement | null;
-  flexibleConnectedTo(origin: ElementRef | HTMLElement): this;
-  withPositions(positions: ConnectionPosition[]): this;
-  // `start` / `end` son lógicos y se leen del elemento de origen; esto lo sobrescribe.
-  withDirection(direction: 'ltr' | 'rtl' | null): this;
+	// El elemento al que está anclado el panel. El overlay lo vigila y lo sigue cuando se mueve.
+	readonly origin: HTMLElement | null;
+	flexibleConnectedTo(origin: ElementRef | HTMLElement): this;
+	withPositions(positions: ConnectionPosition[]): this;
+	// `start` / `end` son lógicos y se leen del elemento de origen; esto lo sobrescribe.
+	withDirection(direction: 'ltr' | 'rtl' | null): this;
 }
 ```
 
@@ -835,14 +861,55 @@ una sola lista sirva en ambas direcciones de lectura:
 ```typescript
 import { HUB_DROPDOWN_POSITIONS } from 'ng-hub-ui-utils';
 
-overlayService.position().flexibleConnectedTo(origin).withPositions([...HUB_DROPDOWN_POSITIONS]);
+overlayService
+	.position()
+	.flexibleConnectedTo(origin)
+	.withPositions([...HUB_DROPDOWN_POSITIONS]);
 ```
 
+#### Encaje en la ventana (`viewport-fit`)
+
+La aritmética que hay detrás de la estrategia de overlay y del tooltip, exportada por separado para
+que un elemento flotante que no sea ninguno de los dos no tenga que escribir una tercera copia.
+Trabaja con números planos, no toca el DOM y funciona igual en un renderizado de servidor.
+
+```typescript
+import { hubAnchorToViewport, hubToAnchorSide, hubToPhysicalSide, hubViewportOf } from 'ng-hub-ui-utils';
+
+const rtl = getComputedStyle(host).direction === 'rtl';
+
+const placed = hubAnchorToViewport({
+	anchor: host.getBoundingClientRect(),
+	box: { width: panel.offsetWidth, height: panel.offsetHeight },
+	viewport: hubViewportOf(panel), // null en servidor: no voltea nada
+	side: hubToAnchorSide('bottom', rtl), // 'block-start' | 'block-end' | 'inline-start' | 'inline-end'
+	align: 'start', // lógico: se refleja en RTL
+	offset: 8,
+	margin: 0,
+	rtl
+});
+
+// placed.x / placed.y son coordenadas de ventana: súmales scrollX / scrollY si el elemento está
+// posicionado en absoluto. placed.side es dónde ha acabado y placed.flipped si eso fue un volteo.
+panel.dataset['side'] = hubToPhysicalSide(placed.side, rtl);
+```
+
+El lado pedido se mantiene salvo que de verdad no pueda sostener la caja **y** el contrario tenga
+más sitio, así que nada voltea gratis; el eje transversal se recorta en vez de voltearse, porque una
+caja centrada sobre un ancla pegada al borde en línea desborda por ahí se abra por donde se abra.
+Los lados son lógicos para que una sola regla de reserva sirva en ambas direcciones de lectura:
+`hubToAnchorSide` y `hubToPhysicalSide` hacen el viaje de ida y vuelta desde un borde físico sin
+cambiar lo que pidió quien llama.
+
+También se exportan `hubFitsInViewport(point, size, viewport, margin?)`,
+`hubClampToViewport(point, size, viewport, margin?)` y `hubOppositeSide(side)`.
+
 #### ScrollBar Service
+
 ```typescript
 @Injectable({ providedIn: 'root' })
 class ScrollBar {
-  hide(): ScrollbarReverter; // Oculta scrollbar con compensación
+	hide(): ScrollbarReverter; // Oculta scrollbar con compensación
 }
 ```
 
@@ -854,22 +921,23 @@ contexto de inyección: como subclase `@Injectable()`, o desde un proveedor de f
 
 ```typescript
 class PopupService<T> {
-  constructor(componentType: Type<T>);
-  open(
-    content?: string | TemplateRef<any>,
-    templateContext?: any,
-    animation?: boolean
-  ): { windowRef: ComponentRef<T>; transition$: Observable<void> };
-  close(animation?: boolean): Observable<void>;
+	constructor(componentType: Type<T>);
+	open(
+		content?: string | TemplateRef<any>,
+		templateContext?: any,
+		animation?: boolean
+	): { windowRef: ComponentRef<T>; transition$: Observable<void> };
+	close(animation?: boolean): Observable<void>;
 }
 
 // Los nodos y la vista que proyecta un popup; lo devuelve internamente el resolutor de contenido.
 class ContentRef {
-  constructor(nodes: Node[][], viewRef?: ViewRef, componentRef?: ComponentRef<any>);
+	constructor(nodes: Node[][], viewRef?: ViewRef, componentRef?: ComponentRef<any>);
 }
 ```
 
 ### Utilidades de Transición
+
 - `hubRunTransition<T>(zone, element, startFn, options)` - Sistema avanzado de transiciones con Observable
 - `hubCompleteTransition(element)` - Completa una transición en ejecución en un elemento
 - `getTransitionDurationMs(element)` - Obtiene duración de transición CSS en milisegundos
@@ -879,15 +947,15 @@ class ContentRef {
 
 Esta biblioteca no incluye componentes visuales, sino utilidades de soporte que son utilizadas por otros componentes del ecosistema Hub UI:
 
-| Utilidad | Descripción | Usado por |
-|----------|-------------|-----------|
-| Overlay Service | Sistema de posicionamiento flexible de overlays | ng-hub-ui-modal, ng-hub-ui-portal |
-| Focus Trap | Manejo de foco en modales/overlays | ng-hub-ui-modal, ng-hub-ui-portal |
-| Scrollbar | Compensación de scrollbar | ng-hub-ui-modal, ng-hub-ui-portal |
-| Popup Service | Anfitrión de popups creados dinámicamente | ng-hub-ui-modal, ng-hub-ui-portal |
-| Transitions | Animaciones fluidas | ng-hub-ui-accordion, ng-hub-ui-modal |
-| Type Guards | Funciones de validación de tipos | ng-hub-ui-stepper                      |
-| Pipes | Utilidades de template | Todos los componentes Hub UI |
+| Utilidad        | Descripción                                     | Usado por                            |
+| --------------- | ----------------------------------------------- | ------------------------------------ |
+| Overlay Service | Sistema de posicionamiento flexible de overlays | ng-hub-ui-modal, ng-hub-ui-portal    |
+| Focus Trap      | Manejo de foco en modales/overlays              | ng-hub-ui-modal, ng-hub-ui-portal    |
+| Scrollbar       | Compensación de scrollbar                       | ng-hub-ui-modal, ng-hub-ui-portal    |
+| Popup Service   | Anfitrión de popups creados dinámicamente       | ng-hub-ui-modal, ng-hub-ui-portal    |
+| Transitions     | Animaciones fluidas                             | ng-hub-ui-accordion, ng-hub-ui-modal |
+| Type Guards     | Funciones de validación de tipos                | ng-hub-ui-stepper                    |
+| Pipes           | Utilidades de template                          | Todos los componentes Hub UI         |
 
 ## 🤝 Compatibilidad
 
@@ -923,28 +991,28 @@ import { TestBed } from '@angular/core/testing';
 import { ScrollBar, toInteger, isString, GetPipe } from 'ng-hub-ui-utils';
 
 describe('ng-hub-ui-utils', () => {
-  it('should convert values safely', () => {
-    expect(toInteger('42')).toBe(42);
-    expect(toInteger('invalid')).toBe(NaN);
-    expect(isString('hello')).toBe(true);
-    expect(isString(42)).toBe(false);
-  });
+	it('should convert values safely', () => {
+		expect(toInteger('42')).toBe(42);
+		expect(toInteger('invalid')).toBe(NaN);
+		expect(isString('hello')).toBe(true);
+		expect(isString(42)).toBe(false);
+	});
 
-  it('should manage scrollbar', () => {
-    const scrollBar = TestBed.inject(ScrollBar);
-    const reverter = scrollBar.hide();
+	it('should manage scrollbar', () => {
+		const scrollBar = TestBed.inject(ScrollBar);
+		const reverter = scrollBar.hide();
 
-    expect(typeof reverter).toBe('function');
-    reverter(); // Cleanup
-  });
+		expect(typeof reverter).toBe('function');
+		reverter(); // Cleanup
+	});
 
-  it('should get nested properties safely', () => {
-    const pipe = new GetPipe();
-    const obj = { user: { name: 'Juan' } };
+	it('should get nested properties safely', () => {
+		const pipe = new GetPipe();
+		const obj = { user: { name: 'Juan' } };
 
-    expect(pipe.transform(obj, 'user.name')).toBe('Juan');
-    expect(pipe.transform(obj, 'user.age', 0)).toBe(0);
-  });
+		expect(pipe.transform(obj, 'user.name')).toBe('Juan');
+		expect(pipe.transform(obj, 'user.age', 0)).toBe(0);
+	});
 });
 ```
 
@@ -981,8 +1049,9 @@ Si Hub UI te ha sido útil, considera apoyar su desarrollo:
 [![Sponsor](https://img.shields.io/badge/Sponsor-GitHub-red.svg?style=flat-square&logo=github)](https://github.com/sponsors/carlos-morcillo)
 
 Tu apoyo ayuda a:
+
 - 🚀 Mantener el proyecto activo
-- 🐛 Resolver bugs más rápido  
+- 🐛 Resolver bugs más rápido
 - ✨ Desarrollar nuevas características
 - 📚 Mejorar la documentación
 

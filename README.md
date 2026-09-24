@@ -93,31 +93,34 @@ Advanced system for creating overlays and floating components with flexible posi
 import { OverlayService, OverlayConfig } from 'ng-hub-ui-utils';
 
 @Component({
-  selector: 'app-example'
+	selector: 'app-example'
 })
 export class ExampleComponent {
-  constructor(private overlayService: OverlayService) {}
+	constructor(private overlayService: OverlayService) {}
 
-  openOverlay(elementRef: ElementRef) {
-    // Create overlay with configuration
-    const overlayRef = this.overlayService.create({
-      hasBackdrop: true,
-      backdropClass: 'custom-backdrop'
-    });
+	openOverlay(elementRef: ElementRef) {
+		// Create overlay with configuration
+		const overlayRef = this.overlayService.create({
+			hasBackdrop: true,
+			backdropClass: 'custom-backdrop'
+		});
 
-    // Configure position strategy
-    const positionStrategy = this.overlayService.position()
-      .flexibleConnectedTo(elementRef)
-      .withPositions([{
-        originX: 'start',
-        originY: 'bottom',
-        overlayX: 'start',
-        overlayY: 'top'
-      }]);
+		// Configure position strategy
+		const positionStrategy = this.overlayService
+			.position()
+			.flexibleConnectedTo(elementRef)
+			.withPositions([
+				{
+					originX: 'start',
+					originY: 'bottom',
+					overlayX: 'start',
+					overlayY: 'top'
+				}
+			]);
 
-    // Render a component (or a TemplateRef) into the overlay; you get the host element back
-    const overlayElement = overlayRef.attach(MyComponent);
-  }
+		// Render a component (or a TemplateRef) into the overlay; you get the host element back
+		const overlayElement = overlayRef.attach(MyComponent);
+	}
 }
 ```
 
@@ -138,14 +141,14 @@ import { PopupService } from 'ng-hub-ui-utils';
 
 @Injectable()
 export class MyPopupService extends PopupService<MyPopupComponent> {
-  constructor() {
-    super(MyPopupComponent);
-  }
+	constructor() {
+		super(MyPopupComponent);
+	}
 
-  openPopup(content?: string | TemplateRef<any>) {
-    const { windowRef, transition$ } = super.open(content, {}, true);
-    return { windowRef, transition$ };
-  }
+	openPopup(content?: string | TemplateRef<any>) {
+		const { windowRef, transition$ } = super.open(content, {}, true);
+		return { windowRef, transition$ };
+	}
 }
 ```
 
@@ -248,14 +251,14 @@ import { GetPipe, IsStringPipe, IsObjectPipe, IsObservablePipe, UcfirstPipe, Unw
 	imports: [GetPipe, IsStringPipe, UcfirstPipe, UnwrapAsyncPipe],
 	template: `
 		<!-- Safe nested property access -->
-		<p>{{ user | get : 'address.city' : 'Unknown' }}</p>
+		<p>{{ user | get: 'address.city' : 'Unknown' }}</p>
 
 		<!-- Capitalize first letter -->
 		<h1>{{ title | ucfirst }}</h1>
 
 		<!-- Type checking in templates -->
 		@if (value | isString) {
-		<span>It's a string: {{ value }}</span>
+			<span>It's a string: {{ value }}</span>
 		}
 
 		<!-- Unwrap Observable or direct value -->
@@ -272,12 +275,12 @@ export class ExampleComponent {
 
 **Available Pipes:**
 
--   **GetPipe** (`get`): Safe nested property access with default values
--   **IsStringPipe** (`isString`): Check if value is a string
--   **IsObjectPipe** (`isObject`): Check if value is an object
--   **IsObservablePipe** (`isObservable`): Check if value is an Observable
--   **UcfirstPipe** (`ucfirst`): Capitalize first letter of a string
--   **UnwrapAsyncPipe** (`unwrapAsync`): Unwrap Observable or return direct value
+- **GetPipe** (`get`): Safe nested property access with default values
+- **IsStringPipe** (`isString`): Check if value is a string
+- **IsObjectPipe** (`isObject`): Check if value is an object
+- **IsObservablePipe** (`isObservable`): Check if value is an Observable
+- **UcfirstPipe** (`ucfirst`): Capitalize first letter of a string
+- **UnwrapAsyncPipe** (`unwrapAsync`): Unwrap Observable or return direct value
 
 ### 🛠️ General Utility Functions
 
@@ -383,6 +386,19 @@ export class ExampleComponent {}
 Inputs: `hubTooltip` (text), `hubTooltipPlacement` (`top` | `bottom` | `left` | `right`,
 default `top`), `hubTooltipDelay` (fade ms, default `150`), `hubTooltipOffset` (px, default `8`).
 
+**The placement is a preference, not an instruction (since 22.16.0).** A tooltip that would open
+off the edge of the window opens on the opposite side instead, at all four edges, and one centred
+on a host near the inline edge is slid back inside rather than flipped — flipping does nothing for
+an overflow on the cross axis. It gives way only when it genuinely has no room, so a tooltip that
+did not need to move does not, and the fit is re-run while the label is open, on window resize and
+on a scroll anywhere above it. Under RTL the inline edge is the other one and the flip follows it,
+while `hubTooltipPlacement="left"` still means the host's left edge.
+
+If you have been writing `hubTooltipPlacement="bottom"` by hand on every hint in a header, you can
+stop: the attribute is still honoured wherever it fits, but it is no longer what keeps the label
+on screen. The class on the bubble (`hub-tooltip--top`, `--bottom`, `--left`, `--right`) names the
+side it ended up on, so an arrow styled off it follows the flip.
+
 > **`TooltipDirective` (`[tooltip]`) was removed in 22.14.0**, having been deprecated since
 > 22.9.0. Its bare input names (`tooltip`, `placement`, `delay`, `offset`) belonged to every
 > directive on the element that declared them, which is how it collided with `[hubDropdown]`'s
@@ -449,10 +465,7 @@ import { hubTooltipAdapter } from 'ng-hub-ui-utils';
 import { provideHubBadgeTooltip } from 'ng-hub-ui-badges';
 import { provideHubBreadcrumbTooltip } from 'ng-hub-ui-breadcrumbs';
 
-providers: [
-  provideHubBadgeTooltip(hubTooltipAdapter),
-  provideHubBreadcrumbTooltip(hubTooltipAdapter)
-];
+providers: [provideHubBadgeTooltip(hubTooltipAdapter), provideHubBreadcrumbTooltip(hubTooltipAdapter)];
 ```
 
 Inside this package the same token works the other way round: `[hubOverflowTooltip]`
@@ -497,7 +510,7 @@ import { toInteger, isString, ScrollBar, getFocusableBoundaryElements, GetPipe, 
 	template: `
 		<div #container>
 			<h1>{{ title | ucfirst }}</h1>
-			<p>{{ user | get : 'name' : 'Anonymous' }}</p>
+			<p>{{ user | get: 'name' : 'Anonymous' }}</p>
 		</div>
 	`
 })
@@ -598,7 +611,7 @@ class HubTranslationService {
 ```typescript
 import { HubTranslationService } from 'ng-hub-ui-utils';
 
-@Component({ /* ... */ })
+@Component({/* ... */})
 export class LanguageSwitcherComponent {
 	private translationSvc = inject(HubTranslationService);
 
@@ -638,81 +651,81 @@ These functions back the i18n system and are exported for direct use:
 
 ### Conversion Functions
 
--   `toInteger(value: any): number` - Safely converts to integer
--   `toString(value: any): string` - Converts to string handling null/undefined
--   `getValueInRange(value: number, max: number, min?: number): number` - Limits value to range
--   `padNumber(value: number): string` - Adds leading zero to numbers
+- `toInteger(value: any): number` - Safely converts to integer
+- `toString(value: any): string` - Converts to string handling null/undefined
+- `getValueInRange(value: number, max: number, min?: number): number` - Limits value to range
+- `padNumber(value: number): string` - Adds leading zero to numbers
 
 ### Validation Functions
 
--   `isString(value: any): value is string` - Checks if value is a string
--   `isNumber(value: any): value is number` - Checks if value is a valid number
--   `isInteger(value: any): value is number` - Checks if value is an integer
--   `isDefined(value: any): boolean` - Checks if not null/undefined
--   `isPromise<T>(v: any): v is Promise<T>` - Checks if value is a Promise
+- `isString(value: any): value is string` - Checks if value is a string
+- `isNumber(value: any): value is number` - Checks if value is a valid number
+- `isInteger(value: any): value is number` - Checks if value is an integer
+- `isDefined(value: any): boolean` - Checks if not null/undefined
+- `isPromise<T>(v: any): v is Promise<T>` - Checks if value is a Promise
 
 ### String Functions
 
--   `regExpEscape(text: string): string` - Escapes special characters for RegExp
--   `removeAccents(str: string): string` - Removes accents from text
--   `interpolateString(expr?: string, params?: any, templateMatcher?: RegExp): string` - Replaces `{{ token }}` placeholders
--   `generateUniqueId(length: number): string` - Random alphanumeric id, for a DOM node that needs one
+- `regExpEscape(text: string): string` - Escapes special characters for RegExp
+- `removeAccents(str: string): string` - Removes accents from text
+- `interpolateString(expr?: string, params?: any, templateMatcher?: RegExp): string` - Replaces `{{ token }}` placeholders
+- `generateUniqueId(length: number): string` - Random alphanumeric id, for a DOM node that needs one
 
 ### Object Functions
 
--   `equals(o1: any, o2: any): boolean` - Deep equality
--   `getValue(target: any, key: string): any` - Reads a nested value by dot-notation key
--   `isObject(item: any): boolean` - Whether the value is a non-array object
--   `mergeDeep(target: any, source: any): any` - Recursive merge; the only deep object helper in the package
+- `equals(o1: any, o2: any): boolean` - Deep equality
+- `getValue(target: any, key: string): any` - Reads a nested value by dot-notation key
+- `isObject(item: any): boolean` - Whether the value is a non-array object
+- `mergeDeep(target: any, source: any): any` - Recursive merge; the only deep object helper in the package
 
 ### Signal Utilities
 
--   `debouncedSignal<T>(source: Signal<T>, delay?: number | Signal<number>): Signal<T>` - Mirrors a signal, delaying each change; the delay can itself be a signal
+- `debouncedSignal<T>(source: Signal<T>, delay?: number | Signal<number>): Signal<T>` - Mirrors a signal, delaying each change; the delay can itself be a signal
 
 ### DOM Functions
 
--   `closest(element: HTMLElement, selector?: string): HTMLElement | null` - Finds parent element by selector
--   `reflow(element: HTMLElement): DOMRect` - Forces browser reflow
--   `getActiveElement(root?: Document | ShadowRoot): Element | null` - Gets active element including Shadow DOM
+- `closest(element: HTMLElement, selector?: string): HTMLElement | null` - Finds parent element by selector
+- `reflow(element: HTMLElement): DOMRect` - Forces browser reflow
+- `getActiveElement(root?: Document | ShadowRoot): Element | null` - Gets active element including Shadow DOM
 
 ### Accent Resolution
 
--   `resolveHubAccent(value: string | null | undefined): string | null` - The "any colour" accent resolver shared across the family: a bareword becomes `var(--hub-sys-color-<name>, <name>)`, a literal `#hex` / `rgb()` / `oklch()` / `var()` passes through unchanged, and an empty value yields `null`
+- `resolveHubAccent(value: string | null | undefined): string | null` - The "any colour" accent resolver shared across the family: a bareword becomes `var(--hub-sys-color-<name>, <name>)`, a literal `#hex` / `rgb()` / `oklch()` / `var()` passes through unchanged, and an empty value yields `null`
 
 ### Colour Functions
 
--   `parseColor(value): HubRgb | null` - Parses hex (3/4/6/8), `rgb()`, `hsl()`, `oklch()`, `oklab()`, the 148 CSS named colours and `transparent`, in modern and legacy syntax. No DOM, so it runs under SSR. Returns `null` — never throws — for anything it cannot resolve, `var()` and `currentColor` included
--   `toRgb(color): HubRgb | null` - Normalises a string or parsed colour to channels
--   `toHex(color): string | null` - Renders as `#rrggbb`, or `#rrggbbaa` when translucent
--   `isValidColor(value): boolean` - Whether the parser can resolve the string
--   `HUB_NAMED_COLORS: Readonly<Record<string, string>>` - The 148 CSS named colours
+- `parseColor(value): HubRgb | null` - Parses hex (3/4/6/8), `rgb()`, `hsl()`, `oklch()`, `oklab()`, the 148 CSS named colours and `transparent`, in modern and legacy syntax. No DOM, so it runs under SSR. Returns `null` — never throws — for anything it cannot resolve, `var()` and `currentColor` included
+- `toRgb(color): HubRgb | null` - Normalises a string or parsed colour to channels
+- `toHex(color): string | null` - Renders as `#rrggbb`, or `#rrggbbaa` when translucent
+- `isValidColor(value): boolean` - Whether the parser can resolve the string
+- `HUB_NAMED_COLORS: Readonly<Record<string, string>>` - The 148 CSS named colours
 
 ### Contrast Functions
 
--   `relativeLuminance(color): number | null` - WCAG 2 relative luminance, 0 to 1
--   `contrastRatio(a, b): number | null` - WCAG 2 contrast ratio, 1 to 21
--   `contrastAPCA(text, background): number | null` - APCA lightness contrast, polarity-aware
--   `compositeOver(foreground, background): HubColor` - Blends translucent over opaque
--   `readableOn(background, metric?): string` - Black or white, whichever reads better. Defaults to `'lightness'`, the same decision `--hub-sys-color-*-on` makes in CSS; `'apca'` and `'wcag'` are also available
--   `HUB_INK_LIGHTNESS_THRESHOLD: number` - The OKLCh lightness above which a surface takes dark ink
+- `relativeLuminance(color): number | null` - WCAG 2 relative luminance, 0 to 1
+- `contrastRatio(a, b): number | null` - WCAG 2 contrast ratio, 1 to 21
+- `contrastAPCA(text, background): number | null` - APCA lightness contrast, polarity-aware
+- `compositeOver(foreground, background): HubColor` - Blends translucent over opaque
+- `readableOn(background, metric?): string` - Black or white, whichever reads better. Defaults to `'lightness'`, the same decision `--hub-sys-color-*-on` makes in CSS; `'apca'` and `'wcag'` are also available
+- `HUB_INK_LIGHTNESS_THRESHOLD: number` - The OKLCh lightness above which a surface takes dark ink
 
 ### OKLCh Functions
 
--   `rgbToOklch(color): HubOklch` / `oklchToRgb(color): HubRgb` - Conversions in the space the design system mixes in
--   `maxSrgbChroma(l, h): number` - Highest in-gamut chroma for a hue at a lightness. The sRGB gamut is not a cylinder — at L 0.578 blue reaches 0.232 and amber only 0.119 — so a palette cannot give every hue the same absolute chroma
--   `isInSrgbGamut(color): boolean` - Whether the colour survives the trip to sRGB
--   `clampToSrgbGamut(color): HubOklch` - Reduces chroma until it fits, preserving lightness and hue
+- `rgbToOklch(color): HubOklch` / `oklchToRgb(color): HubRgb` - Conversions in the space the design system mixes in
+- `maxSrgbChroma(l, h): number` - Highest in-gamut chroma for a hue at a lightness. The sRGB gamut is not a cylinder — at L 0.578 blue reaches 0.232 and amber only 0.119 — so a palette cannot give every hue the same absolute chroma
+- `isInSrgbGamut(color): boolean` - Whether the colour survives the trip to sRGB
+- `clampToSrgbGamut(color): HubOklch` - Reduces chroma until it fits, preserving lightness and hue
 
 ### Palette Derivation
 
 One brand colour, the whole palette — and the two numbers that keep it honest.
 
--   `harmoniseSemantics(primary, options?): HubSemanticPalette | null` - Rotates `success`, `warning`, `danger` and `info` towards the brand's hue and returns them as hex. Lightness is left exactly where the anchor had it, because it is what carries the contrast each role was chosen for; chroma is reduced only when the new hue cannot hold it inside sRGB
--   `tintNeutrals(primary, options?): HubNeutralRamp | null` - Leans the grey ramp (`100` … `900`) the same way, keeping each step's lightness
--   `HUB_MAX_HUE_SHIFT: number` (15) - How far a role may rotate, in degrees. Not taste: success and danger sit 135.8° apart in OKLCh, and a viewer with deuteranopia separates them by hue alone. A brand hue between the two pulls both inwards, so the gap closes by up to twice the cap; at 22.9° it would reach the 90° floor. 15° leaves the worst case at 105.8°
--   `HUB_MAX_NEUTRAL_CHROMA: number` (0.015) - The most chroma a tinted neutral may carry. Anchored on the ramp the design system already ships — `gray-600` measures 0.0165 and `gray-500` 0.0145 — so a tinted ramp is never more colourful than the grey people already accept as grey
--   `HUB_SEMANTIC_ANCHORS` / `HUB_NEUTRAL_ANCHORS` - The untinted starting points, so a product that harmonises nothing still gets the palette the stylesheet ships
--   Types: `HubSemanticRole`, `HubSemanticPalette`, `HubNeutralStep`, `HubNeutralRamp`, `HubHarmoniseOptions`, `HubTintNeutralsOptions`
+- `harmoniseSemantics(primary, options?): HubSemanticPalette | null` - Rotates `success`, `warning`, `danger` and `info` towards the brand's hue and returns them as hex. Lightness is left exactly where the anchor had it, because it is what carries the contrast each role was chosen for; chroma is reduced only when the new hue cannot hold it inside sRGB
+- `tintNeutrals(primary, options?): HubNeutralRamp | null` - Leans the grey ramp (`100` … `900`) the same way, keeping each step's lightness
+- `HUB_MAX_HUE_SHIFT: number` (15) - How far a role may rotate, in degrees. Not taste: success and danger sit 135.8° apart in OKLCh, and a viewer with deuteranopia separates them by hue alone. A brand hue between the two pulls both inwards, so the gap closes by up to twice the cap; at 22.9° it would reach the 90° floor. 15° leaves the worst case at 105.8°
+- `HUB_MAX_NEUTRAL_CHROMA: number` (0.015) - The most chroma a tinted neutral may carry. Anchored on the ramp the design system already ships — `gray-600` measures 0.0165 and `gray-500` 0.0145 — so a tinted ramp is never more colourful than the grey people already accept as grey
+- `HUB_SEMANTIC_ANCHORS` / `HUB_NEUTRAL_ANCHORS` - The untinted starting points, so a product that harmonises nothing still gets the palette the stylesheet ships
+- Types: `HubSemanticRole`, `HubSemanticPalette`, `HubNeutralStep`, `HubNeutralRamp`, `HubHarmoniseOptions`, `HubTintNeutralsOptions`
 
 ```typescript
 import { harmoniseSemantics, tintNeutrals } from 'ng-hub-ui-utils';
@@ -728,9 +741,9 @@ is rounding noise, and harmonising towards it would rotate every role in a direc
 
 ### Focus Functions
 
--   `getFocusableBoundaryElements(element: HTMLElement): HTMLElement[]` - Gets first and last focusable elements
--   `hubFocusTrap(zone, element, stopFocusTrap$, refocusOnClick?)` - Creates focus trap for modals/overlays
--   `FOCUSABLE_ELEMENTS_SELECTOR: string` - CSS selector for focusable elements
+- `getFocusableBoundaryElements(element: HTMLElement): HTMLElement[]` - Gets first and last focusable elements
+- `hubFocusTrap(zone, element, stopFocusTrap$, refocusOnClick?)` - Creates focus trap for modals/overlays
+- `FOCUSABLE_ELEMENTS_SELECTOR: string` - CSS selector for focusable elements
 
 ### Drag and Drop
 
@@ -738,19 +751,19 @@ The engine-agnostic half of native HTML5 drag and drop, shared by the libraries 
 implement it. The UI primitives — handle, placeholder and preview directives — stay in each
 library, because their selectors and data models differ.
 
--   `HubDragDropService` - Root-provided coordinator. A drag spans two component instances and the native `dataTransfer` payload is unreadable during `dragover`, so a shared service is the only reliable channel for what is being dragged and from where. Owners `register()` / `unregister()`; `begin()`, `setTarget()` and the readonly `active` / `target` / `isDragging` signals report the drag in progress. It coordinates state only — it never mutates your collections
--   `moveItemInArray<T>(array, fromIndex, toIndex): void` / `transferArrayItem<T>(source, target, fromIndex, toIndex): void` / `copyArrayItem<T>(source, target, fromIndex, toIndex): void` - In-place array moves, mirroring the `@angular/cdk` helpers of the same names
--   `clamp(value, max)`, `computeTargetIndex(...)`, `toAbsoluteIndex(...)`, `containsNode(...)` - Index arithmetic for sliced and nested lists
--   `resolveDropPosition(...)` with `DropRect` and `DragAxis` - Where a pointer sits relative to an item: `'before'` or `'after'`, on a vertical, horizontal or grid axis
--   `createNativeDragImage(...)` returning `DragImageResult` - Renders the drag preview the browser shows
--   `createPointerDragSession(config: PointerDragSessionConfig): PointerDragSession` - Pointer Events fallback for touch, where native drag events are not delivered
--   Types: `DropPosition`, `DragPointerMode`, `DragContainerRef<T>`, `ActiveDrag<T>`, `DragTarget<T>`, `DragRegistration`
+- `HubDragDropService` - Root-provided coordinator. A drag spans two component instances and the native `dataTransfer` payload is unreadable during `dragover`, so a shared service is the only reliable channel for what is being dragged and from where. Owners `register()` / `unregister()`; `begin()`, `setTarget()` and the readonly `active` / `target` / `isDragging` signals report the drag in progress. It coordinates state only — it never mutates your collections
+- `moveItemInArray<T>(array, fromIndex, toIndex): void` / `transferArrayItem<T>(source, target, fromIndex, toIndex): void` / `copyArrayItem<T>(source, target, fromIndex, toIndex): void` - In-place array moves, mirroring the `@angular/cdk` helpers of the same names
+- `clamp(value, max)`, `computeTargetIndex(...)`, `toAbsoluteIndex(...)`, `containsNode(...)` - Index arithmetic for sliced and nested lists
+- `resolveDropPosition(...)` with `DropRect` and `DragAxis` - Where a pointer sits relative to an item: `'before'` or `'after'`, on a vertical, horizontal or grid axis
+- `createNativeDragImage(...)` returning `DragImageResult` - Renders the drag preview the browser shows
+- `createPointerDragSession(config: PointerDragSessionConfig): PointerDragSession` - Pointer Events fallback for touch, where native drag events are not delivered
+- Types: `DropPosition`, `DragPointerMode`, `DragContainerRef<T>`, `ActiveDrag<T>`, `DragTarget<T>`, `DragRegistration`
 
 ### Directives
 
--   `HubTooltipDirective` (`[hubTooltip]`) - Tooltip on hover/focus. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
--   `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip shown only while the label is truncated. Inputs: `hubOverflowTooltip`, `placement`, `hubOverflowTooltipMeasure` (CSS selector, resolved inside the host, naming the box whose truncation decides it; defaults to the host)
--   `provideHubTooltip(adapter: HubTooltipAdapter)` and `HUB_TOOLTIP_ADAPTER` - Swap the implementation behind `[hubOverflowTooltip]`, app-wide or per subtree; defaults to `hubTooltipAdapter`
+- `HubTooltipDirective` (`[hubTooltip]`) - Tooltip on hover/focus, flipped away from the window edges. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
+- `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip shown only while the label is truncated. Inputs: `hubOverflowTooltip`, `placement`, `hubOverflowTooltipMeasure` (CSS selector, resolved inside the host, naming the box whose truncation decides it; defaults to the host)
+- `provideHubTooltip(adapter: HubTooltipAdapter)` and `HUB_TOOLTIP_ADAPTER` - Swap the implementation behind `[hubOverflowTooltip]`, app-wide or per subtree; defaults to `hubTooltipAdapter`
 
 ### Pipes
 
@@ -807,31 +820,31 @@ library, because their selectors and data models differ.
 ```typescript
 @Injectable({ providedIn: 'root' })
 class OverlayService {
-  create(config?: OverlayConfig): OverlayRef;
-  position(): OverlayPosition;
+	create(config?: OverlayConfig): OverlayRef;
+	position(): OverlayPosition;
 }
 
 class OverlayRef {
-  // Renders a template or a component into the overlay and returns the host element,
-  // not a ComponentRef: the overlay owns the view it created and tears it down itself.
-  attach(content: TemplateRef<unknown> | Type<unknown>, viewContainerRef?: ViewContainerRef): HTMLElement;
-  detach(): void;
-  dispose(): void;
-  hasAttached(): boolean;
-  updatePosition(): void;
-  onBackdropClick(callback: () => void): void;
-  // Only the topmost open overlay is told, so a dropdown inside a dialog takes Escape
-  // for itself and leaves the dialog open.
-  onKeydown(callback: (event: KeyboardEvent) => void): void;
+	// Renders a template or a component into the overlay and returns the host element,
+	// not a ComponentRef: the overlay owns the view it created and tears it down itself.
+	attach(content: TemplateRef<unknown> | Type<unknown>, viewContainerRef?: ViewContainerRef): HTMLElement;
+	detach(): void;
+	dispose(): void;
+	hasAttached(): boolean;
+	updatePosition(): void;
+	onBackdropClick(callback: () => void): void;
+	// Only the topmost open overlay is told, so a dropdown inside a dialog takes Escape
+	// for itself and leaves the dialog open.
+	onKeydown(callback: (event: KeyboardEvent) => void): void;
 }
 
 class OverlayPosition {
-  // The element the panel is anchored to. The overlay watches it and follows it when it moves.
-  readonly origin: HTMLElement | null;
-  flexibleConnectedTo(origin: ElementRef | HTMLElement): this;
-  withPositions(positions: ConnectionPosition[]): this;
-  // `start` / `end` are logical and read from the origin element; this overrides that.
-  withDirection(direction: 'ltr' | 'rtl' | null): this;
+	// The element the panel is anchored to. The overlay watches it and follows it when it moves.
+	readonly origin: HTMLElement | null;
+	flexibleConnectedTo(origin: ElementRef | HTMLElement): this;
+	withPositions(positions: ConnectionPosition[]): this;
+	// `start` / `end` are logical and read from the origin element; this overrides that.
+	withDirection(direction: 'ltr' | 'rtl' | null): this;
 }
 ```
 
@@ -842,15 +855,55 @@ both text directions:
 ```typescript
 import { HUB_DROPDOWN_POSITIONS } from 'ng-hub-ui-utils';
 
-overlayService.position().flexibleConnectedTo(origin).withPositions([...HUB_DROPDOWN_POSITIONS]);
+overlayService
+	.position()
+	.flexibleConnectedTo(origin)
+	.withPositions([...HUB_DROPDOWN_POSITIONS]);
 ```
+
+#### Viewport fitting (`viewport-fit`)
+
+The arithmetic behind both the overlay strategy and the tooltip, exported on its own so a floating
+element that is neither does not have to write a third copy. It takes plain numbers, touches no DOM
+and runs unchanged on a server render.
+
+```typescript
+import { hubAnchorToViewport, hubToAnchorSide, hubToPhysicalSide, hubViewportOf } from 'ng-hub-ui-utils';
+
+const rtl = getComputedStyle(host).direction === 'rtl';
+
+const placed = hubAnchorToViewport({
+	anchor: host.getBoundingClientRect(),
+	box: { width: panel.offsetWidth, height: panel.offsetHeight },
+	viewport: hubViewportOf(panel), // null on a server render: nothing flips
+	side: hubToAnchorSide('bottom', rtl), // 'block-start' | 'block-end' | 'inline-start' | 'inline-end'
+	align: 'start', // logical: mirrors under RTL
+	offset: 8,
+	margin: 0,
+	rtl
+});
+
+// placed.x / placed.y are viewport coordinates — add scrollX / scrollY for an absolutely
+// positioned element. placed.side is where it ended up, placed.flipped whether that was a flip.
+panel.dataset['side'] = hubToPhysicalSide(placed.side, rtl);
+```
+
+The requested side is kept unless it genuinely cannot hold the box **and** the opposite side has
+more room, so nothing flips for free; the cross axis is clamped rather than flipped, since a box
+centred on an anchor near the inline edge overflows there whichever side it opens on. Sides are
+logical so a single fallback rule serves both text directions — `hubToAnchorSide` and
+`hubToPhysicalSide` round-trip a physical edge through that axis without changing what the caller
+asked for.
+
+Also exported: `hubFitsInViewport(point, size, viewport, margin?)`,
+`hubClampToViewport(point, size, viewport, margin?)` and `hubOppositeSide(side)`.
 
 #### ScrollBar Service
 
 ```typescript
 @Injectable({ providedIn: 'root' })
 class ScrollBar {
-  hide(): ScrollbarReverter; // Hides scrollbar with compensation
+	hide(): ScrollbarReverter; // Hides scrollbar with compensation
 }
 ```
 
@@ -862,48 +915,48 @@ an injection context — as an `@Injectable()` subclass, or from a factory provi
 
 ```typescript
 class PopupService<T> {
-  constructor(componentType: Type<T>);
-  open(
-    content?: string | TemplateRef<any>,
-    templateContext?: any,
-    animation?: boolean
-  ): { windowRef: ComponentRef<T>; transition$: Observable<void> };
-  close(animation?: boolean): Observable<void>;
+	constructor(componentType: Type<T>);
+	open(
+		content?: string | TemplateRef<any>,
+		templateContext?: any,
+		animation?: boolean
+	): { windowRef: ComponentRef<T>; transition$: Observable<void> };
+	close(animation?: boolean): Observable<void>;
 }
 
 // The nodes and view a popup projects, returned internally by the content resolver.
 class ContentRef {
-  constructor(nodes: Node[][], viewRef?: ViewRef, componentRef?: ComponentRef<any>);
+	constructor(nodes: Node[][], viewRef?: ViewRef, componentRef?: ComponentRef<any>);
 }
 ```
 
 ### Transition Utilities
 
--   `hubRunTransition<T>(zone, element, startFn, options)` - Advanced transition system with Observable
--   `hubCompleteTransition(element)` - Completes a running transition on an element
--   `getTransitionDurationMs(element)` - Gets CSS transition duration in milliseconds
--   `runInZone<T>(zone)` - RxJS operator to execute observables inside NgZone
+- `hubRunTransition<T>(zone, element, startFn, options)` - Advanced transition system with Observable
+- `hubCompleteTransition(element)` - Completes a running transition on an element
+- `getTransitionDurationMs(element)` - Gets CSS transition duration in milliseconds
+- `runInZone<T>(zone)` - RxJS operator to execute observables inside NgZone
 
 ## 🎨 Support Components
 
 This library doesn't include visual components, but support utilities used by other components in the Hub UI ecosystem:
 
-| Utility         | Description                         | Used by                                |
-| --------------- | ----------------------------------- | -------------------------------------- |
-| Overlay Service | Flexible overlay positioning system | ng-hub-ui-modal, ng-hub-ui-portal      |
-| Focus Trap      | Focus management in modals/overlays | ng-hub-ui-modal, ng-hub-ui-portal      |
-| Scrollbar       | Scrollbar compensation              | ng-hub-ui-modal, ng-hub-ui-portal      |
-| Popup Service   | Host for dynamically created popups | ng-hub-ui-modal, ng-hub-ui-portal      |
-| Transitions     | Smooth animations                   | ng-hub-ui-accordion, ng-hub-ui-modal   |
-| Type Guards     | Type validation functions           | ng-hub-ui-stepper                      |
-| Pipes           | Template utilities                  | All Hub UI components                  |
+| Utility         | Description                         | Used by                              |
+| --------------- | ----------------------------------- | ------------------------------------ |
+| Overlay Service | Flexible overlay positioning system | ng-hub-ui-modal, ng-hub-ui-portal    |
+| Focus Trap      | Focus management in modals/overlays | ng-hub-ui-modal, ng-hub-ui-portal    |
+| Scrollbar       | Scrollbar compensation              | ng-hub-ui-modal, ng-hub-ui-portal    |
+| Popup Service   | Host for dynamically created popups | ng-hub-ui-modal, ng-hub-ui-portal    |
+| Transitions     | Smooth animations                   | ng-hub-ui-accordion, ng-hub-ui-modal |
+| Type Guards     | Type validation functions           | ng-hub-ui-stepper                    |
+| Pipes           | Template utilities                  | All Hub UI components                |
 
 ## 🤝 Compatibility
 
--   Angular 16+
--   TypeScript 4.8+
--   Node.js 16+
--   Browsers: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- Angular 16+
+- TypeScript 4.8+
+- Node.js 16+
+- Browsers: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
 
 ## 🛠️ Development
 
@@ -977,10 +1030,10 @@ Recent highlights:
 
 ## 🐛 Issues and Support
 
--   [Report a bug](https://github.com/hub-env/hub-ui/issues)
--   [Request a feature](https://github.com/hub-env/hub-ui/issues/new?template=feature_request.yml)
--   [Repository](https://github.com/hub-env/ng-hub-ui-utils)
--   **Author**: [Carlos Morcillo](https://www.carlosmorcillo.com)
+- [Report a bug](https://github.com/hub-env/hub-ui/issues)
+- [Request a feature](https://github.com/hub-env/hub-ui/issues/new?template=feature_request.yml)
+- [Repository](https://github.com/hub-env/ng-hub-ui-utils)
+- **Author**: [Carlos Morcillo](https://www.carlosmorcillo.com)
 
 ## ☕ Support the Project
 
@@ -991,10 +1044,10 @@ If Hub UI has been useful to you, consider supporting its development:
 
 Your support helps to:
 
--   🚀 Keep the project active
--   🐛 Fix bugs faster
--   ✨ Develop new features
--   📚 Improve documentation
+- 🚀 Keep the project active
+- 🐛 Fix bugs faster
+- ✨ Develop new features
+- 📚 Improve documentation
 
 ## 🤝 Contributions
 

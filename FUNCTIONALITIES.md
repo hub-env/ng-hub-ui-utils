@@ -35,6 +35,9 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 | **Positioning** | `ConnectionPosition` types | ✅ |
 | | Horizontal/Vertical connection positions | ✅ |
 | | Origin following (scroll, resize and layout moves) | ❌ |
+| | Viewport fitting — flip to the opposite side, clamp on the cross axis | ❌ |
+| | `hubAnchorToViewport()`, `hubFitsInViewport()`, `hubClampToViewport()` | ❌ |
+| | `hubViewportOf()`, `hubToAnchorSide()`, `hubToPhysicalSide()`, `hubOppositeSide()` | ❌ |
 | **Configuration** | `OverlayConfig` interface | ✅ |
 
 ---
@@ -53,6 +56,8 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 | Category | Functionality | Example Covered |
 | :--- | :--- | :---: |
 | **Directives** | `HubTooltipDirective` (`[hubTooltip]`) | ✅ |
+| | Viewport flipping — opens on the opposite side when the requested one does not fit | ❌ |
+| | Re-fits on window resize and on ancestor scroll while open | ❌ |
 | | `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) | ❌ |
 | | `hubOverflowTooltipMeasure` — hover the control, measure a box inside it | ❌ |
 | **Engine** | `HubTooltipController` | ❌ |

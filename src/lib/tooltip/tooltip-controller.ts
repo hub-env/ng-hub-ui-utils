@@ -1,3 +1,4 @@
+import { hubAnchorToViewport, hubToAnchorSide, hubToPhysicalSide, hubViewportOf } from '../overlay/viewport-fit';
 import { HubTooltipOptions, HubTooltipPlacement } from './tooltip.types';
 
 /**
@@ -72,6 +73,13 @@ export class HubTooltipController {
 	private delay = 150;
 	private offset = 8;
 
+	/**
+	 * Side the bubble is actually on, which is the requested placement until the window says
+	 * otherwise. Kept because it is what the `hub-tooltip--*` class has to name: a bubble that
+	 * flipped and still calls itself `--top` points an arrow at nothing.
+	 */
+	private resolvedPlacement: HubTooltipPlacement | null = null;
+
 	private readonly doc: Document;
 	private readonly view: (Window & typeof globalThis) | null;
 
@@ -82,6 +90,13 @@ export class HubTooltipController {
 	private readonly onHide = (): void => this.hide();
 	private readonly onPointerLeave = (): void => this.scheduleHide();
 	private readonly onTooltipEnter = (): void => this.retain();
+
+	/**
+	 * Re-runs the fit while the bubble is open, because the numbers it was placed on expire:
+	 * a resized window moves the edge it was measured against, and a scroll moves the host out
+	 * from under it. Only bound while a bubble exists, so an idle host costs nothing.
+	 */
+	private readonly onReposition = (): void => this.position();
 
 	/**
 	 * Escape dismisses the label without moving the pointer or the focus, which is the
@@ -176,7 +191,9 @@ export class HubTooltipController {
 
 		const el = this.doc.createElement('span');
 		el.textContent = this.text;
-		el.classList.add('hub-tooltip', `hub-tooltip--${this.placement}`);
+		// Only the base class here: the side class is written by `position()`, which is the only
+		// place that knows which side the bubble could actually take.
+		el.classList.add('hub-tooltip');
 		// The bubble is the host's description, and it has to be findable by id to say so.
 		el.id = this.tooltipId;
 		el.setAttribute('role', 'tooltip');
@@ -204,6 +221,10 @@ export class HubTooltipController {
 
 		this.describeHost();
 		this.doc.addEventListener('keydown', this.onKeydown, true);
+		this.view?.addEventListener('resize', this.onReposition);
+		// Capture, because a scroll inside an ancestor container does not bubble to the document.
+		// The bubble hangs off `<body>`, so without this it stays put while its host slides away.
+		this.doc.addEventListener('scroll', this.onReposition, { capture: true, passive: true });
 
 		this.position();
 		el.classList.add('hub-tooltip--show');
@@ -251,11 +272,14 @@ export class HubTooltipController {
 		this.clearLeaveTimeout();
 		if (this.tooltipEl) {
 			this.doc.removeEventListener('keydown', this.onKeydown, true);
+			this.view?.removeEventListener('resize', this.onReposition);
+			this.doc.removeEventListener('scroll', this.onReposition, true);
 			this.tooltipEl.removeEventListener('mouseenter', this.onTooltipEnter);
 			this.tooltipEl.removeEventListener('mouseleave', this.onHide);
 			this.undescribeHost();
 			this.tooltipEl.remove();
 			this.tooltipEl = null;
+			this.resolvedPlacement = null;
 		}
 	}
 
@@ -318,41 +342,66 @@ export class HubTooltipController {
 		}
 	}
 
-	/** Positions the tooltip around the host according to the current placement. */
+	/**
+	 * Places the bubble on the requested side, or on the opposite one when the window has no room
+	 * for it there.
+	 *
+	 * The maths is `hubAnchorToViewport`, shared with `OverlayPosition` — this method used to
+	 * compute `top` and `left` from the placement alone and never look at the window, so a hint on
+	 * an element pressed against an edge was drawn outside it and clipped. That is why a product
+	 * ended up writing `hubTooltipPlacement="bottom"` by hand on every hint in its header, and why
+	 * the next hint added up there was clipped again.
+	 *
+	 * The requested placement stays the preference: it gives way only when it genuinely does not
+	 * fit, and the bubble is slid along the cross axis rather than flipped when the overflow is on
+	 * that axis instead. The direction is read from the host, so `left` on an RTL host still means
+	 * its left edge while the flip reasons on the inline axis, where one rule covers both.
+	 *
+	 * Written in page coordinates (`+ scroll`) because the element is `position: absolute` on
+	 * `<body>`; the fit itself is computed in the viewport coordinates the rects come in.
+	 */
 	private position(): void {
 		if (!this.tooltipEl) {
 			return;
 		}
+
 		const hostRect = this.host.getBoundingClientRect();
 		const tipRect = this.tooltipEl.getBoundingClientRect();
-		const scrollY = this.view?.scrollY ?? 0;
-		const scrollX = this.view?.scrollX ?? 0;
-		const offset = this.offset;
+		const rtl = this.isRtl();
 
-		let top = 0;
-		let left = 0;
+		const placed = hubAnchorToViewport({
+			anchor: hostRect,
+			box: { width: tipRect.width, height: tipRect.height },
+			viewport: hubViewportOf(this.tooltipEl),
+			side: hubToAnchorSide(this.placement, rtl),
+			offset: this.offset,
+			rtl
+		});
 
-		switch (this.placement) {
-			case 'bottom':
-				top = hostRect.bottom + offset;
-				left = hostRect.left + (hostRect.width - tipRect.width) / 2;
-				break;
-			case 'left':
-				top = hostRect.top + (hostRect.height - tipRect.height) / 2;
-				left = hostRect.left - tipRect.width - offset;
-				break;
-			case 'right':
-				top = hostRect.top + (hostRect.height - tipRect.height) / 2;
-				left = hostRect.right + offset;
-				break;
-			case 'top':
-			default:
-				top = hostRect.top - tipRect.height - offset;
-				left = hostRect.left + (hostRect.width - tipRect.width) / 2;
-				break;
+		this.applySideClass(hubToPhysicalSide(placed.side, rtl));
+
+		this.tooltipEl.style.top = `${placed.y + (this.view?.scrollY ?? 0)}px`;
+		this.tooltipEl.style.left = `${placed.x + (this.view?.scrollX ?? 0)}px`;
+	}
+
+	/** Keeps `hub-tooltip--*` naming the side the bubble is on, so an arrow rule can follow it. */
+	private applySideClass(side: HubTooltipPlacement): void {
+		if (!this.tooltipEl || this.resolvedPlacement === side) {
+			return;
 		}
+		if (this.resolvedPlacement) {
+			this.tooltipEl.classList.remove(`hub-tooltip--${this.resolvedPlacement}`);
+		}
+		this.tooltipEl.classList.add(`hub-tooltip--${side}`);
+		this.resolvedPlacement = side;
+	}
 
-		this.tooltipEl.style.top = `${top + scrollY}px`;
-		this.tooltipEl.style.left = `${left + scrollX}px`;
+	/**
+	 * Writing direction of the host, which is what decides where the inline axis starts. Read from
+	 * the host rather than the document, so an RTL island inside an LTR page is placed by the
+	 * direction it is actually laid out in.
+	 */
+	private isRtl(): boolean {
+		return this.view?.getComputedStyle(this.host).direction === 'rtl';
 	}
 }

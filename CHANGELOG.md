@@ -5,6 +5,73 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.17.0] - 2026-09-24
+
+### Added
+
+- **A connected panel glides when it crosses sides, instead of jumping.** The overlay is re-placed
+  on every scroll, resize and layout move, so a panel that had just flipped looked exactly like a
+  panel following the page — the one decision it makes was the one thing you could not see. The
+  crossing now animates and nothing else does: a blanket transition on the position would leave the
+  panel trailing the trigger it belongs to, which reads as broken. `--hub-overlay-flip-duration`
+  (default `140ms`) tunes it, `0ms` turns it off, and `prefers-reduced-motion` turns it off too.
+  The applied side is also reflected on the element as `data-hub-overlay-side`, so a consumer can
+  dress an arrow or a corner off it.
+
+## [22.16.0] - 2026-09-23
+
+### Added
+
+- **`viewport-fit`: one place for "does this box fit where it was asked to go, and where does it
+  go instead".** The package held two answers to that question. `OverlayPosition` tested its
+  candidate positions against the window; the tooltip did not test at all. A second copy of
+  viewport arithmetic inside one package is the defect behind the tooltip bug below, so there is
+  now one copy and both read from it.
+
+    `hubAnchorToViewport(options)` places a box against an anchor rect on a preferred side, flips to
+    the opposite side when that side cannot hold it, slides it along the cross axis so it stays
+    readable, and returns the coordinates together with the side it settled on and whether that was
+    a flip. Sides are named logically — `block-start`, `block-end`, `inline-start`, `inline-end` —
+    so one fallback rule covers both text directions, and `hubToAnchorSide` / `hubToPhysicalSide`
+    round-trip a consumer's physical `top` / `bottom` / `left` / `right` through that axis without
+    changing what the consumer asked for.
+
+    Also exported: `hubViewportOf(element)`, which reads the viewport through the element's own view
+    and returns `null` where there is none, plus `hubFitsInViewport`, `hubClampToViewport` and
+    `hubOppositeSide`, with the types `HubAnchorOptions`, `HubAnchoredPosition`, `HubAnchorRect`,
+    `HubAnchorSide`, `HubPhysicalSide`, `HubAnchorAlign`, `HubViewportSize`, `HubBoxSize` and
+    `HubPoint`. Everything takes plain numbers and touches no DOM, so it survives a server render
+    and can be tested without a layout engine behind it.
+
+### Changed
+
+- `OverlayPosition` reads its viewport test from `viewport-fit` rather than its own copy. Same
+  arithmetic and same results: what is gone is the duplicate.
+
+### Fixed
+
+- **A tooltip no longer opens off the edge of the window.** `HubTooltipController` worked `top`
+  and `left` out from the placement it was given and never asked whether the result was on screen,
+  so a hint on anything pressed against the top edge — a header button, most of all — was drawn
+  above the window and cut off. The placement now gives way to the opposite side when it does not
+  fit, at all four edges, and a label centred on a host near the inline edge is slid back inside
+  instead, because flipping does nothing for an overflow on the cross axis. Under RTL the inline
+  edge is the other one, and the flip is reasoned on the inline axis rather than in `left` and
+  `right`, so `hubTooltipPlacement="left"` still means the host's left edge.
+
+    The requested placement stays the preference: it is abandoned only when it genuinely has no room
+    **and** the opposite side has more, so a tooltip that did not need to flip does not. The fit is
+    re-run while the bubble is open — on `resize`, and on `scroll` in the capture phase, since a
+    scroll inside an ancestor container never reaches the document by bubbling.
+
+    A product that wrote `hubTooltipPlacement="bottom"` by hand on every hint in its header can drop
+    it. The attribute still works and is still honoured wherever it fits; it is no longer the only
+    thing between a newly added hint and a clipped label.
+
+- **`hub-tooltip--<side>` names the side the bubble is actually on.** It was written from the
+  requested placement when the element was created and never revisited, so a bubble that flipped
+  still called itself `--top`. An arrow styled off that class pointed at nothing.
+
 ## [22.15.3] - 2026-09-23
 
 ### Changed
@@ -47,30 +114,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on how close the green sits to the blue is not a bug anyone can adjudicate afterwards; it is
   two answers with nothing to compare them to.
 
-  `harmoniseSemantics(primary)` rotates `success`, `warning`, `danger` and `info` towards the
-  brand's hue and returns them as hex. `tintNeutrals(primary)` leans the grey ramp
-  (`gray-100` … `gray-900`) the same way. Both leave lightness exactly where the anchor had it,
-  because lightness is what carries the contrast each role was chosen for, and both reduce chroma
-  only when the new hue cannot hold it inside sRGB.
+    `harmoniseSemantics(primary)` rotates `success`, `warning`, `danger` and `info` towards the
+    brand's hue and returns them as hex. `tintNeutrals(primary)` leans the grey ramp
+    (`gray-100` … `gray-900`) the same way. Both leave lightness exactly where the anchor had it,
+    because lightness is what carries the contrast each role was chosen for, and both reduce chroma
+    only when the new hue cannot hold it inside sRGB.
 
-  Two numbers decide what the result looks like, and both are exported so a product can read them
-  rather than guess:
+    Two numbers decide what the result looks like, and both are exported so a product can read them
+    rather than guess:
 
-  - **`HUB_MAX_HUE_SHIFT`, 15°.** The ceiling is not taste. Success and danger sit 135.8° apart in
-    OKLCh (157.0° and 21.2°), and a viewer with deuteranopia tells them apart by hue alone. A brand
-    hue between the two pulls both inwards, so the gap closes by up to twice the cap; at 22.9° it
-    would reach 90°, the floor below which the pair stops being reliably distinguishable. 15°
-    leaves the worst case at 105.8° while still shifting a green far enough to read as this
-    product's green rather than as teal.
-  - **`HUB_MAX_NEUTRAL_CHROMA`, 0.015.** Anchored on the ramp the design system already ships: its
-    most chromatic step, `gray-600`, measures 0.0165 and `gray-500` measures 0.0145, so the cap
-    sits between the two and a tinted ramp is never more colourful than the grey people already
-    accept as grey. The tint changes which way the grey leans, not how grey it is.
+    - **`HUB_MAX_HUE_SHIFT`, 15°.** The ceiling is not taste. Success and danger sit 135.8° apart in
+      OKLCh (157.0° and 21.2°), and a viewer with deuteranopia tells them apart by hue alone. A brand
+      hue between the two pulls both inwards, so the gap closes by up to twice the cap; at 22.9° it
+      would reach 90°, the floor below which the pair stops being reliably distinguishable. 15°
+      leaves the worst case at 105.8° while still shifting a green far enough to read as this
+      product's green rather than as teal.
+    - **`HUB_MAX_NEUTRAL_CHROMA`, 0.015.** Anchored on the ramp the design system already ships: its
+      most chromatic step, `gray-600`, measures 0.0165 and `gray-500` measures 0.0145, so the cap
+      sits between the two and a tinted ramp is never more colourful than the grey people already
+      accept as grey. The tint changes which way the grey leans, not how grey it is.
 
-  `HUB_SEMANTIC_ANCHORS` and `HUB_NEUTRAL_ANCHORS` expose the untinted starting points, so a
-  product that harmonises nothing still gets exactly the palette the stylesheet ships. A brand with
-  no hue of its own — a pure grey — leaves both sets untouched rather than snapping every role to
-  an angle that is only rounding noise.
+    `HUB_SEMANTIC_ANCHORS` and `HUB_NEUTRAL_ANCHORS` expose the untinted starting points, so a
+    product that harmonises nothing still gets exactly the palette the stylesheet ships. A brand with
+    no hue of its own — a pure grey — leaves both sets untouched rather than snapping every role to
+    an angle that is only rounding noise.
 
 ### Fixed
 
@@ -81,13 +148,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `OverlayRef` built its container and backdrop with `document.createElement` and appended them to
   the global `document.body`. Each of those is a `ReferenceError` on the way to a prerendered page.
 
-  They now resolve the document and the view they need from what they already hold — the injected
-  `DOCUMENT` for `ScrollBar`, the application's injector for `OverlayRef`, and the element's own
-  `ownerDocument.defaultView` for the transition helpers and the overlay's positioning. That also
-  fixes the same helpers inside an iframe, where the global was the wrong document all along.
-  With no view, each does the thing that is true rather than the thing that throws: a transition
-  duration of 0, a scrollbar `hide()` that changes nothing and hands back a no-op undo, and an
-  overlay that builds into the document Angular gave it.
+    They now resolve the document and the view they need from what they already hold — the injected
+    `DOCUMENT` for `ScrollBar`, the application's injector for `OverlayRef`, and the element's own
+    `ownerDocument.defaultView` for the transition helpers and the overlay's positioning. That also
+    fixes the same helpers inside an iframe, where the global was the wrong document all along.
+    With no view, each does the thing that is true rather than the thing that throws: a transition
+    duration of 0, a scrollbar `hide()` that changes nothing and hands back a no-op undo, and an
+    overlay that builds into the document Angular gave it.
 
 ### Changed
 
@@ -109,13 +176,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `[hubDropdown]`, whose own `placement` is typed over eight values where a tooltip understands
   four and which therefore failed to compile beside one.
 
-  `[hubTooltip]` has shipped beside it since 22.9.0 and is the replacement, attribute for
-  attribute: `tooltip` → `hubTooltip`, `placement` → `hubTooltipPlacement`, `delay` →
-  `hubTooltipDelay`, `offset` → `hubTooltipOffset`. Both were thin shells over the same
-  `HubTooltipController`, so nothing about the tooltip itself changes.
+    `[hubTooltip]` has shipped beside it since 22.9.0 and is the replacement, attribute for
+    attribute: `tooltip` → `hubTooltip`, `placement` → `hubTooltipPlacement`, `delay` →
+    `hubTooltipDelay`, `offset` → `hubTooltipOffset`. Both were thin shells over the same
+    `HubTooltipController`, so nothing about the tooltip itself changes.
 
-  **Breaking** — see [`BREAKING_CHANGES.md`](./BREAKING_CHANGES.md), and note that a template
-  still writing `tooltip="…"` keeps compiling and silently shows nothing.
+    **Breaking** — see [`BREAKING_CHANGES.md`](./BREAKING_CHANGES.md), and note that a template
+    still writing `tooltip="…"` keeps compiling and silently shows nothing.
 
 ### Added
 
@@ -154,11 +221,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   them had it: `[hubDropdown]`, the datepicker, the paginable dropdown and the nav's flyouts.
 
     The origin is now watched for as long as the panel is open, and the panel is re-placed whenever
-  its box actually changes — every frame of an animated collapse, not once at the start of one,
-  which would only move the panel to a place the trigger is still on its way out of. The box is
-  read per frame and nothing is written unless it moved, so an overlay whose trigger sits still
-  never touches the DOM; the loop is scheduled outside Angular's zone, or a zone-based application
-  would run change detection on every frame a menu is open, and it is released with the panel.
+    its box actually changes — every frame of an animated collapse, not once at the start of one,
+    which would only move the panel to a place the trigger is still on its way out of. The box is
+    read per frame and nothing is written unless it moved, so an overlay whose trigger sits still
+    never touches the DOM; the loop is scheduled outside Angular's zone, or a zone-based application
+    would run change detection on every frame a menu is open, and it is released with the panel.
 
 ## [22.12.1] - 2026-09-06
 
@@ -231,8 +298,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cascade. Alongside it: `toHex()`, `toRgb()` and `isValidColor()`.
 
     No DOM is involved. The usual way to do this in a browser is to set the string on a detached
-  element and read `getComputedStyle` back, which forces layout and returns nothing on the server;
-  a table lookup and a regex work in both places.
+    element and read `getComputedStyle` back, which forces layout and returns nothing on the server;
+    a table lookup and a regex work in both places.
 
 - **Contrast helpers** — `relativeLuminance()` and `contrastRatio()` (WCAG 2), `contrastAPCA()`
   (APCA-1.0.98G, polarity-aware) and `compositeOver()` for blending translucent text over its
@@ -264,7 +331,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   before — `ink` is `#212529` there, which is what the black resolved to in practice.
 
     Anything already overriding `--hub-tooltip-bg` or `--hub-tooltip-color` keeps winning; this
-  only changes the default.
+    only changes the default.
 
 ## [22.11.1] - 2026-09-01
 

@@ -15,6 +15,11 @@
 	--hub-overlay-shadow: var(--hub-sys-shadow, 0 0.5rem 1rem rgba(0, 0, 0, 0.15));
 	--hub-overlay-zindex: var(--hub-sys-zindex-dropdown, 1000);
 	--hub-overlay-backdrop-zindex: calc(var(--hub-sys-zindex-dropdown, 1000) - 1);
+	/* How long the panel takes to cross when it gives up the side it was asked for. Only the
+	   crossing is animated: the panel is re-placed on every scroll, and a blanket transition
+	   would leave it trailing the trigger it belongs to. `0ms` turns it off, and so does
+	   `prefers-reduced-motion`. */
+	--hub-overlay-flip-duration: 140ms;
 
 	position: absolute;
 	z-index: var(--hub-overlay-zindex);

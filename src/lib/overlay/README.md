@@ -119,10 +119,7 @@ const positions: ConnectionPosition[] = [
 	}
 ];
 
-const positionStrategy = overlayService
-	.position()
-	.flexibleConnectedTo(elementRef)
-	.withPositions(positions);
+const positionStrategy = overlayService.position().flexibleConnectedTo(elementRef).withPositions(positions);
 ```
 
 ### Configuration Options
@@ -156,45 +153,45 @@ interface OverlayConfig {
 **Methods:**
 
 - `create(config?: OverlayConfig): OverlayRef`
-  - Creates a new overlay instance
+    - Creates a new overlay instance
 
 - `position(): OverlayPosition`
-  - Creates a new position strategy
+    - Creates a new position strategy
 
 ### OverlayRef
 
 **Methods:**
 
 - `attach(content: TemplateRef | Component, viewContainerRef?: ViewContainerRef): HTMLElement`
-  - Attaches content to the overlay
+    - Attaches content to the overlay
 
 - `detach(): void`
-  - Detaches content from the overlay
+    - Detaches content from the overlay
 
 - `dispose(): void`
-  - Disposes of the overlay and cleans up resources
+    - Disposes of the overlay and cleans up resources
 
 - `hasAttached(): boolean`
-  - Checks if content is currently attached
+    - Checks if content is currently attached
 
 - `onBackdropClick(callback: () => void): void`
-  - Registers a callback for backdrop clicks
+    - Registers a callback for backdrop clicks
 
 - `updatePosition(): void`
-  - Updates the overlay position
+    - Updates the overlay position
 
 ### OverlayPosition
 
 **Methods:**
 
 - `flexibleConnectedTo(origin: ElementRef | HTMLElement): this`
-  - Sets the origin element for positioning
+    - Sets the origin element for positioning
 
 - `withPositions(positions: ConnectionPosition[]): this`
-  - Sets the position configurations with fallbacks
+    - Sets the position configurations with fallbacks
 
 - `apply(overlayElement: HTMLElement): void`
-  - Applies the positioning to the overlay element
+    - Applies the positioning to the overlay element
 
 ### ConnectionPosition
 

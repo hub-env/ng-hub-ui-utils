@@ -2,6 +2,7 @@ import { ElementRef } from '@angular/core';
 import type { ConnectionPosition } from './connection-position';
 import type { HorizontalConnectionPos } from './horizontal-connection-pos';
 import type { VerticalConnectionPos } from './vertical-connection-pos';
+import { hubFitsInViewport, hubViewportOf } from './viewport-fit';
 
 /**
  * Positions an overlay container relative to an origin element.
@@ -9,6 +10,12 @@ import type { VerticalConnectionPos } from './vertical-connection-pos';
  */
 export class OverlayPosition {
 	private _origin: ElementRef | HTMLElement | null = null;
+
+	/** The candidate last applied, so a crossing can be told from an ordinary re-anchor. */
+	private _appliedSide: string | null = null;
+
+	/** Handle of the timer that disarms the flip transition. */
+	private _flipTimer = 0;
 	private _positions: ConnectionPosition[] = [];
 	private _direction: 'ltr' | 'rtl' | null = null;
 
@@ -93,7 +100,7 @@ export class OverlayPosition {
 			const coords = this._calculatePosition(originRect, overlayElement, position, isRtl);
 
 			if (this._fitsInViewport(coords, overlayElement)) {
-				this._applyPosition(overlayElement, coords);
+				this._applyPosition(overlayElement, coords, position);
 				return;
 			}
 		}
@@ -101,7 +108,7 @@ export class OverlayPosition {
 		// If no position fits perfectly, use the first one
 		if (this._positions.length > 0) {
 			const coords = this._calculatePosition(originRect, overlayElement, this._positions[0], isRtl);
-			this._applyPosition(overlayElement, coords);
+			this._applyPosition(overlayElement, coords, this._positions[0]);
 		}
 	}
 
@@ -198,33 +205,81 @@ export class OverlayPosition {
 
 	/**
 	 * Checks if the overlay fits within the viewport at the given coordinates.
+	 *
+	 * The arithmetic itself lives in `viewport-fit`, shared with the tooltip: this package used to
+	 * hold two answers to the question and only one of them knew about the window.
 	 */
 	private _fitsInViewport(coords: { x: number; y: number }, overlayElement: HTMLElement): boolean {
-		const view = overlayElement.ownerDocument?.defaultView;
+		const viewport = hubViewportOf(overlayElement);
 
 		// With no view there is no viewport to fit into, so no candidate position can be proven to
 		// fit and the caller falls back to the first one — which is what a server render should emit.
-		if (!view) {
+		if (!viewport) {
 			return false;
 		}
 
-		const overlayRect = overlayElement.getBoundingClientRect();
-		const viewportWidth = view.innerWidth;
-		const viewportHeight = view.innerHeight;
-
-		return (
-			coords.x >= 0 &&
-			coords.y >= 0 &&
-			coords.x + overlayRect.width <= viewportWidth &&
-			coords.y + overlayRect.height <= viewportHeight
-		);
+		return hubFitsInViewport(coords, overlayElement.getBoundingClientRect(), viewport);
 	}
 
 	/**
-	 * Applies the calculated position to the overlay element.
+	 * Applies the calculated position, and lets a CHANGE OF SIDE glide where a re-anchor jumps.
+	 *
+	 * The panel is re-placed on every scroll, resize and layout move, so a blanket transition on
+	 * `top` would leave it trailing its trigger by the length of the transition — a menu that lags
+	 * behind the button it belongs to reads as broken. What is worth animating is the other thing
+	 * this method does: the moment the overlay gives up the side it was asked for and crosses to the
+	 * opposite one. That is a decision, it happens once, and without it the flip is indistinguishable
+	 * from the panel simply following the scroll.
+	 *
+	 * So the transition is armed for that one frame and cleared as soon as it has played. The
+	 * duration is a token, and `prefers-reduced-motion` turns it off — a panel that jumps is a
+	 * nuisance, a panel that slides when somebody asked for no motion is a symptom.
+	 *
+	 * @param overlayElement The overlay element being placed.
+	 * @param coords Where it goes, in viewport coordinates.
+	 * @param position The candidate that produced those coordinates.
 	 */
-	private _applyPosition(overlayElement: HTMLElement, coords: { x: number; y: number }): void {
+	private _applyPosition(overlayElement: HTMLElement, coords: { x: number; y: number }, position: ConnectionPosition): void {
+		const side = `${position.overlayY}:${position.overlayX}`;
+		const flipped = this._appliedSide !== null && this._appliedSide !== side;
+
+		this._appliedSide = side;
+		overlayElement.dataset['hubOverlaySide'] = side;
+
+		if (flipped) {
+			this._animateFlip(overlayElement);
+		}
+
 		overlayElement.style.left = `${coords.x}px`;
 		overlayElement.style.top = `${coords.y}px`;
+	}
+
+	/**
+	 * Arms a one-off transition so the crossing is visible, then takes it away again.
+	 *
+	 * Cleared on a timer rather than on `transitionend`: the event does not fire when the two
+	 * positions happen to coincide, and a transition left armed would slow every scroll that
+	 * followed.
+	 *
+	 * @param overlayElement The overlay element about to cross to the other side.
+	 */
+	private _animateFlip(overlayElement: HTMLElement): void {
+		const view = overlayElement.ownerDocument?.defaultView ?? null;
+
+		if (!view || view.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			return;
+		}
+
+		const duration =
+			view.getComputedStyle(overlayElement).getPropertyValue('--hub-overlay-flip-duration').trim() || '140ms';
+
+		if (duration === '0s' || duration === '0ms') {
+			return;
+		}
+
+		overlayElement.style.transition = `top ${duration} ease-out, left ${duration} ease-out`;
+
+		view.clearTimeout(this._flipTimer);
+		this._flipTimer = view.setTimeout(() => (overlayElement.style.transition = ''), Number.parseFloat(duration) * 4);
 	}
 }

@@ -7,3 +7,4 @@ export { OverlayService } from './overlay-service';
 export type { VerticalConnectionPos } from './vertical-connection-pos';
 export * from './connected-positions';
 export { registerOverlayKeydown } from './overlay-keyboard-dispatcher';
+export * from './viewport-fit';
