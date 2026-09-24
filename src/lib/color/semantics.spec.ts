@@ -1,3 +1,4 @@
+import { contrastRatio, readableOn } from './contrast';
 import { rgbToOklch } from './oklch';
 import { parseColor } from './parse';
 import {
@@ -143,6 +144,48 @@ describe('tintNeutrals', () => {
 
 		for (const step of STEPS) {
 			expect(ramp[step]).toBe(HUB_NEUTRAL_ANCHORS[step].toLowerCase());
+		}
+	});
+});
+
+describe('the contrast a harmonised palette carries', () => {
+	/**
+	 * Harmonising must not change what a role is safe to write on.
+	 *
+	 * The function keeps OKLCh lightness on purpose, and its documentation says that is what
+	 * carries the contrast. It is true in OKLCh and only nearly true in WCAG: relative luminance
+	 * is not lightness, so rotating the hue at a fixed `l` moves the ratio a little. These two
+	 * assertions bound "a little" — the ink never flips, and the ratio never loses more than a
+	 * fiftieth of what the anchor had.
+	 *
+	 * Worth knowing before raising {@link HUB_MAX_HUE_SHIFT}: the anchors themselves sit on the
+	 * AA line rather than above it (success 4.53, danger 4.53), so that fiftieth is enough to
+	 * cross it. At the default cap `danger` measures between 4.47 and 4.53 depending on the brand
+	 * hue, which is below 4.5 for a little under half the circle. A wider cap makes that worse,
+	 * and the only fix that does not move lightness is a darker anchor.
+	 */
+	const MAX_CONTRAST_LOSS = 0.02;
+
+	it('never changes which ink reads on a role', () => {
+		for (const hue of BRAND_HUES) {
+			const palette = harmoniseSemantics(brandAt(hue))!;
+
+			for (const role of ROLES) {
+				expect(readableOn(palette[role])).toBe(readableOn(HUB_SEMANTIC_ANCHORS[role]));
+			}
+		}
+	});
+
+	it('stays within a fiftieth of the anchor ratio, from any brand angle', () => {
+		for (const hue of BRAND_HUES) {
+			const palette = harmoniseSemantics(brandAt(hue))!;
+
+			for (const role of ROLES) {
+				const anchor = HUB_SEMANTIC_ANCHORS[role];
+				const floor = contrastRatio(readableOn(anchor), anchor)! * (1 - MAX_CONTRAST_LOSS);
+
+				expect(contrastRatio(readableOn(palette[role]), palette[role])!).toBeGreaterThanOrEqual(floor);
+			}
 		}
 	});
 });
