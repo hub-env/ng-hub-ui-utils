@@ -14,6 +14,7 @@ export * from './lib/grid/grid.types';
 export * from './lib/grid/grid-keymap';
 export * from './lib/grid/grid-navigation';
 export * from './lib/grid/grid-selection';
+export * from './lib/grid/grid-multi-selection';
 export * from './lib/grid/grid-spans';
 export * from './lib/grid/grid-window';
 export * from './lib/overlay';

@@ -28,18 +28,21 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 
 ## Grid Primitives
 
-| Category           | Functionality                                                             | Example Covered |
-| :----------------- | :------------------------------------------------------------------------ | :-------------: |
-| **Keyboard**       | `resolveGridIntent()` — a key read as an intent                           |       ✅        |
-|                    | `gridCellTabIndex()` — the roving tab stop                                |       ✅        |
-| **Navigation**     | `moveGridFocus()`, with `nowrap` / `loop` / `continuous`                  |       ✅        |
-|                    | `resolveGridEdge()` — `Home`, `End` and their `Ctrl` pairs                |       ✅        |
-| **Selection**      | `gridRangeBetween()`, `isWithinGridRange()`                               |       ✅        |
-|                    | `gridRangeCells()`, `gridRangeSize()`, `clampGridRange()`                 |       ✅        |
-| **Merged blocks**  | `buildSpanMap()`, `spanAt()`, `isCovered()`, `anchorOf()`                 |       ✅        |
-|                    | `coversRange()` — a selection grown to contain the blocks it clips        |       ✅        |
-| **Virtualisation** | `gridWindow()` — the tracks a viewport covers, and the space for the rest |       ✅        |
-|                    | `growWindowToSpans()` — widened until every block it touches is whole     |       ✅        |
+| Category           | Functionality                                                                                  | Example Covered |
+| :----------------- | :--------------------------------------------------------------------------------------------- | :-------------: |
+| **Keyboard**       | `resolveGridIntent()` — a key read as an intent                                                |       ✅        |
+|                    | `gridCellTabIndex()` — the roving tab stop                                                     |       ✅        |
+| **Navigation**     | `moveGridFocus()`, with `nowrap` / `loop` / `continuous`                                       |       ✅        |
+|                    | `resolveGridEdge()` — `Home`, `End` and their `Ctrl` pairs                                     |       ✅        |
+| **Selection**      | `gridRangeBetween()`, `isWithinGridRange()`                                                    |       ✅        |
+|                    | `gridRangeCells()`, `gridRangeSize()`, `clampGridRange()`                                      |       ✅        |
+|                    | `isWithinGridSelection()`, `addGridRange()` — several rectangles at once                       |       ✅        |
+|                    | `gridSelectionCells()`, `gridSelectionSize()`, `gridSelectionBounds()`                         |       ✅        |
+|                    | `clampGridSelection()`, `gridSelectionTable()` — the table a disjoint selection makes, or none |       ✅        |
+| **Merged blocks**  | `buildSpanMap()`, `spanAt()`, `isCovered()`, `anchorOf()`                                      |       ✅        |
+|                    | `coversRange()` — a selection grown to contain the blocks it clips                             |       ✅        |
+| **Virtualisation** | `gridWindow()` — the tracks a viewport covers, and the space for the rest                      |       ✅        |
+|                    | `growWindowToSpans()` — widened until every block it touches is whole                          |       ✅        |
 
 The examples behind them are on the
 [spreadsheet page](https://hubui.dev/en/spreadsheet/examples), which is what these primitives were

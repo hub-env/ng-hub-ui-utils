@@ -539,6 +539,11 @@ Also exported: `resolveGridEdge`, `isWithinGridRange`, `gridRangeCells`, `gridRa
 `HubGridCoords`, `HubGridBounds`, `HubGridRange`, `HubGridSpan`, `HubGridSpanMap`, `HubGridWrap`,
 `HubGridEdge`, `HubGridIntent`, `HubGridWindow` and `HubGridTrackSizes`.
 
+Also exported for a selection of several rectangles: `isWithinGridSelection`, `addGridRange`,
+`gridSelectionCells`, `gridSelectionSize`, `gridSelectionBounds`, `clampGridSelection` and
+`gridSelectionTable` — the last of which decides whether a disjoint selection can be copied at all
+(it can when the rectangles line up, and returns `null` when there is no honest table to write).
+
 ## 🚀 Installation
 
 ```bash

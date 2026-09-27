@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.19.0] - 2026-09-27
+
+### Added
+
+- **A selection made of several rectangles**, which is what a grid has the moment somebody holds
+  `Ctrl` and clicks a second block. Kept as a list of rectangles rather than as a set of cells, for
+  the same reason one rectangle is kept as two corners: four blocks of a thousand rows are four
+  rectangles, and turning that into four thousand coordinates to answer "is this cell selected" is
+  how a grid starts feeling slow.
+    - `isWithinGridSelection(coords, ranges)` answers that question across all of them, and
+      `addGridRange(ranges, range)` adds one — dropping the rectangles the newcomer swallows and
+      refusing a newcomer already inside one, so clicking about with `Ctrl` held does not quietly
+      grow a list that says the same thing twice.
+    - `gridSelectionCells`, `gridSelectionSize`, `gridSelectionBounds` and `clampGridSelection`
+      report the cells once each in reading order, the count, the bounding rectangle, and the
+      selection trimmed to a grid whose rows have changed underneath it.
+    - `gridSelectionTable(ranges)` decides whether the selection can be **copied at all**. One
+      rectangle always can. Several can only when they line up — all on the same columns, so they
+      stack, or all on the same rows, so they sit side by side. Anything else has no honest table,
+      and it returns null rather than squashing blocks together into a shape the reader never
+      chose. It is the rule behind Excel's "that command cannot be used on multiple selections".
+
 ## [22.18.0] - 2026-09-27
 
 ### Added
