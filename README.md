@@ -62,6 +62,7 @@ This library is part of the **ng-hub-ui** ecosystem:
 - [**ng-hub-ui-portal**](https://www.npmjs.com/package/ng-hub-ui-portal)
 - [**ng-hub-ui-skeleton**](https://www.npmjs.com/package/ng-hub-ui-skeleton)
 - [**ng-hub-ui-sortable**](https://www.npmjs.com/package/ng-hub-ui-sortable)
+- [**ng-hub-ui-spreadsheet**](https://www.npmjs.com/package/ng-hub-ui-spreadsheet)
 - [**ng-hub-ui-stepper**](https://www.npmjs.com/package/ng-hub-ui-stepper)
 - [**ng-hub-ui-utils**](https://www.npmjs.com/package/ng-hub-ui-utils) ← You are here
 
@@ -488,6 +489,55 @@ Also available: the imperative `HubTooltipController` (engine) and the
 `HubTooltipAdapter` / `HubTooltipHandle` / `HubTooltipOptions` / `HubTooltipPlacement`
 types. See the ecosystem-wide
 [Synergies & agnosticism](../../README.md#synergies--agnosticism) section.
+
+### 🔢 Grid Primitives
+
+The arithmetic a sheet of cells is made of, with no DOM and no framework in it. A grid has a
+handful of problems every implementation solves again and gets wrong in the same places: where the
+cursor goes at an edge, what rectangle two corners describe, which cell a merged block swallowed,
+and which tracks are worth drawing at all. `ng-hub-ui-spreadsheet` is built on these, which is how
+it installs without `@angular/cdk`.
+
+```ts
+import {
+	resolveGridIntent,
+	moveGridFocus,
+	gridRangeBetween,
+	buildSpanMap,
+	anchorOf,
+	gridWindow,
+	growWindowToSpans
+} from 'ng-hub-ui-utils';
+
+// A key read as an intent, so the grid does not grow a switch statement per browser. The
+// roving tab stop is `gridCellTabIndex(cell, active, 'roving')`.
+const intent = resolveGridIntent(event, { pageSize: 20 });
+
+// The cursor, with the three different answers at the end of a row told apart.
+const next = moveGridFocus(cursor, { row: 0, col: 1 }, bounds, { horizontal: 'continuous' });
+
+// A selection kept as two corners, so ten thousand cells cost nothing.
+const range = gridRangeBetween(anchor, cursor);
+
+// Merged blocks: the cursor lands on the block and never inside it.
+const spans = buildSpanMap([{ row: 4, col: 0, rowSpan: 3, colSpan: 2 }]);
+const landing = anchorOf(spans, cursor);
+
+// Only what the viewport covers, with the pixels the rest would have taken, so the scrollbar
+// still tells the truth. Then widened until every block it touches is drawn whole.
+const window = growWindowToSpans(
+	gridWindow({ offset: scrollTop, viewport: height, sizes: 32, count: rows.length, pinned: 1 }),
+	blocks,
+	'row',
+	32,
+	{ count: rows.length, pinned: 1 }
+);
+```
+
+Also exported: `resolveGridEdge`, `isWithinGridRange`, `gridRangeCells`, `gridRangeSize`,
+`clampGridRange`, `spanAt`, `isCovered`, `coversRange`, `gridCellTabIndex`, and the types
+`HubGridCoords`, `HubGridBounds`, `HubGridRange`, `HubGridSpan`, `HubGridSpanMap`, `HubGridWrap`,
+`HubGridEdge`, `HubGridIntent`, `HubGridWindow` and `HubGridTrackSizes`.
 
 ## 🚀 Installation
 

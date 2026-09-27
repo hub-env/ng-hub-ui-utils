@@ -62,6 +62,7 @@ Esta biblioteca forma parte del ecosistema **ng-hub-ui**:
 - [**ng-hub-ui-portal**](https://www.npmjs.com/package/ng-hub-ui-portal)
 - [**ng-hub-ui-skeleton**](https://www.npmjs.com/package/ng-hub-ui-skeleton)
 - [**ng-hub-ui-sortable**](https://www.npmjs.com/package/ng-hub-ui-sortable)
+- [**ng-hub-ui-spreadsheet**](https://www.npmjs.com/package/ng-hub-ui-spreadsheet)
 - [**ng-hub-ui-stepper**](https://www.npmjs.com/package/ng-hub-ui-stepper)
 - [**ng-hub-ui-utils**](https://www.npmjs.com/package/ng-hub-ui-utils) ← Estás aquí
 
@@ -492,6 +493,56 @@ También están disponibles el `HubTooltipController` imperativo (el motor) y lo
 `HubTooltipAdapter` / `HubTooltipHandle` / `HubTooltipOptions` / `HubTooltipPlacement`.
 Consulta la sección
 [Sinergias y agnosticidad](../../README.es.md#sinergias-y-agnosticidad) del ecosistema.
+
+### 🔢 Primitivas de rejilla
+
+La aritmética de la que está hecha una hoja de celdas, sin DOM y sin framework dentro. Una rejilla
+tiene un puñado de problemas que cada implementación resuelve otra vez y falla en los mismos
+sitios: dónde va el cursor en un borde, qué rectángulo describen dos esquinas, qué celda se ha
+tragado un bloque combinado y qué pistas merece la pena dibujar. `ng-hub-ui-spreadsheet` está
+construida sobre estas, y por eso se instala sin `@angular/cdk`.
+
+```ts
+import {
+	resolveGridIntent,
+	moveGridFocus,
+	gridRangeBetween,
+	buildSpanMap,
+	anchorOf,
+	gridWindow,
+	growWindowToSpans
+} from 'ng-hub-ui-utils';
+
+// Una tecla leída como intención, para que la rejilla no acabe con un switch por navegador. La
+// parada de tabulación que viaja es `gridCellTabIndex(cell, active, 'roving')`.
+const intent = resolveGridIntent(event, { pageSize: 20 });
+
+// El cursor, distinguiendo las tres respuestas posibles al final de una fila.
+const next = moveGridFocus(cursor, { row: 0, col: 1 }, bounds, { horizontal: 'continuous' });
+
+// Una selección guardada como dos esquinas: diez mil celdas no cuestan nada.
+const range = gridRangeBetween(anchor, cursor);
+
+// Bloques combinados: el cursor cae en el bloque y nunca dentro de él.
+const spans = buildSpanMap([{ row: 4, col: 0, rowSpan: 3, colSpan: 2 }]);
+const landing = anchorOf(spans, cursor);
+
+// Solo lo que cubre la ventana, con los píxeles que habría ocupado el resto, para que la barra de
+// desplazamiento siga diciendo la verdad. Y luego ensanchada hasta que cada bloque que toca esté
+// entero.
+const window = growWindowToSpans(
+	gridWindow({ offset: scrollTop, viewport: height, sizes: 32, count: rows.length, pinned: 1 }),
+	blocks,
+	'row',
+	32,
+	{ count: rows.length, pinned: 1 }
+);
+```
+
+También se exportan: `resolveGridEdge`, `isWithinGridRange`, `gridRangeCells`, `gridRangeSize`,
+`clampGridRange`, `spanAt`, `isCovered`, `coversRange`, `gridCellTabIndex` y los tipos
+`HubGridCoords`, `HubGridBounds`, `HubGridRange`, `HubGridSpan`, `HubGridSpanMap`, `HubGridWrap`,
+`HubGridEdge`, `HubGridIntent`, `HubGridWindow` y `HubGridTrackSizes`.
 
 ## 🚀 Instalación
 

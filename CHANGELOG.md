@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.18.0] - 2026-09-27
+
+### Added
+
+- **Grid primitives: the arithmetic a sheet of cells is made of, with no DOM and no framework in
+  it.** A grid has a handful of problems that every implementation solves again, and gets wrong in
+  the same places: where the cursor goes at an edge, what rectangle two corners describe, which cell
+  a merged block swallowed, and which tracks are worth drawing at all. They live here because they
+  are arithmetic, because they are where the edge cases are, and because a test can hold them still.
+  `ng-hub-ui-spreadsheet` is built on them, which is how it installs without `@angular/cdk`.
+
+    - `resolveGridIntent(event, options)` reads a keyboard event as an intent rather than a key, so
+      a grid does not grow a switch statement per browser. `gridCellTabIndex(...)` answers the roving
+      tab stop.
+    - `moveGridFocus(...)` and `resolveGridEdge(...)` move the cursor, with wrapping that is told
+      apart: `nowrap`, `loop` and `continuous` are three different answers at the end of a row.
+    - `gridRangeBetween(...)`, `isWithinGridRange(...)`, `gridRangeCells(...)`, `gridRangeSize(...)`
+      and `clampGridRange(...)` keep a rectangular selection as two corners rather than a set of
+      cells, which is what makes a selection of ten thousand cells cost nothing.
+    - `buildSpanMap(...)`, `spanAt(...)`, `isCovered(...)`, `anchorOf(...)` and `coversRange(...)`
+      answer the questions a merged block raises: the cursor lands on the block and never inside it,
+      and a selection that would clip one grows to contain it.
+    - `gridWindow(...)` returns the tracks a viewport covers and the pixels the rest would have
+      taken, so the scrollbar still tells the truth while the document holds a couple of hundred
+      cells instead of half a million. `growWindowToSpans(...)` then widens that window until every
+      merged block it touches is drawn whole — leave the anchor out and the block is not there at
+      all, which is the bug that makes a virtualised sheet come apart exactly where somebody
+      scrolled to.
+
 ## [22.17.0] - 2026-09-24
 
 ### Added

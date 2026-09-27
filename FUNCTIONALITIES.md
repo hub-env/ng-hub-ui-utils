@@ -4,167 +4,189 @@ This table details the functionalities of the `ng-hub-ui-utils` library and indi
 
 ## Focus Management
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Focus Trap** | `hubFocusTrap()` function | ✅ |
-| | `getFocusableBoundaryElements()` | ✅ |
-| | `FOCUSABLE_ELEMENTS_SELECTOR` constant | ✅ |
+| Category       | Functionality                          | Example Covered |
+| :------------- | :------------------------------------- | :-------------: |
+| **Focus Trap** | `hubFocusTrap()` function              |       ✅        |
+|                | `getFocusableBoundaryElements()`       |       ✅        |
+|                | `FOCUSABLE_ELEMENTS_SELECTOR` constant |       ✅        |
 
 ---
 
 ## Internationalization (i18n)
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Translation Service** | `HubTranslationService` | ✅ |
-| | `provideHubTranslation()` provider | ✅ |
-| | `HUB_TRANSLATION_CONFIG` injection token | ✅ |
-| **External services** | `provideHubTranslationAdapter()` provider | ✅ |
-| | `HUB_TRANSLATION_SOURCE` injection token | ❌ |
-| **Namespacing** | `HUB_TRANSLATION_PREFIX` injection token | ❌ |
-| **Pipes** | `TranslatePipe` | ✅ |
+| Category                | Functionality                             | Example Covered |
+| :---------------------- | :---------------------------------------- | :-------------: |
+| **Translation Service** | `HubTranslationService`                   |       ✅        |
+|                         | `provideHubTranslation()` provider        |       ✅        |
+|                         | `HUB_TRANSLATION_CONFIG` injection token  |       ✅        |
+| **External services**   | `provideHubTranslationAdapter()` provider |       ✅        |
+|                         | `HUB_TRANSLATION_SOURCE` injection token  |       ❌        |
+| **Namespacing**         | `HUB_TRANSLATION_PREFIX` injection token  |       ❌        |
+| **Pipes**               | `TranslatePipe`                           |       ✅        |
+
+---
+
+## Grid Primitives
+
+| Category           | Functionality                                                             | Example Covered |
+| :----------------- | :------------------------------------------------------------------------ | :-------------: |
+| **Keyboard**       | `resolveGridIntent()` — a key read as an intent                           |       ✅        |
+|                    | `gridCellTabIndex()` — the roving tab stop                                |       ✅        |
+| **Navigation**     | `moveGridFocus()`, with `nowrap` / `loop` / `continuous`                  |       ✅        |
+|                    | `resolveGridEdge()` — `Home`, `End` and their `Ctrl` pairs                |       ✅        |
+| **Selection**      | `gridRangeBetween()`, `isWithinGridRange()`                               |       ✅        |
+|                    | `gridRangeCells()`, `gridRangeSize()`, `clampGridRange()`                 |       ✅        |
+| **Merged blocks**  | `buildSpanMap()`, `spanAt()`, `isCovered()`, `anchorOf()`                 |       ✅        |
+|                    | `coversRange()` — a selection grown to contain the blocks it clips        |       ✅        |
+| **Virtualisation** | `gridWindow()` — the tracks a viewport covers, and the space for the rest |       ✅        |
+|                    | `growWindowToSpans()` — widened until every block it touches is whole     |       ✅        |
+
+The examples behind them are on the
+[spreadsheet page](https://hubui.dev/en/spreadsheet/examples), which is what these primitives were
+written for.
 
 ---
 
 ## Overlay System
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Overlay Service** | `OverlayService` | ✅ |
-| | `OverlayRef` management | ✅ |
-| **Positioning** | `ConnectionPosition` types | ✅ |
-| | Horizontal/Vertical connection positions | ✅ |
-| | Origin following (scroll, resize and layout moves) | ❌ |
-| | Viewport fitting — flip to the opposite side, clamp on the cross axis | ❌ |
-| | `hubAnchorToViewport()`, `hubFitsInViewport()`, `hubClampToViewport()` | ❌ |
-| | `hubViewportOf()`, `hubToAnchorSide()`, `hubToPhysicalSide()`, `hubOppositeSide()` | ❌ |
-| **Configuration** | `OverlayConfig` interface | ✅ |
+| Category            | Functionality                                                                      | Example Covered |
+| :------------------ | :--------------------------------------------------------------------------------- | :-------------: |
+| **Overlay Service** | `OverlayService`                                                                   |       ✅        |
+|                     | `OverlayRef` management                                                            |       ✅        |
+| **Positioning**     | `ConnectionPosition` types                                                         |       ✅        |
+|                     | Horizontal/Vertical connection positions                                           |       ✅        |
+|                     | Origin following (scroll, resize and layout moves)                                 |       ❌        |
+|                     | Viewport fitting — flip to the opposite side, clamp on the cross axis              |       ❌        |
+|                     | `hubAnchorToViewport()`, `hubFitsInViewport()`, `hubClampToViewport()`             |       ❌        |
+|                     | `hubViewportOf()`, `hubToAnchorSide()`, `hubToPhysicalSide()`, `hubOppositeSide()` |       ❌        |
+| **Configuration**   | `OverlayConfig` interface                                                          |       ✅        |
 
 ---
 
 ## Popup Service
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Popup** | `PopupService<T>` | ✅ |
-| | Programmatic popup creation | ✅ |
+| Category  | Functionality               | Example Covered |
+| :-------- | :-------------------------- | :-------------: |
+| **Popup** | `PopupService<T>`           |       ✅        |
+|           | Programmatic popup creation |       ✅        |
 
 ---
 
 ## Tooltip
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Directives** | `HubTooltipDirective` (`[hubTooltip]`) | ✅ |
-| | Viewport flipping — opens on the opposite side when the requested one does not fit | ❌ |
-| | Re-fits on window resize and on ancestor scroll while open | ❌ |
-| | `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) | ❌ |
-| | `hubOverflowTooltipMeasure` — hover the control, measure a box inside it | ❌ |
-| **Engine** | `HubTooltipController` | ❌ |
-| | `hubTooltipAdapter` | ❌ |
-| **Agnosticism** | `HUB_TOOLTIP_ADAPTER` token | ❌ |
-| | `provideHubTooltip()` provider | ❌ |
+| Category        | Functionality                                                                      | Example Covered |
+| :-------------- | :--------------------------------------------------------------------------------- | :-------------: |
+| **Directives**  | `HubTooltipDirective` (`[hubTooltip]`)                                             |       ✅        |
+|                 | Viewport flipping — opens on the opposite side when the requested one does not fit |       ❌        |
+|                 | Re-fits on window resize and on ancestor scroll while open                         |       ❌        |
+|                 | `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`)                             |       ❌        |
+|                 | `hubOverflowTooltipMeasure` — hover the control, measure a box inside it           |       ❌        |
+| **Engine**      | `HubTooltipController`                                                             |       ❌        |
+|                 | `hubTooltipAdapter`                                                                |       ❌        |
+| **Agnosticism** | `HUB_TOOLTIP_ADAPTER` token                                                        |       ❌        |
+|                 | `provideHubTooltip()` provider                                                     |       ❌        |
 
 ---
 
 ## Drag and Drop
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Coordination** | `HubDragDropService` | ❌ |
-| **Array helpers** | `moveItemInArray()`, `transferArrayItem()`, `copyArrayItem()` | ❌ |
-| | `clamp()`, `computeTargetIndex()`, `toAbsoluteIndex()`, `containsNode()` | ❌ |
-| **Geometry** | `resolveDropPosition()`, `DropRect`, `DragAxis` | ❌ |
-| **Preview** | `createNativeDragImage()` | ❌ |
-| **Touch fallback** | `createPointerDragSession()` | ❌ |
+| Category           | Functionality                                                            | Example Covered |
+| :----------------- | :----------------------------------------------------------------------- | :-------------: |
+| **Coordination**   | `HubDragDropService`                                                     |       ❌        |
+| **Array helpers**  | `moveItemInArray()`, `transferArrayItem()`, `copyArrayItem()`            |       ❌        |
+|                    | `clamp()`, `computeTargetIndex()`, `toAbsoluteIndex()`, `containsNode()` |       ❌        |
+| **Geometry**       | `resolveDropPosition()`, `DropRect`, `DragAxis`                          |       ❌        |
+| **Preview**        | `createNativeDragImage()`                                                |       ❌        |
+| **Touch fallback** | `createPointerDragSession()`                                             |       ❌        |
 
 ---
 
 ## Accent Resolution
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Accent** | `resolveHubAccent()` | ❌ |
+| Category   | Functionality        | Example Covered |
+| :--------- | :------------------- | :-------------: |
+| **Accent** | `resolveHubAccent()` |       ❌        |
 
 ---
 
 ## Scrollbar Utilities
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Scrollbar** | `ScrollBar` service | ✅ |
-| | `hide()` method | ✅ |
-| | Scrollbar compensation utilities | ✅ |
+| Category      | Functionality                    | Example Covered |
+| :------------ | :------------------------------- | :-------------: |
+| **Scrollbar** | `ScrollBar` service              |       ✅        |
+|               | `hide()` method                  |       ✅        |
+|               | Scrollbar compensation utilities |       ✅        |
 
 ---
 
 ## Transitions
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Animation** | `hubRunTransition()` function | ✅ |
-| | Transition utilities | ✅ |
-| | CSS transition helpers | ✅ |
+| Category      | Functionality                 | Example Covered |
+| :------------ | :---------------------------- | :-------------: |
+| **Animation** | `hubRunTransition()` function |       ✅        |
+|               | Transition utilities          |       ✅        |
+|               | CSS transition helpers        |       ✅        |
 
 ---
 
 ## Pipes
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Type Checking** | `IsStringPipe` | ✅ |
-| | `IsObjectPipe` | ✅ |
-| | `IsObservablePipe` | ❌ |
-| **Data Access** | `GetPipe` (dot notation access) | ✅ |
-| **Transformation** | `UcfirstPipe` (capitalize first letter) | ✅ |
-| **Async** | `UnwrapAsyncPipe` | ✅ |
-| **i18n** | `TranslatePipe` | ✅ |
+| Category           | Functionality                           | Example Covered |
+| :----------------- | :-------------------------------------- | :-------------: |
+| **Type Checking**  | `IsStringPipe`                          |       ✅        |
+|                    | `IsObjectPipe`                          |       ✅        |
+|                    | `IsObservablePipe`                      |       ❌        |
+| **Data Access**    | `GetPipe` (dot notation access)         |       ✅        |
+| **Transformation** | `UcfirstPipe` (capitalize first letter) |       ✅        |
+| **Async**          | `UnwrapAsyncPipe`                       |       ✅        |
+| **i18n**           | `TranslatePipe`                         |       ✅        |
 
 ---
 
 ## Utility Functions
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Type Guards** | `isString()`, `isNumber()` | ✅ |
-| | `isDefined()` | ✅ |
-| | `isInteger()`, `isPromise()` | ❌ |
-| **Value Conversion** | `toInteger()`, `toString()` | ❌ |
-| | `getValueInRange()` | ❌ |
-| **String Utilities** | `padNumber()` | ✅ |
-| | `regExpEscape()` | ❌ |
-| | `removeAccents()` | ✅ |
-| | `interpolateString()` | ✅ |
-| | `generateUniqueId()` | ❌ |
-| **Object Utilities** | `equals()` (deep equality) | ✅ |
-| | `getValue()` (dot notation access) | ✅ |
-| | `isObject()`, `mergeDeep()` (recursive merge) | ❌ |
-| **Signal Utilities** | `debouncedSignal()` | ❌ |
-| **DOM Utilities** | `closest()` | ✅ |
-| | `reflow()` (force browser reflow) | ✅ |
-| | `getActiveElement()` | ✅ |
-| **RxJS Utilities** | `runInZone()` operator | ✅ |
+| Category             | Functionality                                 | Example Covered |
+| :------------------- | :-------------------------------------------- | :-------------: |
+| **Type Guards**      | `isString()`, `isNumber()`                    |       ✅        |
+|                      | `isDefined()`                                 |       ✅        |
+|                      | `isInteger()`, `isPromise()`                  |       ❌        |
+| **Value Conversion** | `toInteger()`, `toString()`                   |       ❌        |
+|                      | `getValueInRange()`                           |       ❌        |
+| **String Utilities** | `padNumber()`                                 |       ✅        |
+|                      | `regExpEscape()`                              |       ❌        |
+|                      | `removeAccents()`                             |       ✅        |
+|                      | `interpolateString()`                         |       ✅        |
+|                      | `generateUniqueId()`                          |       ❌        |
+| **Object Utilities** | `equals()` (deep equality)                    |       ✅        |
+|                      | `getValue()` (dot notation access)            |       ✅        |
+|                      | `isObject()`, `mergeDeep()` (recursive merge) |       ❌        |
+| **Signal Utilities** | `debouncedSignal()`                           |       ❌        |
+| **DOM Utilities**    | `closest()`                                   |       ✅        |
+|                      | `reflow()` (force browser reflow)             |       ✅        |
+|                      | `getActiveElement()`                          |       ✅        |
+| **RxJS Utilities**   | `runInZone()` operator                        |       ✅        |
 
 ## Color
 
-| Category | Functionality | Example Covered |
-| :--- | :--- | :---: |
-| **Parsing** | `parseColor()` — hex 3/4/6/8, `rgb()`, `hsl()`, `oklch()`, `oklab()`, named, `transparent` | ✅ |
-| | `toHex()` | ✅ |
-| | `toRgb()` | ✅ |
-| | `isValidColor()` | ✅ |
-| | `HUB_NAMED_COLORS` (the 148 CSS named colours) | ✅ |
-| **Contrast** | `relativeLuminance()` (WCAG 2) | ✅ |
-| | `contrastRatio()` (WCAG 2) | ✅ |
-| | `contrastAPCA()` (APCA-1.0.98G) | ✅ |
-| | `compositeOver()` (blend translucent over background) | ✅ |
-| | `readableOn()`, `HUB_INK_LIGHTNESS_THRESHOLD` | ✅ |
-| **OKLCh** | `rgbToOklch()`, `oklchToRgb()` | ✅ |
-| | `maxSrgbChroma()`, `isInSrgbGamut()`, `clampToSrgbGamut()` | ✅ |
-| **Palette derivation** | `harmoniseSemantics()` — semantic roles rotated towards a brand hue | ✅ |
-| | `tintNeutrals()` — grey ramp leaned towards a brand hue | ✅ |
-| | `HUB_MAX_HUE_SHIFT` (15°), `HUB_MAX_NEUTRAL_CHROMA` (0.015) | ✅ |
-| | `HUB_SEMANTIC_ANCHORS`, `HUB_NEUTRAL_ANCHORS` (the untinted starting points) | ✅ |
+| Category               | Functionality                                                                              | Example Covered |
+| :--------------------- | :----------------------------------------------------------------------------------------- | :-------------: |
+| **Parsing**            | `parseColor()` — hex 3/4/6/8, `rgb()`, `hsl()`, `oklch()`, `oklab()`, named, `transparent` |       ✅        |
+|                        | `toHex()`                                                                                  |       ✅        |
+|                        | `toRgb()`                                                                                  |       ✅        |
+|                        | `isValidColor()`                                                                           |       ✅        |
+|                        | `HUB_NAMED_COLORS` (the 148 CSS named colours)                                             |       ✅        |
+| **Contrast**           | `relativeLuminance()` (WCAG 2)                                                             |       ✅        |
+|                        | `contrastRatio()` (WCAG 2)                                                                 |       ✅        |
+|                        | `contrastAPCA()` (APCA-1.0.98G)                                                            |       ✅        |
+|                        | `compositeOver()` (blend translucent over background)                                      |       ✅        |
+|                        | `readableOn()`, `HUB_INK_LIGHTNESS_THRESHOLD`                                              |       ✅        |
+| **OKLCh**              | `rgbToOklch()`, `oklchToRgb()`                                                             |       ✅        |
+|                        | `maxSrgbChroma()`, `isInSrgbGamut()`, `clampToSrgbGamut()`                                 |       ✅        |
+| **Palette derivation** | `harmoniseSemantics()` — semantic roles rotated towards a brand hue                        |       ✅        |
+|                        | `tintNeutrals()` — grey ramp leaned towards a brand hue                                    |       ✅        |
+|                        | `HUB_MAX_HUE_SHIFT` (15°), `HUB_MAX_NEUTRAL_CHROMA` (0.015)                                |       ✅        |
+|                        | `HUB_SEMANTIC_ANCHORS`, `HUB_NEUTRAL_ANCHORS` (the untinted starting points)               |       ✅        |
 
 ---
-*Note: ❌ indicates an example is not yet available. ✅ indicates an active interactive example.*
+
+_Note: ❌ indicates an example is not yet available. ✅ indicates an active interactive example._
