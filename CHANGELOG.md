@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.20.0] - 2026-10-17
+
+### Added
+
+- **A tooltip can wait for the hover to stay.** `hubTooltipShowDelay` sets how many milliseconds
+  the pointer has to rest on the host before the tooltip opens, so an icon-only button stops
+  flashing its label every time the pointer crosses it. It defaults to `0`, which is how every
+  tooltip behaved until now. Keyboard focus ignores it and opens the label at once, and leaving
+  before the delay is up opens nothing.
+
 ## [22.19.0] - 2026-09-27
 
 ### Added
