@@ -385,7 +385,8 @@ export class ExampleComponent {}
 > ```
 
 Inputs: `hubTooltip` (texto), `hubTooltipPlacement` (`top` | `bottom` | `left` | `right`,
-por defecto `top`), `hubTooltipDelay` (ms de fundido, por defecto `150`), `hubTooltipOffset`
+por defecto `top`), `hubTooltipDelay` (ms de fundido, por defecto `150`), `hubTooltipShowDelay` (ms que tiene que
+durar el paso del cursor antes de abrirse, por defecto `0`; el foco con teclado lo abre siempre al momento), `hubTooltipOffset`
 (px, por defecto `8`).
 
 **La posición es una preferencia, no una orden (desde 22.16.0).** Un tooltip que se abriría fuera
@@ -824,7 +825,7 @@ quedan en cada biblioteca, porque sus selectores y modelos de datos difieren.
 
 ### Directivas
 
-- `HubTooltipDirective` (`[hubTooltip]`) - Tooltip al pasar el cursor o enfocar, volteado lejos de los bordes de la ventana. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
+- `HubTooltipDirective` (`[hubTooltip]`) - Tooltip al pasar el cursor o enfocar, volteado lejos de los bordes de la ventana. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipShowDelay`, `hubTooltipOffset`
 - `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip que solo aparece mientras la etiqueta está truncada. Inputs: `hubOverflowTooltip`, `placement`, `hubOverflowTooltipMeasure` (selector CSS, resuelto dentro del host, que nombra la caja cuyo recorte lo decide; por defecto, el propio host)
 - `provideHubTooltip(adapter: HubTooltipAdapter)` y `HUB_TOOLTIP_ADAPTER` - Cambian la implementación que hay detrás de `[hubOverflowTooltip]`, para toda la aplicación o para un subárbol; por defecto, `hubTooltipAdapter`
 

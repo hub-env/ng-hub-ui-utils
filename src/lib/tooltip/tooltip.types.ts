@@ -10,6 +10,8 @@ export interface HubTooltipOptions {
 	placement?: HubTooltipPlacement;
 	/** Fade duration in milliseconds, also used as the removal delay on hide. */
 	delay?: number;
+	/** Pointer hover wait in milliseconds; keyboard focus remains immediate. */
+	showDelay?: number;
 	/** Gap in pixels between the host and the tooltip. */
 	offset?: number;
 }

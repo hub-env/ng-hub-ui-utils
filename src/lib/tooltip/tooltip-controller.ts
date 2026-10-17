@@ -65,12 +65,14 @@ let nextTooltipId = 0;
  */
 export class HubTooltipController {
 	private tooltipEl: HTMLElement | null = null;
+	private showTimeout: ReturnType<typeof setTimeout> | null = null;
 	private hideTimeout: ReturnType<typeof setTimeout> | null = null;
 	private leaveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	private text = '';
 	private placement: HubTooltipPlacement = 'top';
 	private delay = 150;
+	private showDelay = 0;
 	private offset = 8;
 
 	/**
@@ -87,6 +89,7 @@ export class HubTooltipController {
 	private readonly tooltipId = `hub-tooltip-${++nextTooltipId}`;
 
 	private readonly onShow = (): void => this.show();
+	private readonly onPointerEnter = (): void => this.scheduleShow();
 	private readonly onHide = (): void => this.hide();
 	private readonly onPointerLeave = (): void => this.scheduleHide();
 	private readonly onTooltipEnter = (): void => this.retain();
@@ -123,7 +126,7 @@ export class HubTooltipController {
 		this.view = this.doc.defaultView as (Window & typeof globalThis) | null;
 		this.setOptions(options);
 
-		this.host.addEventListener('mouseenter', this.onShow);
+		this.host.addEventListener('mouseenter', this.onPointerEnter);
 		this.host.addEventListener('focus', this.onShow);
 		this.host.addEventListener('mouseleave', this.onPointerLeave);
 		this.host.addEventListener('blur', this.onHide);
@@ -161,6 +164,9 @@ export class HubTooltipController {
 		if (options.delay != null) {
 			this.delay = options.delay;
 		}
+		if (options.showDelay != null) {
+			this.showDelay = Math.max(0, options.showDelay);
+		}
 		if (options.offset != null) {
 			this.offset = options.offset;
 		}
@@ -168,7 +174,7 @@ export class HubTooltipController {
 
 	/** Detaches listeners and removes any live tooltip element. */
 	destroy(): void {
-		this.host.removeEventListener('mouseenter', this.onShow);
+		this.host.removeEventListener('mouseenter', this.onPointerEnter);
 		this.host.removeEventListener('focus', this.onShow);
 		this.host.removeEventListener('mouseleave', this.onPointerLeave);
 		this.host.removeEventListener('blur', this.onHide);
@@ -176,8 +182,19 @@ export class HubTooltipController {
 		this.removeElement();
 	}
 
+	/** Waits for a sustained hover before opening, while retaining an already visible bubble. */
+	private scheduleShow(): void {
+		this.clearShowTimeout();
+		if (this.tooltipEl || this.showDelay === 0) {
+			this.show();
+			return;
+		}
+		this.showTimeout = setTimeout(() => this.show(), this.showDelay);
+	}
+
 	/** Creates, positions and reveals the tooltip element. */
 	private show(): void {
+		this.clearShowTimeout();
 		if (!this.text) {
 			return;
 		}
@@ -235,6 +252,7 @@ export class HubTooltipController {
 	 * offset opens between host and bubble without the label vanishing on the way.
 	 */
 	private scheduleHide(): void {
+		this.clearShowTimeout();
 		if (!this.tooltipEl) {
 			return;
 		}
@@ -254,6 +272,7 @@ export class HubTooltipController {
 
 	/** Fades the tooltip out and removes it after the fade completes. */
 	private hide(): void {
+		this.clearShowTimeout();
 		this.clearLeaveTimeout();
 		if (!this.tooltipEl) {
 			return;
@@ -268,6 +287,7 @@ export class HubTooltipController {
 
 	/** Removes the tooltip element immediately. */
 	private removeElement(): void {
+		this.clearShowTimeout();
 		this.clearHideTimeout();
 		this.clearLeaveTimeout();
 		if (this.tooltipEl) {
@@ -325,6 +345,14 @@ export class HubTooltipController {
 			if (value) {
 				el.style.setProperty(name, value);
 			}
+		}
+	}
+
+	/** Cancels hover work when the pointer leaves or the host is destroyed. */
+	private clearShowTimeout(): void {
+		if (this.showTimeout !== null) {
+			clearTimeout(this.showTimeout);
+			this.showTimeout = null;
 		}
 	}
 

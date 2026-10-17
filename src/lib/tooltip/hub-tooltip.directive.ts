@@ -49,6 +49,9 @@ export class HubTooltipDirective implements OnDestroy {
 	/** Fade duration in milliseconds, also used as the removal delay on hide. */
 	readonly delay = input<number>(150, { alias: 'hubTooltipDelay' });
 
+	/** Pointer hover wait in milliseconds; keyboard focus remains immediate. */
+	readonly showDelay = input<number>(0, { alias: 'hubTooltipShowDelay' });
+
 	/** Gap in pixels between the host and the tooltip. */
 	readonly offset = input<number>(8, { alias: 'hubTooltipOffset' });
 
@@ -60,6 +63,7 @@ export class HubTooltipDirective implements OnDestroy {
 			this.controller.setOptions({
 				placement: this.placement(),
 				delay: this.delay(),
+				showDelay: this.showDelay(),
 				offset: this.offset()
 			});
 			this.controller.setText(this.text());

@@ -385,7 +385,8 @@ export class ExampleComponent {}
 > ```
 
 Inputs: `hubTooltip` (text), `hubTooltipPlacement` (`top` | `bottom` | `left` | `right`,
-default `top`), `hubTooltipDelay` (fade ms, default `150`), `hubTooltipOffset` (px, default `8`).
+default `top`), `hubTooltipDelay` (fade ms, default `150`), `hubTooltipShowDelay` (ms a hover has to last before
+the tooltip opens, default `0`; keyboard focus always opens it at once), `hubTooltipOffset` (px, default `8`).
 
 **The placement is a preference, not an instruction (since 22.16.0).** A tooltip that would open
 off the edge of the window opens on the opposite side instead, at all four edges, and one centred
@@ -816,7 +817,7 @@ library, because their selectors and data models differ.
 
 ### Directives
 
-- `HubTooltipDirective` (`[hubTooltip]`) - Tooltip on hover/focus, flipped away from the window edges. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipOffset`
+- `HubTooltipDirective` (`[hubTooltip]`) - Tooltip on hover/focus, flipped away from the window edges. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipShowDelay`, `hubTooltipOffset`
 - `HubOverflowTooltipDirective` (`[hubOverflowTooltip]`) - Tooltip shown only while the label is truncated. Inputs: `hubOverflowTooltip`, `placement`, `hubOverflowTooltipMeasure` (CSS selector, resolved inside the host, naming the box whose truncation decides it; defaults to the host)
 - `provideHubTooltip(adapter: HubTooltipAdapter)` and `HUB_TOOLTIP_ADAPTER` - Swap the implementation behind `[hubOverflowTooltip]`, app-wide or per subtree; defaults to `hubTooltipAdapter`
 
