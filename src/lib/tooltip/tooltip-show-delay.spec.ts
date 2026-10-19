@@ -22,7 +22,9 @@ describe('HubTooltipDirective show delay', () => {
 	let button: HTMLElement;
 
 	beforeEach(() => {
-		const fixture = TestBed.configureTestingModule({ imports: [DelayedHostComponent] }).createComponent(DelayedHostComponent);
+		const fixture = TestBed.configureTestingModule({ imports: [DelayedHostComponent] }).createComponent(
+			DelayedHostComponent
+		);
 		fixture.detectChanges();
 		button = fixture.nativeElement.querySelector('button');
 	});
