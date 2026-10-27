@@ -815,6 +815,11 @@ library, because their selectors and data models differ.
 - `createPointerDragSession(config: PointerDragSessionConfig): PointerDragSession` - Pointer Events fallback for touch, where native drag events are not delivered
 - Types: `DropPosition`, `DragPointerMode`, `DragContainerRef<T>`, `ActiveDrag<T>`, `DragTarget<T>`, `DragRegistration`
 
+### Form Field Feedback
+
+- `HUB_FIELD_FEEDBACK: InjectionToken<Signal<HubFieldFeedbackPlacement>>` - Lets a container decide where the form fields inside it show their validation message: `'bottom'`, under the control as in a form, or `'tooltip'`, where the field is ringed in the danger colour and the message opens on hover. A container that lays fields out as cells provides it, because a message under the control makes the row taller. It lives here so the paginable table and the spreadsheet can ask for it without depending on `ng-hub-ui-forms`, which is the library that honours it
+- Types: `HubFieldFeedbackPlacement` (`'bottom' | 'tooltip'`)
+
 ### Directives
 
 - `HubTooltipDirective` (`[hubTooltip]`) - Tooltip on hover/focus, flipped away from the window edges. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipShowDelay`, `hubTooltipOffset`

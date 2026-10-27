@@ -823,6 +823,11 @@ quedan en cada biblioteca, porque sus selectores y modelos de datos difieren.
 - `createPointerDragSession(config: PointerDragSessionConfig): PointerDragSession` - Alternativa con Pointer Events para táctil, donde no se entregan los eventos nativos de arrastre
 - Tipos: `DropPosition`, `DragPointerMode`, `DragContainerRef<T>`, `ActiveDrag<T>`, `DragTarget<T>`, `DragRegistration`
 
+### Mensajes de los campos de formulario
+
+- `HUB_FIELD_FEEDBACK: InjectionToken<Signal<HubFieldFeedbackPlacement>>` - Deja que un contenedor decida dónde muestran su mensaje de validación los campos de formulario que lleva dentro: `'bottom'`, bajo el control como en un formulario, o `'tooltip'`, en el que el campo se rodea con el color de peligro y el mensaje sale al pasar el ratón. Lo da un contenedor que coloca los campos como celdas, porque un mensaje bajo el control hace la fila más alta. Vive aquí para que la tabla de paginable y el spreadsheet puedan pedirlo sin depender de `ng-hub-ui-forms`, que es la librería que lo obedece
+- Tipos: `HubFieldFeedbackPlacement` (`'bottom' | 'tooltip'`)
+
 ### Directivas
 
 - `HubTooltipDirective` (`[hubTooltip]`) - Tooltip al pasar el cursor o enfocar, volteado lejos de los bordes de la ventana. Inputs: `hubTooltip`, `hubTooltipPlacement`, `hubTooltipDelay`, `hubTooltipShowDelay`, `hubTooltipOffset`

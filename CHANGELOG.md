@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.21.0] - 2026-10-27
+
+### Added
+
+- **`HUB_FIELD_FEEDBACK` lets a container decide where the fields inside it show their validation
+  message.** It is a signal of `'bottom' | 'tooltip'`. A container that lays fields out as cells
+  provides `'tooltip'`, because a message written under the control makes the row taller and pushes
+  every row below it. It lives in utils so the paginable table and the spreadsheet can ask for it
+  without depending on `ng-hub-ui-forms`, which is the library that follows it.
+
 ## [22.20.0] - 2026-10-17
 
 ### Added

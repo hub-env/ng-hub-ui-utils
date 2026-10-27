@@ -5,6 +5,7 @@
 export * from './lib/accent';
 export * from './lib/color';
 export * from './lib/drag-drop';
+export * from './lib/field-feedback';
 export * from './lib/focus-trap';
 export * from './lib/i18n/translation.provider';
 export * from './lib/i18n/translation-adapter';
