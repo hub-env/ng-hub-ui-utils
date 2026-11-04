@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.21.1] - 2026-11-04
+
+### Fixed
+
+- **A palette derived with `harmoniseSemantics` never reads worse than the design system's own.**
+  Rotating a role's hue at a fixed OKLCh lightness moves its WCAG ratio a little, and `success`
+  and `danger` pass AA by three thousandths, so a derived `danger` fell to 4.47:1 for 166 of the
+  360 brand hues, and `success` for one. When the new hue reads worse with its ink than the anchor
+  did, the lightness now moves away from the ink by the smallest amount that gives the anchor's
+  ratio back, measured on the final hex: at most 0.0055 in OKLCh, too little to see. The palette
+  the stylesheet ships, with nothing harmonised, does not change. Some derived colours move by a
+  step or two in hex; for the violet brand in the README, warning goes from `#ffbd6e` to `#ffbf71`
+  and info from `#44c4ff` to `#4bc5ff`.
+
 ## [22.21.0] - 2026-10-27
 
 ### Added

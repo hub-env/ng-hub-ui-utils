@@ -783,7 +783,7 @@ Estas funciones dan soporte al sistema de i18n y se exportan para uso directo:
 
 Un color de marca, toda la paleta — y los dos números que la mantienen honesta.
 
-- `harmoniseSemantics(primary, options?): HubSemanticPalette | null` - Gira `success`, `warning`, `danger` e `info` hacia el tono de la marca y los devuelve en hexadecimal. La luminosidad se deja exactamente donde la tenía el ancla, porque es la que sostiene el contraste por el que se eligió cada rol; el croma solo se reduce cuando el tono nuevo no puede sostenerlo dentro de sRGB
+- `harmoniseSemantics(primary, options?): HubSemanticPalette | null` - Gira `success`, `warning`, `danger` e `info` hacia el tono de la marca y los devuelve en hexadecimal. La luminosidad se queda donde la tenía el ancla, porque sostiene el contraste por el que se eligió cada rol, salvo cuando el tono nuevo se leería peor con su tinta que el ancla: entonces se aleja de la tinta lo mínimo para recuperar el contraste del ancla, así que un rol derivado nunca se lee peor que el del sistema de diseño. El croma solo se reduce cuando el tono nuevo no puede sostenerlo dentro de sRGB
 - `tintNeutrals(primary, options?): HubNeutralRamp | null` - Inclina la escala de grises (`100` … `900`) en la misma dirección, conservando la luminosidad de cada paso
 - `HUB_MAX_HUE_SHIFT: number` (15) - Cuánto puede girar un rol, en grados. No es cuestión de gusto: `success` y `danger` están a 135,8° en OKLCh, y quien tiene deuteranopia los distingue solo por el tono. Un tono de marca entre ambos tira de los dos hacia dentro, así que la separación se cierra hasta el doble del tope; a 22,9° llegaría al suelo de 90°. Con 15° el peor caso queda en 105,8°
 - `HUB_MAX_NEUTRAL_CHROMA: number` (0,015) - El croma máximo de un neutro teñido. Anclado en la escala que ya trae el sistema de diseño — `gray-600` mide 0,0165 y `gray-500`, 0,0145 — así que una escala teñida nunca resulta más colorida que el gris que ya se acepta como gris
@@ -794,7 +794,7 @@ Un color de marca, toda la paleta — y los dos números que la mantienen honest
 import { harmoniseSemantics, tintNeutrals } from 'ng-hub-ui-utils';
 
 harmoniseSemantics('#6f42c1');
-// { success: '#00866b', warning: '#ffbd6e', danger: '#d8336b', info: '#44c4ff' }
+// { success: '#00866b', warning: '#ffbf71', danger: '#d8336b', info: '#4bc5ff' }
 
 tintNeutrals('#6f42c1'); // grises escorados al violeta, con el croma nunca por encima de 0,015
 ```

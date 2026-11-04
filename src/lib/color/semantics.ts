@@ -1,4 +1,5 @@
 import { HubColor, HubOklch } from './color.types';
+import { contrastRatio, readableOn, relativeLuminance } from './contrast';
 import { clampToSrgbGamut, oklchToRgb, rgbToOklch } from './oklch';
 import { toHex, toRgb } from './parse';
 
@@ -113,13 +114,51 @@ function toGamutHex(color: HubOklch): string {
 }
 
 /**
+ * Gives a rotated role back the contrast its anchor had with its ink, moving lightness only as far
+ * as that takes.
+ *
+ * OKLCh lightness is not WCAG luminance: at another hue the same `l` can read a few hundredths
+ * worse, and the design system's success and danger pass AA by three thousandths, so a rotated
+ * danger fell under 4.5:1 for almost half the brand hues. The ink is the one that reads on the
+ * anchor, the colour only ever moves away from it, and a role that already reads as well is
+ * returned as it was. Measured on the final hex, so rounding cannot undo it.
+ */
+function keepAnchorContrast(color: HubOklch, anchor: HubColor): string {
+	const ink = readableOn(anchor);
+	const target = contrastRatio(ink, anchor) as number;
+	const hexAt = (l: number) => toGamutHex({ ...color, l });
+	const reads = (l: number) => (contrastRatio(ink, hexAt(l)) as number) >= target;
+
+	if (reads(color.l)) {
+		return hexAt(color.l);
+	}
+
+	// Darker under white ink, lighter under black. The far end always reads, so the bisection
+	// keeps `far` on the side that passes and closes in on the smallest move.
+	let near = color.l;
+	let far = (relativeLuminance(ink) as number) > 0.5 ? 0 : 1;
+	for (let step = 0; step < 24; step++) {
+		const mid = (near + far) / 2;
+		if (reads(mid)) {
+			far = mid;
+		} else {
+			near = mid;
+		}
+	}
+
+	return hexAt(far);
+}
+
+/**
  * Rotates each semantic role's hue towards a brand colour, so a palette looks like one family
  * instead of five unrelated signals.
  *
- * Only the hue moves, and never by more than `maxHueShift`. Lightness is left exactly as the
- * anchor had it — it is what carries the contrast the roles were chosen to have, and nudging it
- * would quietly change which text colour reads on top. Chroma is kept too, and only reduced when
- * the new hue cannot hold it inside sRGB.
+ * The hue moves, never by more than `maxHueShift`. Lightness stays where the anchor had it, since
+ * it carries the contrast the roles were chosen for, with one exception: when the new hue would
+ * read worse with its ink than the anchor did, lightness moves away from the ink by the smallest
+ * amount that gives the anchor's ratio back (a few thousandths at most). A derived role therefore
+ * never reads worse than the design system's own, and never changes which ink sits on it. Chroma
+ * is kept too, and only reduced when the new hue cannot hold it inside sRGB.
  *
  * The cap is the whole design: a role that may rotate freely stops being a signal. Success has to
  * stay green next to a red brand, and success and danger have to stay far enough apart in hue that
@@ -133,7 +172,7 @@ function toGamutHex(color: HubOklch): string {
  * @example
  * ```ts
  * harmoniseSemantics('#6f42c1'); // a violet brand
- * // → { success: '#00866b', warning: '#ffbd6e', danger: '#d8336b', info: '#44c4ff' }
+ * // → { success: '#00866b', warning: '#ffbf71', danger: '#d8336b', info: '#4bc5ff' }
  * ```
  */
 export function harmoniseSemantics(primary: HubColor, options?: HubHarmoniseOptions): HubSemanticPalette | null {
@@ -158,7 +197,7 @@ export function harmoniseSemantics(primary: HubColor, options?: HubHarmoniseOpti
 		const delta = shortestHueDelta(anchor.h, brand.h);
 		const shift = Math.sign(delta) * Math.min(Math.abs(delta), cap);
 
-		result[role] = toGamutHex({ ...anchor, h: (((anchor.h + shift) % 360) + 360) % 360 });
+		result[role] = keepAnchorContrast({ ...anchor, h: (((anchor.h + shift) % 360) + 360) % 360 }, anchorRgb);
 	}
 
 	return result;
