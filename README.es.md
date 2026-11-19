@@ -606,6 +606,18 @@ export class ExampleComponent {
 }
 ```
 
+## Glass
+
+Bajo la capa glass de `ng-hub-ui-ds` (un ancestro con `data-hub-glass` o `data-theme="glass"`), el contenedor de overlays lee la opacidad, el brillo, el desenfoque y el borde de la capa. Sin la capa conserva su fondo opaco y nada cambia. Un panel que ya se viste de glass, como el panel del dropdown de `ng-hub-ui-buttons`, no se duplica: el contenedor deja su propio fondo, desenfoque y sombra.
+
+`provideHubGlassLight()` hace que el brillo de cada `.hub-glass-surface` siga al puntero. Escribe `--hub-glass-light-x` y `--hub-glass-light-y` en píxeles sobre la superficie que hay bajo el puntero y los quita cuando el puntero sale. La intensidad, el tamaño y el color siguen en CSS (`--hub-sys-glass-light-*`). No hace nada en el servidor ni para quien prefiere movimiento reducido.
+
+```ts
+import { provideHubGlassLight } from 'ng-hub-ui-utils';
+
+bootstrapApplication(App, { providers: [provideHubGlassLight()] });
+```
+
 ## 🌐 Internacionalización (i18n)
 
 El sistema de i18n (disponible desde `v1.2.0`) permite registrar diccionarios de traducción mediante inyección de dependencias y resolver claves de forma reactiva en los templates. Al actualizar las traducciones activas en tiempo de ejecución, cualquier pipe `translate` de la vista se refresca automáticamente.

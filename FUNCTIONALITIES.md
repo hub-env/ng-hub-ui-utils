@@ -169,6 +169,16 @@ written for.
 |                      | `getActiveElement()`                          |       ✅        |
 | **RxJS Utilities**   | `runInZone()` operator                        |       ✅        |
 
+## Glass
+
+| Category          | Functionality                                                                                            | Example Covered |
+| :---------------- | :------------------------------------------------------------------------------------------------------- | :-------------: |
+| **Pointer light** | `provideHubGlassLight()` — writes `--hub-glass-light-x/-y` on the `.hub-glass-surface` under the pointer |       ❌        |
+|                   | No-op on the server and under `prefers-reduced-motion`                                                   |       ❌        |
+| **Overlay**       | Overlay container as a glass surface; steps aside when a child is already glass                          |       ❌        |
+
+---
+
 ## Color
 
 | Category               | Functionality                                                                              | Example Covered |

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.22.0] - 2026-11-19
+
+### Added
+
+- **`provideHubGlassLight()`, the pointer light of the glass layer.** The glass layer of `ng-hub-ui-ds` draws a sheen at `--hub-glass-light-x/-y` of each `.hub-glass-surface`. The provider writes those two values, in pixels, on the surface under the pointer and removes them when the pointer leaves it or the document. It installs one passive `pointermove` listener per document, writes at most once per frame, and does nothing on the server or under `prefers-reduced-motion`. Without it the sheen stays on the top edge.
+- **The overlay container is a glass surface.** `.hub-overlay-container` carries `hub-glass-surface` and reads the layer's opacity, sheen, blur and rim, with opaque fallbacks, so nothing changes without the layer. When a child of the container already dresses itself as glass (the dropdown panel), the container drops its own background, blur and shadow so the two layers are not stacked.
+
 ## [22.21.1] - 2026-11-04
 
 ### Fixed

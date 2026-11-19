@@ -387,7 +387,7 @@ export class OverlayRef {
 		}
 
 		this._containerElement = this._document.createElement('div');
-		this._containerElement.classList.add('hub-overlay-container');
+		this._containerElement.classList.add('hub-overlay-container', 'hub-glass-surface');
 
 		if (this._config.panelClass) {
 			const classes = Array.isArray(this._config.panelClass) ? this._config.panelClass : [this._config.panelClass];

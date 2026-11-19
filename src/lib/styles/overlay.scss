@@ -23,10 +23,24 @@
 
 	position: absolute;
 	z-index: var(--hub-overlay-zindex);
-	background: var(--hub-overlay-bg);
+	/* Glass when an ancestor turns the layer on (ng-hub-ui-ds); opaque otherwise. */
+	background-color: color-mix(in srgb, var(--hub-overlay-bg) var(--hub-sys-glass-opacity, 100%), transparent);
+	background-image: var(--hub-sys-glass-sheen, none);
+	-webkit-backdrop-filter: var(--hub-sys-glass-filter, none);
+	backdrop-filter: var(--hub-sys-glass-filter, none);
 	border-radius: var(--hub-overlay-border-radius);
-	box-shadow: var(--hub-overlay-shadow);
+	box-shadow: var(--hub-sys-glass-rim, 0 0 #0000), var(--hub-overlay-shadow);
 	overflow: auto;
+}
+
+/* A panel that dresses itself as a glass surface (the dropdown menu) paints the surface the reader
+   sees; the container steps aside so two translucent layers do not stack into a darker, doubly
+   blurred one. */
+.hub-overlay-container:has(> .hub-glass-surface) {
+	background: none;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	box-shadow: none;
 }
 
 .hub-overlay-backdrop {

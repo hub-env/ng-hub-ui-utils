@@ -600,6 +600,18 @@ export class ExampleComponent {
 }
 ```
 
+## Glass
+
+Under the glass layer of `ng-hub-ui-ds` (an ancestor with `data-hub-glass` or `data-theme="glass"`), the overlay container reads the layer's opacity, sheen, blur and rim. Without the layer it keeps its opaque background and nothing changes. A panel that dresses itself as glass, such as the dropdown panel of `ng-hub-ui-buttons`, is not doubled: the container drops its own background, blur and shadow.
+
+`provideHubGlassLight()` makes the sheen of every `.hub-glass-surface` follow the pointer. It writes `--hub-glass-light-x` and `--hub-glass-light-y` in pixels on the surface under the pointer and removes them when the pointer leaves it. Brightness, size and colour stay in CSS (`--hub-sys-glass-light-*`). It is a no-op on the server and for readers who prefer reduced motion.
+
+```ts
+import { provideHubGlassLight } from 'ng-hub-ui-utils';
+
+bootstrapApplication(App, { providers: [provideHubGlassLight()] });
+```
+
 ## 🌐 Internationalization (i18n)
 
 The i18n system (available since `v1.2.0`) lets you register translation dictionaries via dependency injection and resolve keys reactively in templates. Updating the active translations at runtime automatically refreshes any `translate` pipe in the view.

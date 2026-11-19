@@ -7,6 +7,7 @@ export * from './lib/color';
 export * from './lib/drag-drop';
 export * from './lib/field-feedback';
 export * from './lib/focus-trap';
+export * from './lib/glass-light';
 export * from './lib/i18n/translation.provider';
 export * from './lib/i18n/translation-adapter';
 export * from './lib/i18n/translation.service';
