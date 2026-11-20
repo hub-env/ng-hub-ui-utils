@@ -604,7 +604,7 @@ export class ExampleComponent {
 
 Under the glass layer of `ng-hub-ui-ds` (an ancestor with `data-hub-glass` or `data-theme="glass"`), the overlay container reads the layer's opacity, sheen, blur and rim. Without the layer it keeps its opaque background and nothing changes. A panel that dresses itself as glass, such as the dropdown panel of `ng-hub-ui-buttons`, is not doubled: the container drops its own background, blur and shadow.
 
-`provideHubGlassLight()` makes the sheen of every `.hub-glass-surface` follow the pointer. It writes `--hub-glass-light-x` and `--hub-glass-light-y` in pixels on the surface under the pointer and removes them when the pointer leaves it. Brightness, size and colour stay in CSS (`--hub-sys-glass-light-*`). It is a no-op on the server and for readers who prefer reduced motion.
+`provideHubGlassLight()` makes the sheen of every `.hub-glass-surface` follow the pointer. It writes `--hub-glass-light-x` and `--hub-glass-light-y` in pixels on every glass surface under the pointer (a card and the button on it alike) and removes them when the pointer leaves, so the sheen only shows where the pointer is. Brightness, size and colour stay in CSS (`--hub-sys-glass-light-*`). It is a no-op on the server and for readers who prefer reduced motion.
 
 ```ts
 import { provideHubGlassLight } from 'ng-hub-ui-utils';

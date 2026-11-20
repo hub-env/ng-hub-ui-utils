@@ -15,12 +15,13 @@ const GLASS_SURFACE = '.hub-glass-surface';
  * Makes the sheen of glass surfaces follow the pointer.
  *
  * The glass layer of ng-hub-ui-ds draws the sheen at `--hub-glass-light-x/-y` of each
- * `.hub-glass-surface`, the top edge by default. This writes those two values, in pixels, on
- * the surface under the pointer and drops them when the pointer leaves it, so the light slides
- * back to the edge. How bright, how wide and what colour it is stay in CSS
- * (`--hub-sys-glass-light-strength`, `-size`, `-color`); with the strength at 0 nothing shows.
+ * `.hub-glass-surface`, by default just above its top edge, out of sight. This writes those two
+ * values, in pixels, on every surface under the pointer (a card and the button on it alike) and
+ * drops them when the pointer leaves, so the light only shows where the pointer is. How bright,
+ * how wide and what colour it is stay in CSS (`--hub-sys-glass-light-strength`, `-size`,
+ * `-color`); with the strength at 0 nothing shows.
  *
- * One passive listener per document and at most one write per frame, on one element. Nothing
+ * One passive listener per document and at most one batch of writes per frame. Nothing
  * runs on the server or for a reader who asked for reduced motion.
  *
  * @returns Environment providers to add to the application config.
@@ -49,34 +50,42 @@ export function provideHubGlassLight(): EnvironmentProviders {
 					return;
 				}
 
-				let lit: HTMLElement | null = null;
+				// Every glass surface under the pointer, innermost first: a button on a card lights both,
+				// or the card's light would jump back to its edge whenever the pointer reached the button.
+				let lit: HTMLElement[] = [];
 				let pending: PointerEvent | null = null;
 				let frame = 0;
 
+				const unlight = (surface: HTMLElement) => {
+					surface.style.removeProperty('--hub-glass-light-x');
+					surface.style.removeProperty('--hub-glass-light-y');
+				};
+
 				const clear = () => {
-					lit?.style.removeProperty('--hub-glass-light-x');
-					lit?.style.removeProperty('--hub-glass-light-y');
-					lit = null;
+					lit.forEach(unlight);
+					lit = [];
 				};
 
 				const paint = () => {
 					frame = 0;
 					const event = pending;
 					pending = null;
-					const target = event?.target instanceof Element ? event.target.closest<HTMLElement>(GLASS_SURFACE) : null;
 
-					if (target !== lit) {
-						clear();
+					const surfaces: HTMLElement[] = [];
+					let surface = event?.target instanceof Element ? event.target.closest<HTMLElement>(GLASS_SURFACE) : null;
+					while (surface) {
+						surfaces.push(surface);
+						surface = surface.parentElement?.closest<HTMLElement>(GLASS_SURFACE) ?? null;
 					}
 
-					if (!event || !target) {
-						return;
-					}
+					lit.filter((previous) => !surfaces.includes(previous)).forEach(unlight);
+					lit = surfaces;
 
-					const box = target.getBoundingClientRect();
-					target.style.setProperty('--hub-glass-light-x', `${event.clientX - box.left}px`);
-					target.style.setProperty('--hub-glass-light-y', `${event.clientY - box.top}px`);
-					lit = target;
+					for (const target of surfaces) {
+						const box = target.getBoundingClientRect();
+						target.style.setProperty('--hub-glass-light-x', `${event!.clientX - box.left}px`);
+						target.style.setProperty('--hub-glass-light-y', `${event!.clientY - box.top}px`);
+					}
 				};
 
 				const onMove = (event: PointerEvent) => {

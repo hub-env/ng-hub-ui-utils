@@ -610,7 +610,7 @@ export class ExampleComponent {
 
 Bajo la capa glass de `ng-hub-ui-ds` (un ancestro con `data-hub-glass` o `data-theme="glass"`), el contenedor de overlays lee la opacidad, el brillo, el desenfoque y el borde de la capa. Sin la capa conserva su fondo opaco y nada cambia. Un panel que ya se viste de glass, como el panel del dropdown de `ng-hub-ui-buttons`, no se duplica: el contenedor deja su propio fondo, desenfoque y sombra.
 
-`provideHubGlassLight()` hace que el brillo de cada `.hub-glass-surface` siga al puntero. Escribe `--hub-glass-light-x` y `--hub-glass-light-y` en píxeles sobre la superficie que hay bajo el puntero y los quita cuando el puntero sale. La intensidad, el tamaño y el color siguen en CSS (`--hub-sys-glass-light-*`). No hace nada en el servidor ni para quien prefiere movimiento reducido.
+`provideHubGlassLight()` hace que el brillo de cada `.hub-glass-surface` siga al puntero. Escribe `--hub-glass-light-x` y `--hub-glass-light-y` en píxeles sobre todas las superficies de cristal que hay bajo el puntero (una tarjeta y el botón que tiene encima) y los quita cuando el puntero sale, así que el brillo solo aparece donde está el puntero. La intensidad, el tamaño y el color siguen en CSS (`--hub-sys-glass-light-*`). No hace nada en el servidor ni para quien prefiere movimiento reducido.
 
 ```ts
 import { provideHubGlassLight } from 'ng-hub-ui-utils';

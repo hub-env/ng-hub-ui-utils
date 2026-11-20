@@ -92,6 +92,34 @@ describe('provideHubGlassLight', () => {
 		expect(second.style.getPropertyValue('--hub-glass-light-x')).toBe('10px');
 	});
 
+	it('lights every glass surface under the pointer, each in its own coordinates', () => {
+		start();
+		const card = surface(100, 50);
+		const button = card.appendChild(surface(120, 70));
+
+		move(button.firstElementChild!, 130, 90);
+		flushFrame();
+
+		// The card used to lose its light here and snap back to its edge.
+		expect(button.style.getPropertyValue('--hub-glass-light-x')).toBe('10px');
+		expect(card.style.getPropertyValue('--hub-glass-light-x')).toBe('30px');
+		expect(card.style.getPropertyValue('--hub-glass-light-y')).toBe('40px');
+	});
+
+	it('keeps the outer surface lit and clears the inner one when the pointer leaves the inner one', () => {
+		start();
+		const card = surface(0, 0);
+		const button = card.appendChild(surface(10, 10));
+
+		move(button, 15, 15);
+		flushFrame();
+		move(card, 40, 40);
+		flushFrame();
+
+		expect(button.style.getPropertyValue('--hub-glass-light-x')).toBe('');
+		expect(card.style.getPropertyValue('--hub-glass-light-x')).toBe('40px');
+	});
+
 	it('clears the surface when the pointer moves onto something that is not glass', () => {
 		start();
 		const glass = surface(0, 0);
