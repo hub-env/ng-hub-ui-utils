@@ -132,3 +132,26 @@ describe('OverlayPosition direction awareness', () => {
 		expect(names.every((n) => n === 'start' || n === 'end' || n === 'center')).toBe(true);
 	});
 });
+
+describe('OverlayPosition position change callback', () => {
+	afterEach(() => {
+		document.body.querySelectorAll('div').forEach((node) => node.remove());
+	});
+
+	it('fires on the first placement and only again when the candidate changes', () => {
+		const origin = makeOrigin('ltr', {});
+		const overlay = makeOverlay(150, 100);
+		const sides: string[] = [];
+		const position = new OverlayPosition()
+			.flexibleConnectedTo(origin)
+			.withPositions([{ originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' }])
+			.onPositionChange((p) => sides.push(p.overlayY));
+
+		position.apply(overlay);
+		position.apply(overlay);
+		expect(sides).toEqual(['top']);
+
+		position.withPositions([{ originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' }]).apply(overlay);
+		expect(sides).toEqual(['top', 'bottom']);
+	});
+});

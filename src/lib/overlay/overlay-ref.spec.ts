@@ -45,6 +45,50 @@ describe('OverlayRef container sizing contract', () => {
 });
 
 /**
+ * `host` and `topLayer` let a panel live inside a chosen element and paint above any `z-index`
+ * (a list opened from within a modal) without the consumer tuning the stack.
+ */
+describe('OverlayRef host and top layer', () => {
+	let service: OverlayService;
+
+	beforeEach(() => {
+		service = TestBed.inject(OverlayService);
+	});
+
+	it('appends the container to the given host instead of the body', () => {
+		const host = document.createElement('section');
+		document.body.appendChild(host);
+		const ref = service.create({ host });
+		ref.attach(OverlayContentStub);
+
+		expect(host.querySelector(':scope > .hub-overlay-container')).not.toBeNull();
+
+		ref.dispose();
+		host.remove();
+	});
+
+	it('promotes the container to a manual popover only when asked', () => {
+		const plain = service.create({});
+		plain.attach(OverlayContentStub);
+		expect(document.body.querySelector('.hub-overlay-container')?.hasAttribute('popover')).toBe(false);
+		plain.dispose();
+
+		// jsdom has no Popover API; a stub stands in for it so the promotion path runs.
+		const shown = vi.fn();
+		(HTMLElement.prototype as any).showPopover = shown;
+
+		const layered = service.create({ topLayer: true });
+		layered.attach(OverlayContentStub);
+		expect(shown).toHaveBeenCalledTimes(1);
+		const container = document.body.querySelector('.hub-overlay-container') as HTMLElement;
+		expect(container.getAttribute('popover')).toBe('manual');
+		expect(container.style.margin).toBe('0px');
+		layered.dispose();
+		delete (HTMLElement.prototype as any).showPopover;
+	});
+});
+
+/**
  * An overlay that does not follow its origin is not connected to anything: open a dropdown, scroll
  * the page, and the panel stays where it was while the field it belongs to walks away. Measured on
  * the docs site before this existed, the gap reached 122px after a single scroll.

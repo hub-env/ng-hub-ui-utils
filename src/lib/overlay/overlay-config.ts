@@ -34,4 +34,18 @@ export interface OverlayConfig {
 	 * resolved through the `--hub-overlay-zindex` token (fallback `1000`).
 	 */
 	zIndex?: number | string;
+	/**
+	 * Element the overlay container is appended to. Defaults to `document.body`.
+	 *
+	 * Positioning stays viewport-based (`position: fixed`); the host only decides where the node
+	 * lives, for ancestor-scoped styles and focus containment.
+	 */
+	host?: HTMLElement;
+	/**
+	 * Paints the container in the browser's top layer (Popover API), above any `z-index` — a
+	 * panel opened from inside a modal needs no stacking tuning. Ignored where the API is missing,
+	 * in which case the `z-index` layer applies as usual.
+	 * @default false
+	 */
+	topLayer?: boolean;
 }

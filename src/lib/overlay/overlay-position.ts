@@ -18,6 +18,21 @@ export class OverlayPosition {
 	private _flipTimer = 0;
 	private _positions: ConnectionPosition[] = [];
 	private _direction: 'ltr' | 'rtl' | null = null;
+	private _positionChange?: (position: ConnectionPosition) => void;
+
+	/**
+	 * Registers a callback fired when the candidate in use changes, and on the first placement.
+	 * A panel that restyles itself per side (a flipped menu loses its top radius) needs to hear
+	 * about the flip, including the ones a scroll causes long after opening. One callback; the
+	 * last registered replaces the previous.
+	 *
+	 * @param callback Receives the candidate now applied.
+	 * @returns This position instance for chaining.
+	 */
+	onPositionChange(callback: (position: ConnectionPosition) => void): this {
+		this._positionChange = callback;
+		return this;
+	}
 
 	/**
 	 * Forces the writing direction used to resolve `start` and `end`.
@@ -241,13 +256,18 @@ export class OverlayPosition {
 	 */
 	private _applyPosition(overlayElement: HTMLElement, coords: { x: number; y: number }, position: ConnectionPosition): void {
 		const side = `${position.overlayY}:${position.overlayX}`;
-		const flipped = this._appliedSide !== null && this._appliedSide !== side;
+		const previousSide = this._appliedSide;
+		const flipped = previousSide !== null && previousSide !== side;
 
 		this._appliedSide = side;
 		overlayElement.dataset['hubOverlaySide'] = side;
 
 		if (flipped) {
 			this._animateFlip(overlayElement);
+		}
+
+		if (previousSide !== side) {
+			this._positionChange?.(position);
 		}
 
 		overlayElement.style.left = `${coords.x}px`;

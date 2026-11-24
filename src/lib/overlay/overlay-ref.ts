@@ -121,6 +121,11 @@ export class OverlayRef {
 		return contentElement;
 	}
 
+	/** The configuration this overlay was created with. */
+	getConfig(): OverlayConfig {
+		return this._config;
+	}
+
 	/**
 	 * Detaches the content from the overlay container without disposing the overlay.
 	 */
@@ -420,7 +425,22 @@ export class OverlayRef {
 		this._containerElement.style.zIndex =
 			this._config.zIndex != null ? String(this._config.zIndex) : 'var(--hub-overlay-zindex, 1000)';
 
-		this._document.body.appendChild(this._containerElement);
+		(this._config.host ?? this._document.body).appendChild(this._containerElement);
+
+		if (this._config.topLayer && typeof this._containerElement.showPopover === 'function') {
+			this._showInTopLayer(this._containerElement);
+		}
+	}
+
+	/**
+	 * Promotes the container to the top layer. A popover carries user-agent styles meant for a
+	 * dialog-like box (centred, bordered, padded, opaque), so they are reset to leave a bare
+	 * fixed box that the position strategy places like any other overlay.
+	 */
+	private _showInTopLayer(container: HTMLElement): void {
+		container.setAttribute('popover', 'manual');
+		Object.assign(container.style, { inset: 'auto', margin: '0', padding: '0', border: '0', color: 'inherit' });
+		container.showPopover();
 	}
 
 	/**

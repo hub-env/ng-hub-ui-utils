@@ -143,6 +143,12 @@ interface OverlayConfig {
 
 	/** Custom CSS classes for the overlay container */
 	panelClass?: string | string[];
+
+	/** Element the container is appended to (default `document.body`); placement stays viewport-based */
+	host?: HTMLElement;
+
+	/** Paints the container in the browser's top layer, above any z-index (ignored without the Popover API) */
+	topLayer?: boolean;
 }
 ```
 
@@ -180,6 +186,9 @@ interface OverlayConfig {
 - `updatePosition(): void`
     - Updates the overlay position
 
+- `getConfig(): OverlayConfig`
+    - Returns the configuration the overlay was created with
+
 ### OverlayPosition
 
 **Methods:**
@@ -189,6 +198,9 @@ interface OverlayConfig {
 
 - `withPositions(positions: ConnectionPosition[]): this`
     - Sets the position configurations with fallbacks
+
+- `onPositionChange(callback: (position: ConnectionPosition) => void): this`
+    - Called on the first placement and whenever the candidate in use changes, including flips a scroll causes
 
 - `apply(overlayElement: HTMLElement): void`
     - Applies the positioning to the overlay element

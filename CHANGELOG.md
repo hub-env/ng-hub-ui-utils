@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.23.0] - 2026-11-24
+
+### Added
+
+- **An overlay can live in the top layer.** `topLayer: true` on `OverlayConfig` promotes the container with the Popover API, so it paints above any dialog without a z-index to tune; the popover's own user-agent box (centring, border, padding) is reset so the position strategy places it like any other overlay. Ignored where the API is missing, where the `z-index` layer applies as before.
+- **`host` on `OverlayConfig`** appends the container to that element instead of `document.body`. Placement stays viewport-based; the host only decides where the node lives.
+- **`OverlayPosition.onPositionChange(callback)`** reports the candidate in use on the first placement and whenever it changes, flips caused by scrolling included, for a panel that restyles itself per side.
+- **`OverlayRef.getConfig()`** returns the configuration the overlay was created with.
+
 ## [22.22.1] - 2026-11-20
 
 ### Fixed
