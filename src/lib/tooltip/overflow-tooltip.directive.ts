@@ -58,6 +58,14 @@ export class HubOverflowTooltipDirective implements OnDestroy {
 	 */
 	readonly measureTarget = input<string | undefined>(undefined, { alias: 'hubOverflowTooltipMeasure' });
 
+	/**
+	 * Pointer hover wait in milliseconds before the tooltip appears; keyboard focus stays
+	 * immediate. A truncated label is already readable in part, so a long wait costs little and
+	 * keeps the tooltip from flashing over every item the pointer crosses.
+	 * @default 0
+	 */
+	readonly showDelay = input<number>(0, { alias: 'hubOverflowTooltipShowDelay' });
+
 	private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 	private readonly adapter = inject(HUB_TOOLTIP_ADAPTER);
 
@@ -100,7 +108,7 @@ export class HubOverflowTooltipDirective implements OnDestroy {
 		const el = this.host.nativeElement;
 		// The tooltip belongs to the HOST whatever is measured: it is the control the pointer
 		// is over, and the box that reports truncation may be a fraction of it.
-		this.handle = this.adapter.attach(el, '', { placement: this.placement() });
+		this.handle = this.adapter.attach(el, '', { placement: this.placement(), showDelay: this.showDelay() });
 
 		if (typeof ResizeObserver !== 'undefined') {
 			// Re-resolving on every callback rather than closing over the element: content

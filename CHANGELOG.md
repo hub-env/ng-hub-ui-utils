@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.24.0] - 2026-11-24
+
+### Added
+
+- **`hubOverflowTooltipShowDelay`** sets how long the pointer has to rest on a truncated label before its tooltip appears, in milliseconds. It defaults to `0`, so every existing use behaves as before; keyboard focus still shows the tooltip at once. A long list of clipped labels no longer flashes a tooltip over each one the pointer crosses.
+
 ## [22.23.0] - 2026-11-24
 
 ### Added
